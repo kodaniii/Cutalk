@@ -2,6 +2,7 @@
 #include <QApplication>
 #include <QLocale>
 #include <QTranslator>
+#include <QFile>
 
 int main(int argc, char *argv[])
 {
@@ -16,6 +17,19 @@ int main(int argc, char *argv[])
             break;
         }
     }
+
+    //qss file path :/
+    QFile qss(":/style/stylesheet.qss");
+    if(qss.open(QFile::ReadOnly)){
+        qDebug("open qss succeed");
+        QString qssStyle = QLatin1String(qss.readAll());
+        a.setStyleSheet(qssStyle);
+        qss.close();
+    }
+    else{
+        qDebug("open qss failed");
+    }
+
     MainWindow w;
     w.show();
     return a.exec();

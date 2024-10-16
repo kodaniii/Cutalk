@@ -1,6 +1,7 @@
 <RCC>
     <qresource prefix="/">
-        <file>res/login_cube.png</file>
         <file>res/login_head.jpg</file>
+        <file>style/stylesheet.qss</file>
+        <file>res/register_head.png</file>
     </qresource>
 </RCC>
