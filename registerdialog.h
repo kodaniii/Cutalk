@@ -15,8 +15,12 @@ public:
     explicit RegisterDialog(QWidget *parent = nullptr);
     ~RegisterDialog();
 
+private slots:
+    void on_verificationCode_get_Button_clicked();
+
 private:
     Ui::RegisterDialog *ui;
+    void showTip(bool, QString);
 };
 
 #endif // REGISTERDIALOG_H

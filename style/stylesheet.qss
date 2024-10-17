@@ -1,7 +1,15 @@
 QDialog#LoginDialog, #RegisterDialog{
-background-color: rgb(255,255,255)
+    background-color: rgb(255,255,255);
 }
 
 #forget_passwd_label{
-color: blue
+    color: blue;
+}
+
+#msg_output_label[state='normal']{
+    color: green;
+}
+
+#msg_output_label[state='error']{
+    color: red;
 }

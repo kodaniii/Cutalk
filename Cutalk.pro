@@ -12,12 +12,14 @@ RC_ICONS = .\res\ico\logo.ico
 DESTDIR = .\bin
 
 SOURCES += \
+    defs.cpp \
     logindialog.cpp \
     main.cpp \
     mainwindow.cpp \
     registerdialog.cpp
 
 HEADERS += \
+    defs.h \
     logindialog.h \
     mainwindow.h \
     registerdialog.h
