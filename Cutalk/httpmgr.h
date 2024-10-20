@@ -25,10 +25,11 @@ private:
     void postHttpReq(QUrl, QJsonObject, HttpReqId, Modules);
 
 private slots:
-    void slot_http_finish(HttpReqId, Modules, QString, StatusCode);
+    void slot_http_finish(HttpReqId, Modules, QString, StatusCodes);
 
 signals:
-    void sig_http_finish(HttpReqId, Modules, QString, StatusCode);
-};
+    void sig_http_finish(HttpReqId, Modules, QString, StatusCodes);
 
+    void sig_reg_mod_finish(HttpReqId, QString, StatusCodes);
+};
 #endif // HTTPMGR_H

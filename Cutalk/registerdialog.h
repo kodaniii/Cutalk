@@ -2,8 +2,7 @@
 #define REGISTERDIALOG_H
 
 #include <QDialog>
-#include <QTimer>
-#include <QPropertyAnimation>
+#include "defs.h"
 
 namespace Ui {
 class RegisterDialog;
@@ -22,8 +21,14 @@ private slots:
 
     void on_cancel_button_clicked();
 
+    void slot_reg_mod_finish(HttpReqId, QString, StatusCodes);
+
 private:
     Ui::RegisterDialog *ui;
+
+    void initHttpHandlers();
+    QMap<HttpReqId, std::function<void(const QJsonObject&)>> _handlers;
+
     void showTip(bool, QString);
 };
 

@@ -34,6 +34,6 @@ private:
     RegisterDialog *_register_dialog;
 
 public slots:
-    void slotSwitchRegister();
+    void slot_switch_register();
 };
 #endif // MAINWINDOW_H

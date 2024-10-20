@@ -1,6 +1,8 @@
 #include "registerdialog.h"
 #include "ui_registerdialog.h"
 #include "defs.h"
+#include "httpmgr.h"
+
 RegisterDialog::RegisterDialog(QWidget *parent)
     : QDialog(parent)
     , ui(new Ui::RegisterDialog)
@@ -12,6 +14,10 @@ RegisterDialog::RegisterDialog(QWidget *parent)
 
     ui->msg_output_label->setProperty("state", "normal");
     repolish(ui->msg_output_label);
+
+    connect(HttpMgr::GetInstance().get(), &HttpMgr::sig_reg_mod_finish, this, &RegisterDialog::slot_reg_mod_finish);
+
+    initHttpHandlers();
 }
 
 RegisterDialog::~RegisterDialog()
@@ -52,3 +58,40 @@ void RegisterDialog::on_cancel_button_clicked()
 {
 }
 
+void RegisterDialog::slot_reg_mod_finish(HttpReqId req_id, QString res, StatusCodes statusCode) {
+    if(statusCode != StatusCodes::SUCCESS){
+        showTip(false, tr("reg_mod FAIL"));
+        return;
+    }
+
+    //json parser
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(res.toUtf8());
+    if(jsonDoc.isNull()){
+        showTip(false, tr("json isNULL"));
+        return;
+    }
+
+    if(!jsonDoc.isObject()){
+        showTip(false, tr("cannot convert QString to json Object"));
+        return;
+    }
+
+    _handlers[req_id](jsonDoc.object());
+    return;
+}
+
+void RegisterDialog::initHttpHandlers()
+{
+    //GET_VERIFY_CODE request
+    _handlers.insert(HttpReqId::REQ_GET_VERIFY_CODE, [this](const QJsonObject& jsonObj){
+        int err = jsonObj["error"].toInt();
+        if(err != StatusCodes::SUCCESS){
+            showTip(false, tr("jsonObj ERROR"));
+        }
+
+        auto email = jsonObj["email"].toString();
+        showTip(true, tr("验证码已发送"));
+        qDebug() << "email " << email;
+    });
+
+}

@@ -27,7 +27,7 @@ enum Modules{
     MOD_REGISTER = 0x01,
 };
 
-enum StatusCode{
+enum StatusCodes{
     SUCCESS = 0,
     ERR_JSON = 0x01,            //json解析失败
     ERR_NETWORK = 0x02,         //网络错误
