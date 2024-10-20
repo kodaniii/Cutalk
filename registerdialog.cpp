@@ -47,3 +47,8 @@ void RegisterDialog::showTip(bool stat, QString str){
     ui->msg_output_label->setText(str);
     repolish(ui->msg_output_label);
 }
+
+void RegisterDialog::on_cancel_button_clicked()
+{
+}
+
