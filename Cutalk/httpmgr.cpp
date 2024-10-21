@@ -30,7 +30,6 @@ void HttpMgr::postHttpReq(QUrl url, QJsonObject json, HttpReqId req_id, Modules 
         reply->deleteLater();
         return;
     });
-
 }
 
 void HttpMgr::slot_http_finish(HttpReqId req_id, Modules mod, QString res, StatusCodes statusCode){
