@@ -1,4 +1,5 @@
 #include "CServer.h"
+#include "HttpConnection.h"
 
 CServer::CServer(boost::asio::io_context& ioc, unsigned short& port)
 	: _ioc(ioc)
@@ -21,13 +22,13 @@ void CServer::start() {
 
 			//创建HttpConnection类，该类管理当前链接
 			//TODO HttpConnection
-			std::make_shared<HttpConnection>(std::move(_socket))->start();
+			std::make_shared<HttpConnection>(std::move(self->_socket))->start();
 			
 			self->start();
 		}
 		catch (std::exception& exp) {
-			
+			std::cout << "exception is " << exp.what() << std::endl;
 		}
-		});
+	});
 }
 
