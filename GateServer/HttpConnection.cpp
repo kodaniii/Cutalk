@@ -1,4 +1,5 @@
 #include "HttpConnection.h"
+#include "LogicSystem.h"
 
 HttpConnection::HttpConnection(tcp::socket socket)
 	: _socket(std::move(socket)){
@@ -30,7 +31,7 @@ void HttpConnection::handleRequest() {
 	_response.keep_alive(false);
 	
 	if (_request.method() == http::verb::get) {
-		bool success = LogicSystem::getInstance()->handleGet(_request.target(), shared_from_this());
+		bool success = LogicSystem::GetInstance()->HandleGet(_request.target(), shared_from_this());
 		if (!success) {
 			_response.result(http::status::not_found);
 			_response.set(http::field::content_type, "text/plain");
