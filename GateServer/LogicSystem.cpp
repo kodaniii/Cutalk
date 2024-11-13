@@ -3,7 +3,15 @@
 
 LogicSystem::LogicSystem() {
 	RegisterGet("/get_test", [](std::shared_ptr<HttpConnection> conn) {
-		beast::ostream(conn->_response.body()) << "receive get_test req";
+		beast::ostream(conn->_response.body()) << "receive get_test req" << std::endl;
+		
+		int i = 0;
+		for (auto& elem : conn->_get_params) {
+			i++;
+			beast::ostream(conn->_response.body()) << "param " << i 
+				<< ", key is " << elem.first
+				<< ", value is " << elem.second << std::endl;
+		}
 	});
 }
 
@@ -21,3 +29,4 @@ bool LogicSystem::HandleGet(std::string path, std::shared_ptr<HttpConnection> co
 	
 	return true;
 }
+

@@ -11,8 +11,9 @@ public:
 private:
 	void checkTimeout();
 	void writeResponse();
-	void handleRequest();
-	
+	void handleRequest(); 
+	void PreParseGetParam();
+
 	tcp::socket _socket;
 	beast::flat_buffer _buffer{ TCP_BUFFER };
 
@@ -22,5 +23,8 @@ private:
 	net::steady_timer _timeout{
 		_socket.get_executor(), std::chrono::seconds(TIME_OUT)
 	};
+
+	std::string _get_url;
+	std::unordered_map<std::string, std::string> _get_params;
 };
 
