@@ -11,7 +11,6 @@ int main() {
 			}
 			
 			ioc.stop();
-			
 		});
 
 		std::make_shared<CServer>(ioc, port)->start();
