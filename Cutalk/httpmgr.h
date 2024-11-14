@@ -16,13 +16,13 @@ class HttpMgr: public QObject, public Singleton<HttpMgr>, public std::enable_sha
 
 public:
     ~HttpMgr();
+    void postHttpReq(QUrl, QJsonObject, HttpReqId, Modules);
 
 private:
     //call Base Class(Singleton<HttpMgr>) constructor
     friend class Singleton<HttpMgr>;
     HttpMgr();
     QNetworkAccessManager _networkMgr;
-    void postHttpReq(QUrl, QJsonObject, HttpReqId, Modules);
 
 private slots:
     void slot_http_finish(HttpReqId, Modules, QString, StatusCodes);

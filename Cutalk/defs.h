@@ -9,7 +9,10 @@
 #include <iostream>
 #include <mutex>
 #include <QJsonArray>
+#include <QJsonObject>
 #include <QNetworkReply>
+#include <QDir>
+#include <QSettings>
 #include "QStyle"
 
 /**
@@ -32,5 +35,7 @@ enum StatusCodes{
     ERR_JSON = 0x01,            //json解析失败
     ERR_NETWORK = 0x02,         //网络错误
 };
+
+extern QString GateServer_url_perfix;
 
 #endif // DEFS_H

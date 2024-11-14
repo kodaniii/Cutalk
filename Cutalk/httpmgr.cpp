@@ -19,8 +19,8 @@ void HttpMgr::postHttpReq(QUrl url, QJsonObject json, HttpReqId req_id, Modules 
     QNetworkReply *reply = _networkMgr.post(request, data);
     QObject::connect(reply, &QNetworkReply::finished, [self, reply, req_id, mod](){
         if(reply->error() != QNetworkReply::NoError){
-            qDebug() << "HttpMgr reply " << reply->errorString();
-            emit self->sig_http_finish(req_id, mod, "", StatusCodes::ERR_NETWORK);
+            qDebug() << "HttpMgr reply" << reply->errorString();
+            emit self->sig_http_finish(req_id, mod, "", StatusCodes::ERR_NETWORK); // -> &RegisterDialog::slot_reg_mod_finish
             reply->deleteLater();
             return;
         }

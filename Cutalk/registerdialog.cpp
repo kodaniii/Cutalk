@@ -25,6 +25,7 @@ RegisterDialog::~RegisterDialog()
     delete ui;
 }
 
+//验证码获取button
 void RegisterDialog::on_verificationCode_get_Button_clicked()
 {
     auto email = ui->email_edit->text();
@@ -32,10 +33,15 @@ void RegisterDialog::on_verificationCode_get_Button_clicked()
     static QRegularExpression regex(R"((\w+)(\.|_)?(\w*)@(\w+)(\.(\w+))+)");
     bool isMatch = regex.match(email).hasMatch();
 
-    qDebug() << "get email = " << email
-        << ", isMatch = " << isMatch;
+    qDebug() << "get email = " << email << ", isMatch = " << isMatch;
     if(isMatch){
         //TODO send http vertify code
+        QJsonObject json_obj;
+        json_obj["email"] = email;
+        //QString _url = "http://localhost:8080/get_verifycode";
+        QString _url = GateServer_url_perfix + "/get_verifycode";
+        HttpMgr::GetInstance()->postHttpReq(QUrl(_url), json_obj, HttpReqId::REQ_GET_VERIFY_CODE, Modules::MOD_REGISTER);
+
         showTip(isMatch, tr("验证码已发送"));
     }
     else{
@@ -56,23 +62,24 @@ void RegisterDialog::showTip(bool stat, QString str){
 
 void RegisterDialog::on_cancel_button_clicked()
 {
+    //TODO register back button
 }
 
 void RegisterDialog::slot_reg_mod_finish(HttpReqId req_id, QString res, StatusCodes statusCode) {
     if(statusCode != StatusCodes::SUCCESS){
-        showTip(false, tr("reg_mod FAIL"));
+        showTip(false, tr("网络请求错误"));
         return;
     }
 
     //json parser
     QJsonDocument jsonDoc = QJsonDocument::fromJson(res.toUtf8());
     if(jsonDoc.isNull()){
-        showTip(false, tr("json isNULL"));
+        showTip(false, tr("JSON解析错误"));
         return;
     }
 
     if(!jsonDoc.isObject()){
-        showTip(false, tr("cannot convert QString to json Object"));
+        showTip(false, tr("JSON解析错误"));
         return;
     }
 
@@ -86,11 +93,11 @@ void RegisterDialog::initHttpHandlers()
     _handlers.insert(HttpReqId::REQ_GET_VERIFY_CODE, [this](const QJsonObject& jsonObj){
         int err = jsonObj["error"].toInt();
         if(err != StatusCodes::SUCCESS){
-            showTip(false, tr("jsonObj ERROR"));
+            showTip(false, tr("JSON解析错误"));
         }
 
         auto email = jsonObj["email"].toString();
-        showTip(true, tr("验证码已发送"));
+        showTip(true, tr("验证码发送成功"));
         qDebug() << "email " << email;
     });
 
