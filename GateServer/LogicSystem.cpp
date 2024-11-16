@@ -1,5 +1,6 @@
 #include "LogicSystem.h"
 #include "HttpConnection.h"
+#include "VerifyGrpcClient.h"
 
 LogicSystem::LogicSystem() {
 	//Get测试
@@ -18,6 +19,7 @@ LogicSystem::LogicSystem() {
 
 	//收取注册邮箱，发送验证码
 	RegisterPost("/get_verifycode", [](std::shared_ptr<HttpConnection> conn) {
+		//从client得到post请求，获得email
 		std::cout << "/get_verifycode post handler" << std::endl;
 		auto body_str = boost::beast::buffers_to_string(conn->_request.body().data());
 		std::cout << "_request.body().data() = " << body_str << std::endl;
@@ -47,12 +49,18 @@ LogicSystem::LogicSystem() {
 			return;
 		}
 
+		//get the email
 		auto email = src_root["email"].asString();
 		std::cout << "src_root[\"email\"] = " << email << std::endl;
+
+		//grpc client
+		GetVerifyRsp rsp = VerifyGrpcClient::GetInstance()->GrpcVerifyCodeHandler(email);
 		root["error"] = ErrorCodes::Success;
 		root["email"] = email;
 		std::string json_str = root.toStyledString();
 		beast::ostream(conn->_response.body()) << json_str;
+
+		return;
 	});
 }
 

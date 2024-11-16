@@ -1,6 +1,14 @@
 #include "defs.h"
 #include "CServer.h"
+#include "ConfigMgr.h"
+
 int main() {
+	ConfigMgr gCfgMgr;	//global
+	std::string gateServerPort_str = gCfgMgr["GateServer"]["Port"];
+	unsigned short gateServerPort = atoi(gateServerPort_str.c_str());
+
+	std::cout << "GateServer Port = " << gateServerPort << std::endl;
+
 	try {
 		unsigned short port = static_cast<unsigned short>(8080);
 		net::io_context ioc{ 1 };
