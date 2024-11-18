@@ -15,4 +15,3 @@ message GetVerifyRsp {
   string email = 2;
   string code = 3;
 }
-

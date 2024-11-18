@@ -15,13 +15,14 @@ class VerifyGrpcClient : public Singleton<VerifyGrpcClient>
 {
 public:
 	friend class Singleton<VerifyGrpcClient>;
-	GetVerifyRsp GrpcVerifyCodeHandler (std::string email) {
+	GetVerifyRsp GrpcVerifyCodeHandler(std::string email) {
 		ClientContext context;
 		GetVerifyReq request;
 		GetVerifyRsp reply;
 		request.set_email(email);
 		
 		Status status = _stub->GetVerifyCode(&context, request, &reply);
+		std::cout << "GrpcVerifyCodeHandler status = " << (status.ok()? 0: 1) << std::endl;
 		if (status.ok()) {
 			return reply;
 		}
@@ -33,7 +34,7 @@ public:
 
 private:
 	VerifyGrpcClient() {
-		std::shared_ptr<Channel> chan = grpc::CreateChannel("0.0.0.0:50051", 
+		std::shared_ptr<Channel> chan = grpc::CreateChannel("127.0.0.1:50051", 
 															grpc::InsecureChannelCredentials());
 		_stub = VerifyService::NewStub(chan);
 	}

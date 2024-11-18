@@ -8,6 +8,7 @@ HttpMgr::~HttpMgr(){
 
 }
 
+//发http post req
 void HttpMgr::postHttpReq(QUrl url, QJsonObject json, HttpReqId req_id, Modules mod){
     QByteArray data = QJsonDocument(json).toJson();
     QNetworkRequest request(url);
@@ -18,6 +19,7 @@ void HttpMgr::postHttpReq(QUrl url, QJsonObject json, HttpReqId req_id, Modules 
 
     QNetworkReply *reply = _networkMgr.post(request, data);
     QObject::connect(reply, &QNetworkReply::finished, [self, reply, req_id, mod](){
+        //连接失败
         if(reply->error() != QNetworkReply::NoError){
             qDebug() << "HttpMgr reply" << reply->errorString();
             emit self->sig_http_finish(req_id, mod, "", StatusCodes::ERR_NETWORK); // -> &RegisterDialog::slot_reg_mod_finish
@@ -35,6 +37,7 @@ void HttpMgr::postHttpReq(QUrl url, QJsonObject json, HttpReqId req_id, Modules 
 void HttpMgr::slot_http_finish(HttpReqId req_id, Modules mod, QString res, StatusCodes statusCode){
     switch (mod){
     case Modules::MOD_REGISTER:
+        qDebug() << "sig_reg_mod_finish statusCode =" << statusCode;
         emit sig_reg_mod_finish(req_id, res, statusCode);
         break;
 

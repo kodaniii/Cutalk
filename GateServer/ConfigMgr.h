@@ -72,6 +72,11 @@ public:
 		}
 		return _config_info[key];
 	}
+	
+	static ConfigMgr& init() {
+		static ConfigMgr cfg_mgr;
+		return cfg_mgr;
+	}
 
 private:
 	std::map<std::string, ConfigInfo> _config_info;

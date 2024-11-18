@@ -3,7 +3,9 @@
 #include "ConfigMgr.h"
 
 int main() {
-	ConfigMgr gCfgMgr;	//global
+	ConfigMgr gCfgMgr = ConfigMgr::init();
+	
+	//BUG: NEED FIX
 	std::string gateServerPort_str = gCfgMgr["GateServer"]["Port"];
 	unsigned short gateServerPort = atoi(gateServerPort_str.c_str());
 

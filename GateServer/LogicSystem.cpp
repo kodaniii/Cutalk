@@ -17,7 +17,7 @@ LogicSystem::LogicSystem() {
 		}
 	});
 
-	//收取注册邮箱，发送验证码
+	//收取注册邮箱，grpc传给verifyserver，发送验证码
 	RegisterPost("/get_verifycode", [](std::shared_ptr<HttpConnection> conn) {
 		//从client得到post请求，获得email
 		std::cout << "/get_verifycode post handler" << std::endl;
@@ -55,8 +55,10 @@ LogicSystem::LogicSystem() {
 
 		//grpc client
 		GetVerifyRsp rsp = VerifyGrpcClient::GetInstance()->GrpcVerifyCodeHandler(email);
-		root["error"] = ErrorCodes::Success;
-		root["email"] = email;
+		
+		//TODO grpc client rsp
+		root["error"] = rsp.error();
+		root["email"] = src_root["email"];
 		std::string json_str = root.toStyledString();
 		beast::ostream(conn->_response.body()) << json_str;
 

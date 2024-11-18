@@ -34,6 +34,3 @@ enum ErrorCodes {
 	Error_Json = 0x101,
 	RPCFailed = 0x102
 };
-
-class ConfigMgr;
-extern ConfigMgr gCfgMgr;

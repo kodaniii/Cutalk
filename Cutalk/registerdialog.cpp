@@ -25,7 +25,7 @@ RegisterDialog::~RegisterDialog()
     delete ui;
 }
 
-//验证码获取button
+//获取验证码button
 void RegisterDialog::on_verificationCode_get_Button_clicked()
 {
     auto email = ui->email_edit->text();
@@ -33,16 +33,19 @@ void RegisterDialog::on_verificationCode_get_Button_clicked()
     static QRegularExpression regex(R"((\w+)(\.|_)?(\w*)@(\w+)(\.(\w+))+)");
     bool isMatch = regex.match(email).hasMatch();
 
-    qDebug() << "get email = " << email << ", isMatch = " << isMatch;
+    qDebug() << "get email =" << email << ", isMatch =" << isMatch;
+
+    //发送postHttpReq，包含email地址
     if(isMatch){
         //TODO send http vertify code
         QJsonObject json_obj;
         json_obj["email"] = email;
         //QString _url = "http://localhost:8080/get_verifycode";
         QString _url = GateServer_url_perfix + "/get_verifycode";
+        qDebug() << "RegisterDialog::on_verificationCode_get_Button_clicked postHttpReq Qurl =" << _url;
         HttpMgr::GetInstance()->postHttpReq(QUrl(_url), json_obj, HttpReqId::REQ_GET_VERIFY_CODE, Modules::MOD_REGISTER);
 
-        showTip(isMatch, tr("验证码已发送"));
+        showTip(isMatch, tr("正在发送验证码"));
     }
     else{
         showTip(isMatch, tr("邮箱地址不正确"));
@@ -65,9 +68,10 @@ void RegisterDialog::on_cancel_button_clicked()
     //TODO register back button
 }
 
+//验证码获取button，处理从GateServer返回的json
 void RegisterDialog::slot_reg_mod_finish(HttpReqId req_id, QString res, StatusCodes statusCode) {
     if(statusCode != StatusCodes::SUCCESS){
-        showTip(false, tr("网络请求错误"));
+        showTip(false, tr("GateServer服务连接失败"));
         return;
     }
 
@@ -83,6 +87,8 @@ void RegisterDialog::slot_reg_mod_finish(HttpReqId req_id, QString res, StatusCo
         return;
     }
 
+    qDebug() << "RegisterDialog::slot_reg_mod_finish _handlers req_id ="
+             << req_id;
     _handlers[req_id](jsonDoc.object());
     return;
 }
@@ -90,15 +96,18 @@ void RegisterDialog::slot_reg_mod_finish(HttpReqId req_id, QString res, StatusCo
 void RegisterDialog::initHttpHandlers()
 {
     //GET_VERIFY_CODE request
+    //从GateServer拿到json数据，json["error"]记录的是GateServer和VerifyServer连接情况
     _handlers.insert(HttpReqId::REQ_GET_VERIFY_CODE, [this](const QJsonObject& jsonObj){
         int err = jsonObj["error"].toInt();
+        qDebug() << "RegisterDialog::initHttpHandlers() err" << err;
         if(err != StatusCodes::SUCCESS){
-            showTip(false, tr("JSON解析错误"));
+            showTip(false, tr("VerifyServer服务连接失败"));
+            return;
         }
 
         auto email = jsonObj["email"].toString();
         showTip(true, tr("验证码发送成功"));
-        qDebug() << "email " << email;
+        qDebug() << "email" << email;
     });
 
 }
