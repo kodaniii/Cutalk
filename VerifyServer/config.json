@@ -1,0 +1,17 @@
+{
+    "email": {
+      "user": "cutalk@163.com",
+      "pass": "UKqrrDYQ8VUgg2JG"
+    },
+
+    "mysql": {
+        "host": "0.0.0.0",
+        "port": 3306
+    },
+
+    "redis": {
+        "host": "0.0.0.0",
+        "port": 6380,
+        "passwd": 654321
+    }
+}

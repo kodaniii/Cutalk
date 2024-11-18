@@ -1,0 +1,17 @@
+{
+  "name": "verifyserver",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "serve": "node server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@grpc/grpc-js": "^1.12.2",
+    "@grpc/proto-loader": "^0.7.13",
+    "nodemailer": "^6.9.16",
+    "uuid": "^11.0.3"
+  }
+}
