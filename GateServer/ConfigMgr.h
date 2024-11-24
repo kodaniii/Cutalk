@@ -52,7 +52,6 @@ struct ConfigInfo {
 class ConfigMgr
 {
 public:
-	ConfigMgr();
 	ConfigMgr(ConfigMgr const& c) = default;
 	
 	~ConfigMgr() {
@@ -79,6 +78,7 @@ public:
 	}
 
 private:
+	ConfigMgr();
 	std::map<std::string, ConfigInfo> _config_info;
 };
 

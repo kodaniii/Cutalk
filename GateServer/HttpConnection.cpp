@@ -1,18 +1,20 @@
 #include "HttpConnection.h"
 #include "LogicSystem.h"
+#include "AsioIOServicePool.h"
 
-HttpConnection::HttpConnection(tcp::socket socket)
-	: _socket(std::move(socket)){
+HttpConnection::HttpConnection(boost::asio::io_context& ioc)//tcp::socket socket)
+	: _socket(ioc){//std::move(socket)){
 }
 
 void HttpConnection::start() {
 	auto self = shared_from_this();
+
+	//ioc pool
+	auto& get_ioc = AsioIOServicePool::GetInstance()->GetIOService();
 	http::async_read(_socket, _buffer, _request, [self](beast::error_code ec, std::size_t bytes) {
 		try {
-			if(ec) {
-				if (ec != http::error::end_of_stream) {
-					std::cout << "http read err is " << ec.what() << std::endl;
-				}
+			if(ec && ec != http::error::end_of_stream) {
+				std::cout << "http read err is " << ec.what() << std::endl;
 				return;
 			}
 			
@@ -26,6 +28,10 @@ void HttpConnection::start() {
 			std::cout << "exception is " << exp.what() << std::endl;
 		}
 	});
+}
+
+tcp::socket& HttpConnection::GetSocket() {
+	return _socket;
 }
 
 void HttpConnection::handleRequest() {

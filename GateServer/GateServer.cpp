@@ -2,8 +2,13 @@
 #include "CServer.h"
 #include "ConfigMgr.h"
 
+void testRedis() {
+	//redisContext* c = redisConnect("127.0.0.1", 6380);
+}
+
+
 int main() {
-	ConfigMgr gCfgMgr = ConfigMgr::init();
+	ConfigMgr &gCfgMgr = ConfigMgr::init();
 	
 	//BUG: NEED FIX
 	std::string gateServerPort_str = gCfgMgr["GateServer"]["Port"];

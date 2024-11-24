@@ -11,3 +11,4 @@ let redis_passwd = config.redis.passwd;
 
 
 module.exports = {email_pass, email_user, mysql_host, mysql_port,redis_host, redis_port, redis_passwd}
+
