@@ -1,7 +1,6 @@
 #pragma once
 
 #include "defs.h"
-
 /*
 [database]
 	host = localhost
@@ -52,18 +51,20 @@ struct ConfigInfo {
 class ConfigMgr
 {
 public:
-	ConfigMgr(ConfigMgr const& c) = default;
+	ConfigMgr(ConfigMgr const& c) = delete;// default;
 	
 	~ConfigMgr() {
 		_config_info.clear();
 	}
 
+	/*
 	ConfigMgr operator=(ConfigMgr const& src) {
 		if (&src == this) {
 			return *this;
 		}
 		this->_config_info = src._config_info;
-	}
+		return *this;
+	}*/
 
 	ConfigInfo operator[](std::string const& key) {
 		if (_config_info.find(key) == _config_info.end()) {

@@ -10,14 +10,13 @@ void testRedis() {
 int main() {
 	ConfigMgr &gCfgMgr = ConfigMgr::init();
 	
-	//BUG: NEED FIX
-	std::string gateServerPort_str = gCfgMgr["GateServer"]["Port"];
+	std::string gateServerPort_str = gCfgMgr["GateServer"]["port"];
 	unsigned short gateServerPort = atoi(gateServerPort_str.c_str());
 
 	std::cout << "GateServer Port = " << gateServerPort << std::endl;
 
 	try {
-		unsigned short port = static_cast<unsigned short>(8080);
+		unsigned short port = static_cast<unsigned short>(gateServerPort);
 		net::io_context ioc{ 1 };
 		boost::asio::signal_set signals(ioc, SIGINT, SIGTERM);
 		signals.async_wait([&ioc](const boost::system::error_code &err, int sig_id) {

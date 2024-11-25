@@ -9,8 +9,6 @@ HttpConnection::HttpConnection(boost::asio::io_context& ioc)//tcp::socket socket
 void HttpConnection::start() {
 	auto self = shared_from_this();
 
-	//ioc pool
-	auto& get_ioc = AsioIOServicePool::GetInstance()->GetIOService();
 	http::async_read(_socket, _buffer, _request, [self](beast::error_code ec, std::size_t bytes) {
 		try {
 			if(ec && ec != http::error::end_of_stream) {
@@ -57,6 +55,7 @@ void HttpConnection::handleRequest() {
 	}
 
 	if (_request.method() == http::verb::post) {
+		std::cout << "http::verb::post" << std::endl;
 		bool success = LogicSystem::GetInstance()->HandlePost(_request.target(), shared_from_this());
 		if (!success) {
 			_response.result(http::status::not_found);
@@ -74,6 +73,7 @@ void HttpConnection::handleRequest() {
 }
 
 void HttpConnection::writeResponse() {
+	std::cout << "HttpConnection::writeResponse()" << std::endl;
 	auto self = shared_from_this();
 	_response.content_length(_response.body().size());
 	http::async_write(_socket, _response, [self](beast::error_code ec, std::size_t bytes) {
