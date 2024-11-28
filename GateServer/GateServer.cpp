@@ -5,7 +5,7 @@
 
 void TestRedis() {
 	//连接redis，需要启动才可以进行连接
-	//redis默认监听端口为6387，可以在配置文件中修改
+	//redis默认监听端口为6379，可以在配置文件中修改
 	redisContext *c = redisConnect("172.25.0.50", 6380);
 	if (c->err)
 	{
@@ -105,23 +105,36 @@ void TestRedis() {
 void TestRedisMgr() {
 	assert(RedisMgr::GetInstance()->Connect("172.25.0.50", 6380));
 	assert(RedisMgr::GetInstance()->Auth("123456"));
-	assert(RedisMgr::GetInstance()->Set("blogwebsite", "llfc.club"));
+
+	assert(RedisMgr::GetInstance()->Set("test0", "test0value"));
+
 	std::string value = "";
-	assert(RedisMgr::GetInstance()->Get("blogwebsite", value));
-	assert(RedisMgr::GetInstance()->Get("nonekey", value) == false);
-	assert(RedisMgr::GetInstance()->HSet("bloginfo", "blogwebsite", "llfc.club"));
-	assert(RedisMgr::GetInstance()->HGet("bloginfo", "blogwebsite") != "");
-	assert(RedisMgr::GetInstance()->ExistKey("bloginfo"));
-	assert(RedisMgr::GetInstance()->Del("bloginfo"));
-	assert(RedisMgr::GetInstance()->Del("bloginfo"));
-	assert(RedisMgr::GetInstance()->ExistKey("bloginfo") == false);
+	assert(RedisMgr::GetInstance()->Get("test0", value));
+	assert(RedisMgr::GetInstance()->Del("test0"));
+	assert(RedisMgr::GetInstance()->Get("test0", value) == false);
+
+	//HSET key field value
+	//HGETALL key
+	assert(RedisMgr::GetInstance()->HSet("Hashkey", "field0", "value0"));
+	assert(RedisMgr::GetInstance()->HGet("Hashkey", "field0") != "");
+	assert(RedisMgr::GetInstance()->ExistKey("Hashkey"));
+	assert(RedisMgr::GetInstance()->Del("Hashkey"));
+	assert(RedisMgr::GetInstance()->Del("Hashkey"));
+	assert(RedisMgr::GetInstance()->ExistKey("Hashkey") == false);
+
+	//lpushkey1: lpushvalue3, lpushvalue2, lpushvalue1
 	assert(RedisMgr::GetInstance()->LPush("lpushkey1", "lpushvalue1"));
 	assert(RedisMgr::GetInstance()->LPush("lpushkey1", "lpushvalue2"));
 	assert(RedisMgr::GetInstance()->LPush("lpushkey1", "lpushvalue3"));
+
+	//lpushkey1: lpushvalue3, lpushvalue2
 	assert(RedisMgr::GetInstance()->RPop("lpushkey1", value));
+	//lpushkey1: lpushvalue3
 	assert(RedisMgr::GetInstance()->RPop("lpushkey1", value));
+	//lpushkey1: (empty)
 	assert(RedisMgr::GetInstance()->LPop("lpushkey1", value));
 	assert(RedisMgr::GetInstance()->LPop("lpushkey2", value) == false);
+
 	RedisMgr::GetInstance()->Close();
 }
 
