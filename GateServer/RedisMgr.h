@@ -2,14 +2,35 @@
 #include "defs.h"
 #include "Singleton.h"
 
-class RedisMgr: public Singleton<RedisMgr>
+class RedisPool {
+public:
+	RedisPool(size_t _size, const char* _host, int _port, const char* _pwd);
+	~RedisPool();
+
+	redisContext* getConnection();
+
+	void PushConnection(redisContext*);
+
+	void Close();
+
+private:
+	std::atomic<bool> isStop;
+	size_t poolSize;
+	const char* host;
+	int port;
+	std::queue<redisContext*> conns;
+	std::condition_variable cond;
+	std::mutex mtx;
+};
+
+class RedisMgr : public Singleton<RedisMgr>
 {
 public:
 	friend class Singleton<RedisMgr>;
-	
+
 	~RedisMgr();
 
-	bool Connect(const std::string& host, int port);
+	//bool Connect(const std::string& host, int port);
 	bool Get(const std::string& key, std::string& value);
 	bool Set(const std::string& key, const std::string& value);
 	bool Auth(const std::string& password);
@@ -26,7 +47,7 @@ public:
 private:
 	RedisMgr();
 
-	redisContext* conn;
-	redisReply* reply;
+	//redisContext* conn;
+	//redisReply* reply;
+	std::unique_ptr<RedisPool> redis_pool;
 };
-

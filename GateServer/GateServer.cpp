@@ -103,7 +103,7 @@ void TestRedis() {
 }
 
 void TestRedisMgr() {
-	assert(RedisMgr::GetInstance()->Connect("172.25.0.50", 6380));
+	//assert(RedisMgr::GetInstance()->Connect("172.25.0.50", 6380));
 	assert(RedisMgr::GetInstance()->Auth("123456"));
 
 	assert(RedisMgr::GetInstance()->Set("test0", "test0value"));
