@@ -32,8 +32,14 @@ enum Modules{
 
 enum StatusCodes{
     SUCCESS = 0,
-    ERR_JSON = 0x01,            //json解析失败
-    ERR_NETWORK = 0x02,         //网络错误
+    ERR_JSON = 0x101,           //json解析失败
+    RPCFailed = 0x102,          //RPC连接错误
+
+    VerifyExpired = 0x103,      //验证码过期
+    VerifyCodeErr = 0x104,      //验证码错误
+    UserExist = 0x105,          //用户已经存在，重复注册
+    PasswdErr = 0x106           //确认密码和密码不一致
+
 };
 
 extern QString GateServer_url_perfix;

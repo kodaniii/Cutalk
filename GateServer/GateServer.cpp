@@ -135,13 +135,13 @@ void TestRedisMgr() {
 	assert(RedisMgr::GetInstance()->LPop("lpushkey1", value));
 	assert(RedisMgr::GetInstance()->LPop("lpushkey2", value) == false);
 
-	RedisMgr::GetInstance()->Close();
+	RedisMgr::GetInstance()->Close();	//仅做测试，会使所有Redis连接池都是nullptr
 }
 
 int main() {
 	//Redis test
-	TestRedis();
-	TestRedisMgr();
+	//TestRedis();
+	//TestRedisMgr();
 
 	ConfigMgr &gCfgMgr = ConfigMgr::init();
 	

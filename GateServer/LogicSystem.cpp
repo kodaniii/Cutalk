@@ -1,6 +1,7 @@
 #include "LogicSystem.h"
 #include "HttpConnection.h"
 #include "VerifyGrpcClient.h"
+#include "RedisMgr.h"
 
 LogicSystem::LogicSystem() {
 	//Get测试
@@ -64,6 +65,74 @@ LogicSystem::LogicSystem() {
 
 		return;
 	});
+
+	RegisterPost("/user_register", [](std::shared_ptr<HttpConnection> conn) {
+		auto body_str = boost::beast::buffers_to_string(conn->_request.body().data());
+		std::cout << "/user_register receive body " << body_str << std::endl;
+		
+		conn->_response.set(http::field::content_type, "text/json");
+
+		Json::Value root;		//dst
+		Json::Reader reader;
+		Json::Value src_root;
+
+		bool parse_succ = reader.parse(body_str, src_root);	//src_root <- (Json)body_str;
+		if (!parse_succ) {
+			std::cout << "Failed to parse JSON data!" << std::endl;
+			root["error"] = ErrorCodes::Error_Json;
+			std::string jsonstr = root.toStyledString();
+			beast::ostream(conn->_response.body()) << jsonstr;
+			return true;
+		}
+
+		auto email = src_root["email"].asString();
+		auto pswd = src_root["pswd"].asString();
+		auto confirm_pswd = src_root["confirm_pswd"].asString();
+
+		//后端再次检查确认密码是否正确
+		if (pswd != confirm_pswd) {
+			std::cout << "password err " << std::endl;
+			root["error"] = ErrorCodes::PasswdErr;
+			std::string jsonstr = root.toStyledString();
+			beast::ostream(conn->_response.body()) << jsonstr;
+			return true;
+		}
+
+		//检查redis中email对应的value
+		std::string verify_code;
+		//检查是否过期
+		bool b_get_verify = RedisMgr::GetInstance()->Get(CODE_PREFIX + email, verify_code);
+		std::cout << "RedisMgr Get " << CODE_PREFIX + email << " is " << verify_code << std::endl;
+		if (!b_get_verify) {
+			std::cout << "Get verify code expired" << std::endl;
+			root["error"] = ErrorCodes::VerifyExpired;
+			std::string jsonstr = root.toStyledString();
+			beast::ostream(conn->_response.body()) << jsonstr;
+			return true;
+		}
+
+		//检查验证码是否正确
+		if (verify_code != src_root["verifycode"].asString()) {
+			std::cout << "Verify code error" << std::endl;
+			root["error"] = ErrorCodes::VerifyCodeErr;
+			std::string jsonstr = root.toStyledString();
+			beast::ostream(conn->_response.body()) << jsonstr;
+			return true;
+		}
+
+		//TODO 查找MySQL数据库判断用户是否存在
+
+
+		root["error"] = ErrorCodes::Success;
+		root["email"] = src_root["email"];
+		root["user"] = src_root["user"].asString();
+		root["pswd"] = src_root["pswd"].asString();
+		root["confirm_pswd"] = src_root["confirm_pswd"].asString();
+		root["verifycode"] = src_root["verifycode"].asString();
+		std::string jsonstr = root.toStyledString();
+		beast::ostream(conn->_response.body()) << jsonstr;
+		return true;
+		});
 }
 
 void LogicSystem::RegisterGet(std::string url, HttpHandler handler) {

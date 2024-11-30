@@ -89,25 +89,130 @@ void RegisterDialog::slot_reg_mod_finish(HttpReqId req_id, QString res, StatusCo
 
     qDebug() << "RegisterDialog::slot_reg_mod_finish _handlers req_id ="
              << req_id;
+
+    //GateServer连接成功，调用不同req的处理逻辑
+    //相关req处理逻辑在RegisterDialog::initHttpHandlers()中注册
     _handlers[req_id](jsonDoc.object());
     return;
 }
 
+//HttpReqId处理逻辑
 void RegisterDialog::initHttpHandlers()
 {
     //GET_VERIFY_CODE request
     //从GateServer拿到json数据，json["error"]记录的是GateServer和VerifyServer连接情况
     _handlers.insert(HttpReqId::REQ_GET_VERIFY_CODE, [this](const QJsonObject& jsonObj){
         int err = jsonObj["error"].toInt();
-        qDebug() << "RegisterDialog::initHttpHandlers() err" << err;
-        if(err != StatusCodes::SUCCESS){
+        qDebug() << "RegisterDialog::initHttpHandlers() REQ_GET_VERIFY_CODE" << err;
+        if(err == StatusCodes::RPCFailed){
             showTip(false, tr("VerifyServer服务连接失败"));
+            return;
+        }
+
+        if(err != StatusCodes::SUCCESS){
+            showTip(false, tr("不可预知的错误"));
             return;
         }
 
         auto email = jsonObj["email"].toString();
         showTip(true, tr("验证码发送成功"));
-        qDebug() << "email" << email;
+        qDebug() << "send verifycode to email success" << email;
     });
 
+    //REQ_REG_USER
+    //从GateServer拿到json回包
+    _handlers.insert(HttpReqId::REQ_REG_USER, [this](const QJsonObject& jsonObj){
+        int err = jsonObj["error"].toInt();
+        qDebug() << "RegisterDialog::initHttpHandlers() REQ_REG_USER" << err;
+
+        if(err == StatusCodes::VerifyCodeErr){
+            showTip(false, tr("验证码错误"));
+            return;
+        }
+
+        if(err == StatusCodes::VerifyExpired){
+            showTip(false, tr("验证码不存在或过期"));
+            return;
+        }
+
+        if(err == StatusCodes::PasswdErr){
+            showTip(false, tr("密码和确认密码不匹配"));
+            return;
+        }
+
+        if(err != StatusCodes::SUCCESS){
+            showTip(false, tr("不可预知的错误"));
+            return;
+        }
+
+        auto email = jsonObj["email"].toString();
+        //TODO Register逻辑
+        showTip(true, tr("注册成功"));
+        qDebug() << "regist email success" << email;
+    });
 }
+
+//点击注册按钮
+void RegisterDialog::on_register_button_clicked()
+{
+    if(ui->username_lineEdit->text().isEmpty()){
+        showTip(false, tr("用户名不能为空"));
+        return;
+    }
+
+    if(ui->username_lineEdit->text().length() < 4){
+        showTip(false, tr("用户名长度必须大于等于4个字符"));
+        return;
+    }
+
+    if(ui->passwd_lineEdit->text().isEmpty()){
+        showTip(false, tr("密码不能为空"));
+        return;
+    }
+
+    if(ui->passwd_lineEdit->text().length() < 4){
+        showTip(false, tr("密码长度必须大于等于4个字符"));
+        return;
+    }
+
+    if(ui->confirm_pswd_lineEdit->text().isEmpty()){
+        showTip(false, tr("确认密码不能为空"));
+        return;
+    }
+
+    if(ui->confirm_pswd_lineEdit->text().length() < 4){
+        showTip(false, tr("确认密码长度必须大于等于4个字符"));
+        return;
+    }
+
+    if(ui->passwd_lineEdit->text() != ui->confirm_pswd_lineEdit->text()){
+        showTip(false, tr("密码和确认密码不匹配"));
+        return;
+    }
+
+    if(ui->email_edit->text().isEmpty()){
+        showTip(false, tr("邮箱不能为空"));
+        return;
+    }
+
+    if(ui->verificationCode_lineEdit->text().isEmpty()){
+        showTip(false, tr("验证码不能为空"));
+        return;
+    }
+
+    if(ui->verificationCode_lineEdit->text().length() != 4){
+        showTip(false, tr("验证码长度必须为4个字符"));
+        return;
+    }
+
+    QJsonObject json_obj;
+    json_obj["user"] = ui->username_lineEdit->text();
+    json_obj["email"] = ui->email_edit->text();
+    json_obj["pswd"] = ui->passwd_lineEdit->text();
+    json_obj["confirm_pswd"] = ui->confirm_pswd_lineEdit->text();
+    json_obj["verifycode"] = ui->verificationCode_lineEdit->text();
+    //发注册请求
+    HttpMgr::GetInstance()->postHttpReq(QUrl(GateServer_url_perfix + "/user_register"),
+                                        json_obj, HttpReqId::REQ_REG_USER, Modules::MOD_REGISTER);
+}
+

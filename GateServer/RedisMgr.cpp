@@ -38,6 +38,7 @@ RedisPool::~RedisPool() {
 }
 
 redisContext* RedisPool::getConnection() {
+	std::cout << "RedisPool::getConnection()" << std::endl;
 	std::unique_lock<std::mutex> lk(mtx);
 	cond.wait(lk, [this]() {
 		if (isStop) {
@@ -57,6 +58,7 @@ redisContext* RedisPool::getConnection() {
 }
 
 void RedisPool::PushConnection(redisContext* rc) {
+	std::cout << "RedisPool::PushConnection()" << std::endl;
 	std::lock_guard<std::mutex> lk(mtx);
 	if (isStop) {
 		return;
@@ -107,6 +109,7 @@ bool RedisMgr::Get(const std::string& key, std::string& value){
 	//redis pool
 	auto conn = redis_pool->getConnection();
 	if (conn == nullptr) {
+		std::cout << "conn nullptr" << std::endl;
 		return false;
 	}
 

@@ -16,6 +16,7 @@ RPCPool::RPCPool(size_t _size, std::string _host, std::string _port)
 }
 
 std::unique_ptr<VerifyService::Stub> RPCPool::GetConnection() {
+	std::cout << "RPCPool::GetConnection()" << std::endl;
 	//std::lock_guard<std::mutex> lk(mtx);
 	std::unique_lock<std::mutex> lk_gc(mtx);
 
@@ -37,6 +38,7 @@ std::unique_ptr<VerifyService::Stub> RPCPool::GetConnection() {
 }
 
 void RPCPool::PushConnection(std::unique_ptr<VerifyService::Stub> conn) {
+	std::cout << "RPCPool::PushConnection()" << std::endl;
 	std::lock_guard<std::mutex> lk_pc(mtx);
 	if (isStop) {
 		return;

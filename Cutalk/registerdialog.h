@@ -23,6 +23,8 @@ private slots:
 
     void slot_reg_mod_finish(HttpReqId, QString, StatusCodes);
 
+    void on_register_button_clicked();
+
 private:
     Ui::RegisterDialog *ui;
 
