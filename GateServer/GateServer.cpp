@@ -135,7 +135,9 @@ void TestRedisMgr() {
 	assert(RedisMgr::GetInstance()->LPop("lpushkey1", value));
 	assert(RedisMgr::GetInstance()->LPop("lpushkey2", value) == false);
 
-	RedisMgr::GetInstance()->Close();	//仅做测试，会使所有Redis连接池都是nullptr
+	//仅做测试，会使isStop = false，导致所有Redis连接池都返回nullptr
+	//为了确保安全, 已经将这个函数设为private
+	//RedisMgr::GetInstance()->Close();	
 }
 
 int main() {

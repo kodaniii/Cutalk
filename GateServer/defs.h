@@ -26,6 +26,13 @@
 #include "hiredis.h"
 #include <cassert>
 
+#include <jdbc/mysql_driver.h>
+#include <jdbc/mysql_connection.h>
+#include <jdbc/cppconn/prepared_statement.h>
+#include <jdbc/cppconn/resultset.h>
+#include <jdbc/cppconn/statement.h>
+#include <jdbc/cppconn/exception.h>
+
 namespace beast = boost::beast;         // from <boost/beast.hpp>
 namespace http = beast::http;           // from <boost/beast/http.hpp>
 namespace net = boost::asio;            // from <boost/asio.hpp>
@@ -48,4 +55,19 @@ enum ErrorCodes {
 	VerifyCodeErr = 0x104,	//验证码错误
 	UserExist = 0x105,		//用户已经存在，重复注册
 	PasswdErr = 0x106		//确认密码和密码不一致
+};
+
+// Defer类
+class Defer {
+public:
+	// 接受一个lambda表达式或者函数指针
+	Defer(std::function<void()> func) : _func(func) {}
+
+	// 析构函数中执行传入的函数
+	~Defer() {
+		_func();
+	}
+
+private:
+	std::function<void()> _func;
 };

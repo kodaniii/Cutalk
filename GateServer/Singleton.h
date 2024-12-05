@@ -18,7 +18,7 @@ public:
         std::call_once(s_flag, [&]() {
             _instance = std::shared_ptr<T>(new T);
             //_instance = std::make_shared<T>();
-            });
+        });
 
         return _instance;
     }

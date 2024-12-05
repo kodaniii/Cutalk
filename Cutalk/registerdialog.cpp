@@ -124,6 +124,10 @@ void RegisterDialog::initHttpHandlers()
     _handlers.insert(HttpReqId::REQ_REG_USER, [this](const QJsonObject& jsonObj){
         int err = jsonObj["error"].toInt();
         qDebug() << "RegisterDialog::initHttpHandlers() REQ_REG_USER" << err;
+        if(err == StatusCodes::UserExist){
+            showTip(false, tr("用户名已经被注册过"));
+            return;
+        }
 
         if(err == StatusCodes::VerifyCodeErr){
             showTip(false, tr("验证码错误"));
@@ -146,9 +150,10 @@ void RegisterDialog::initHttpHandlers()
         }
 
         auto email = jsonObj["email"].toString();
-        //TODO Register逻辑
+        //TODO Register逻辑, is ok
+        auto uid = jsonObj["uid"].toString();
         showTip(true, tr("注册成功"));
-        qDebug() << "regist email success" << email;
+        qDebug() << "regist success, email =" << email << ", uuid =" << uid;
     });
 }
 

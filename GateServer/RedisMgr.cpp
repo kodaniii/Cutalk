@@ -37,8 +37,8 @@ RedisPool::~RedisPool() {
 	}
 }
 
-redisContext* RedisPool::getConnection() {
-	std::cout << "RedisPool::getConnection()" << std::endl;
+redisContext* RedisPool::GetConnection() {
+	std::cout << "RedisPool::GetConnection()" << std::endl;
 	std::unique_lock<std::mutex> lk(mtx);
 	cond.wait(lk, [this]() {
 		if (isStop) {
@@ -107,7 +107,7 @@ void RedisMgr::Close() {
 
 bool RedisMgr::Get(const std::string& key, std::string& value){
 	//redis pool
-	auto conn = redis_pool->getConnection();
+	auto conn = redis_pool->GetConnection();
 	if (conn == nullptr) {
 		std::cout << "conn nullptr" << std::endl;
 		return false;
@@ -138,7 +138,7 @@ bool RedisMgr::Get(const std::string& key, std::string& value){
 
 bool RedisMgr::Set(const std::string& key, const std::string& value) {
 	//redis pool
-	auto conn = redis_pool->getConnection();
+	auto conn = redis_pool->GetConnection();
 	if (conn == nullptr) {
 		return false;
 	}
@@ -167,7 +167,7 @@ bool RedisMgr::Set(const std::string& key, const std::string& value) {
 
 bool RedisMgr::Auth(const std::string& password){
 	//redis pool
-	auto conn = redis_pool->getConnection();
+	auto conn = redis_pool->GetConnection();
 	if (conn == nullptr) {
 		return false;
 	}
@@ -189,7 +189,7 @@ bool RedisMgr::Auth(const std::string& password){
 
 bool RedisMgr::LPush(const std::string& key, const std::string& value){
 	//redis pool
-	auto conn = redis_pool->getConnection();
+	auto conn = redis_pool->GetConnection();
 	if (conn == nullptr) {
 		return false;
 	}
@@ -217,7 +217,7 @@ bool RedisMgr::LPush(const std::string& key, const std::string& value){
 
 bool RedisMgr::LPop(const std::string& key, std::string& value) {
 	//redis pool
-	auto conn = redis_pool->getConnection();
+	auto conn = redis_pool->GetConnection();
 	if (conn == nullptr) {
 		return false;
 	}
@@ -239,7 +239,7 @@ bool RedisMgr::LPop(const std::string& key, std::string& value) {
 
 bool RedisMgr::RPush(const std::string& key, const std::string& value) {
 	//redis pool
-	auto conn = redis_pool->getConnection();
+	auto conn = redis_pool->GetConnection();
 	if (conn == nullptr) {
 		return false;
 	}
@@ -267,7 +267,7 @@ bool RedisMgr::RPush(const std::string& key, const std::string& value) {
 
 bool RedisMgr::RPop(const std::string& key, std::string& value) {
 	//redis pool
-	auto conn = redis_pool->getConnection();
+	auto conn = redis_pool->GetConnection();
 	if (conn == nullptr) {
 		return false;
 	}
@@ -289,7 +289,7 @@ bool RedisMgr::RPop(const std::string& key, std::string& value) {
 
 bool RedisMgr::HSet(const std::string& key, const std::string& hkey, const std::string& value) {
 	//redis pool
-	auto conn = redis_pool->getConnection();
+	auto conn = redis_pool->GetConnection();
 	if (conn == nullptr) {
 		return false;
 	}
@@ -321,7 +321,7 @@ bool RedisMgr::HSet(const char* key, const char* hkey, const char* hvalue, size_
 	argvlen[3] = hvaluelen;
 
 	//redis pool
-	auto conn = redis_pool->getConnection();
+	auto conn = redis_pool->GetConnection();
 	if (conn == nullptr) {
 		return false;
 	}
@@ -351,7 +351,7 @@ std::string RedisMgr::HGet(const std::string& key, const std::string& hkey){
 	argvlen[2] = hkey.length();
 
 	//redis pool
-	auto conn = redis_pool->getConnection();
+	auto conn = redis_pool->GetConnection();
 	if (conn == nullptr) {
 		return "";
 	}
@@ -373,7 +373,7 @@ std::string RedisMgr::HGet(const std::string& key, const std::string& hkey){
 
 bool RedisMgr::Del(const std::string& key){
 	//redis pool
-	auto conn = redis_pool->getConnection();
+	auto conn = redis_pool->GetConnection();
 	if (conn == nullptr) {
 		return false;
 	}
@@ -395,7 +395,7 @@ bool RedisMgr::Del(const std::string& key){
 bool RedisMgr::ExistKey(const std::string& key)
 {
 	//redis pool
-	auto conn = redis_pool->getConnection();
+	auto conn = redis_pool->GetConnection();
 	if (conn == nullptr) {
 		return false;
 	}

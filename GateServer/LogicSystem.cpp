@@ -2,6 +2,7 @@
 #include "HttpConnection.h"
 #include "VerifyGrpcClient.h"
 #include "RedisMgr.h"
+#include "MysqlMgr.h"
 
 LogicSystem::LogicSystem() {
 	//Get测试
@@ -66,6 +67,8 @@ LogicSystem::LogicSystem() {
 		return;
 	});
 
+	//获取验证码
+	//和Redis交互，检查验证码是否过期
 	RegisterPost("/user_register", [](std::shared_ptr<HttpConnection> conn) {
 		auto body_str = boost::beast::buffers_to_string(conn->_request.body().data());
 		std::cout << "/user_register receive body " << body_str << std::endl;
@@ -85,6 +88,7 @@ LogicSystem::LogicSystem() {
 			return true;
 		}
 
+		auto name = src_root["user"].asString();
 		auto email = src_root["email"].asString();
 		auto pswd = src_root["pswd"].asString();
 		auto confirm_pswd = src_root["confirm_pswd"].asString();
@@ -120,17 +124,46 @@ LogicSystem::LogicSystem() {
 			return true;
 		}
 
-		//TODO 查找MySQL数据库判断用户是否存在
+		//TODO 查找MySQL数据库判断用户是否存在，is ok
+		int uid = MysqlMgr::GetInstance()->RegUser(name, email, pswd);
+		std::cout << "/user_register RegUser() ret uuid = " << uid << std::endl;
+		if (uid == 0 || uid == -1) {
+			std::cout << "user or email exist" << std::endl;
+			root["error"] = ErrorCodes::UserExist;
+			std::string jsonstr = root.toStyledString();
+			beast::ostream(conn->_response.body()) << jsonstr;
+			return true;
+		}
 
-
-		root["error"] = ErrorCodes::Success;
-		root["email"] = src_root["email"];
+		/*
+		/user_register receive body {
+			"confirm_pswd": "1111",
+			"email": "1111@qq.com",
+			"pswd": "1111",
+			"user": "1111",
+			"verifycode": "6f90"
+		}
+		*/
+		root["error"] = ErrorCodes::Success;	//额外添加
+		root["uid"] = uid;						//额外添加
+		root["email"] = src_root["email"].asString();
 		root["user"] = src_root["user"].asString();
 		root["pswd"] = src_root["pswd"].asString();
 		root["confirm_pswd"] = src_root["confirm_pswd"].asString();
 		root["verifycode"] = src_root["verifycode"].asString();
 		std::string jsonstr = root.toStyledString();
 		beast::ostream(conn->_response.body()) << jsonstr;
+		/*
+		SEND body {
+			"error": 0,
+			"uid": 1,
+			"confirm_pswd": "1111",
+			"email": "1111@qq.com",
+			"pswd": "1111",
+			"user": "1111",
+			"verifycode": "6f90"
+		}
+		*/
 		return true;
 		});
 }

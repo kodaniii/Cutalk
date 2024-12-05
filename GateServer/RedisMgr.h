@@ -7,7 +7,7 @@ public:
 	RedisPool(size_t _size, const char* _host, int _port, const char* _pwd);
 	~RedisPool();
 
-	redisContext* getConnection();
+	redisContext* GetConnection();
 
 	void PushConnection(redisContext*);
 
@@ -43,8 +43,9 @@ public:
 	std::string HGet(const std::string& key, const std::string& hkey);
 	bool Del(const std::string& key);
 	bool ExistKey(const std::string& key);
-	void Close();
+
 private:
+	void Close();
 	RedisMgr();
 
 	//redisContext* conn;
