@@ -17,7 +17,8 @@ SOURCES += \
     logindialog.cpp \
     main.cpp \
     mainwindow.cpp \
-    registerdialog.cpp
+    registerdialog.cpp \
+    timerbtn.cpp
 
 HEADERS += \
     defs.h \
@@ -25,7 +26,8 @@ HEADERS += \
     logindialog.h \
     mainwindow.h \
     registerdialog.h \
-    singleton.h
+    singleton.h \
+    timerbtn.h
 
 FORMS += \
     logindialog.ui \

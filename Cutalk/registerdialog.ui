@@ -176,7 +176,7 @@
             <item>
              <widget class="QLabel" name="msg_output_label">
               <property name="text">
-               <string/>
+               <string>消息输出</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
@@ -272,7 +272,7 @@
             </spacer>
            </item>
            <item>
-            <widget class="QPushButton" name="verificationCode_get_Button">
+            <widget class="TimerBtn" name="verificationCode_get_Button">
              <property name="minimumSize">
               <size>
                <width>0</width>
@@ -513,6 +513,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>TimerBtn</class>
+   <extends>QPushButton</extends>
+   <header>timerbtn.h</header>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>username_lineEdit</tabstop>
   <tabstop>passwd_lineEdit</tabstop>

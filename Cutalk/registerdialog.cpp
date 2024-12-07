@@ -5,8 +5,7 @@
 
 RegisterDialog::RegisterDialog(QWidget *parent)
     : QDialog(parent)
-    , ui(new Ui::RegisterDialog)
-{
+    , ui(new Ui::RegisterDialog){
     ui->setupUi(this);
 
     ui->passwd_lineEdit->setEchoMode(QLineEdit::Password);
@@ -18,20 +17,153 @@ RegisterDialog::RegisterDialog(QWidget *parent)
     connect(HttpMgr::GetInstance().get(), &HttpMgr::sig_reg_mod_finish, this, &RegisterDialog::slot_reg_mod_finish);
 
     initHttpHandlers();
+
+    //ui->msg_output_label.clear();
+    //clear()会直接清空label，等有消息弹出时，各个组件的位置会移动
+    ui->msg_output_label->setText("");
+
+    connect(ui->username_lineEdit, &QLineEdit::editingFinished, this, [this]() -> bool {
+        //checkUserValid();
+        if(ui->username_lineEdit->text().length() < 4){
+            AddTipErr(TipErr::TIP_USER_ERR, tr("用户名长度必须大于等于4个字符"));
+            return false;
+        }
+
+        //都满足, 删除对应错误
+        DelTipErr(TipErr::TIP_USER_ERR);
+        return true;
+    });
+
+    connect(ui->email_edit, &QLineEdit::editingFinished, this, [this]() -> bool {
+        //checkEmailValid();
+        auto email = ui->email_edit->text();
+        //邮箱地址的正则表达式
+        QRegularExpression regex(R"((\w+)(\.|_)?(\w*)@(\w+)(\.(\w+))+)");
+        bool match = regex.match(email).hasMatch(); // 执行正则表达式匹配
+        if(!match){
+            AddTipErr(TipErr::TIP_EMAIL_ERR, tr("邮箱地址不正确"));
+            return false;
+        }
+
+        DelTipErr(TipErr::TIP_EMAIL_ERR);
+        return true;
+    });
+
+    connect(ui->passwd_lineEdit, &QLineEdit::editingFinished, this, [this]() -> bool {
+        //checkPswdValid();
+        auto pswd = ui->passwd_lineEdit->text();
+        auto cfm_pswd = ui->confirm_pswd_lineEdit->text();
+
+        if(pswd.length() < 4 || pswd.length() > 15){
+            AddTipErr(TipErr::TIP_PSWD_ERR, tr("密码长度必须满足4-15字符"));
+            return false;
+        }
+
+        // 创建一个正则表达式对象，按照上述密码要求
+        // 这个正则表达式解释：
+        // ^[a-zA-Z0-9!@#$%^&*]{4,15}$ 密码长度至少4，可以是字母、数字和特定的特殊字符
+        QRegularExpression regExp("^[a-zA-Z0-9!@#$%^&*]{4,15}$");
+        bool match = regExp.match(pswd).hasMatch();
+        if(!match){
+            //提示字符非法
+            AddTipErr(TipErr::TIP_PSWD_ERR, tr("密码不能包含非法字符"));
+            return false;;
+        }
+
+        //密码部分无误
+        DelTipErr(TipErr::TIP_PSWD_ERR);
+
+        if(!cfm_pswd.isEmpty() && pswd != cfm_pswd){
+            //提示密码不匹配
+            AddTipErr(TipErr::TIP_PSWD_CONFIRM_ERR, tr("密码和确认密码不匹配"));
+            return false;
+        }
+
+        DelTipErr(TipErr::TIP_PSWD_CONFIRM_ERR);
+        return true;
+    });
+
+    connect(ui->confirm_pswd_lineEdit, &QLineEdit::editingFinished, this, [this]() -> bool {
+        //checkConfirmPswdValid();
+        auto pswd = ui->passwd_lineEdit->text();
+        auto cfm_pswd = ui->confirm_pswd_lineEdit->text();
+
+        if(cfm_pswd.length() < 4 || cfm_pswd.length() > 15){
+            AddTipErr(TipErr::TIP_CONFIRM_PSWD_ERR, tr("确认密码长度必须满足4-15字符"));
+            return false;
+        }
+
+        // 创建一个正则表达式对象，按照上述密码要求
+        // 这个正则表达式解释：
+        // ^[a-zA-Z0-9!@#$%^&*]{4,15}$ 密码长度至少4，可以是字母、数字和特定的特殊字符
+        QRegularExpression regExp("^[a-zA-Z0-9!@#$%^&*]{4,15}$");
+        bool match = regExp.match(pswd).hasMatch();
+        if(!match){
+            //提示字符非法
+            AddTipErr(TipErr::TIP_CONFIRM_PSWD_ERR, tr("确认密码不能包含非法字符"));
+            return false;;
+        }
+
+        DelTipErr(TipErr::TIP_CONFIRM_PSWD_ERR);
+
+        if(pswd != cfm_pswd){
+            //提示密码不匹配
+            AddTipErr(TipErr::TIP_PSWD_CONFIRM_ERR, tr("密码和确认密码不匹配"));
+            return false;
+        }
+
+        DelTipErr(TipErr::TIP_PSWD_CONFIRM_ERR);
+        return true;
+    });
+
+    connect(ui->verificationCode_lineEdit, &QLineEdit::editingFinished, this, [this]() -> bool {
+        //checkVerifyCodeValid();
+        auto vcode = ui->verificationCode_lineEdit->text();
+        if(vcode.isEmpty()){
+            AddTipErr(TipErr::TIP_VERIFY_CODE_ERR, tr("验证码不能为空"));
+            return false;
+        }
+
+        DelTipErr(TipErr::TIP_VERIFY_CODE_ERR);
+        return true;
+    });
+
 }
 
-RegisterDialog::~RegisterDialog()
-{
+RegisterDialog::~RegisterDialog(){
     delete ui;
 }
 
-//获取验证码button
-void RegisterDialog::on_verificationCode_get_Button_clicked()
+void RegisterDialog::AddTipErr(TipErr te, QString tips)
 {
-    auto email = ui->email_edit->text();
+    tipErrs[te] = tips;
+    showTip(false, tips);
+}
 
+void RegisterDialog::DelTipErr(TipErr te)
+{
+    tipErrs.remove(te);
+
+    if(tipErrs.empty()){
+        ui->msg_output_label->clear();
+        return;
+    }
+
+    showTip(false, tipErrs.first());
+}
+
+bool RegisterDialog::isVaildEmail(QString email){
     static QRegularExpression regex(R"((\w+)(\.|_)?(\w*)@(\w+)(\.(\w+))+)");
     bool isMatch = regex.match(email).hasMatch();
+
+    qDebug() << "RegisterDialog::isVaildEmail() =" << isMatch;
+    return isMatch;
+}
+
+//获取验证码button
+void RegisterDialog::on_verificationCode_get_Button_clicked(){
+    auto email = ui->email_edit->text();
+    bool isMatch = isVaildEmail(email);
 
     qDebug() << "get email =" << email << ", isMatch =" << isMatch;
 
@@ -213,11 +345,10 @@ void RegisterDialog::on_register_button_clicked()
     QJsonObject json_obj;
     json_obj["user"] = ui->username_lineEdit->text();
     json_obj["email"] = ui->email_edit->text();
-    json_obj["pswd"] = ui->passwd_lineEdit->text();
-    json_obj["confirm_pswd"] = ui->confirm_pswd_lineEdit->text();
+    json_obj["pswd"] = xorString(ui->passwd_lineEdit->text());
+    json_obj["confirm_pswd"] = xorString(ui->confirm_pswd_lineEdit->text());
     json_obj["verifycode"] = ui->verificationCode_lineEdit->text();
     //发注册请求
     HttpMgr::GetInstance()->postHttpReq(QUrl(GateServer_url_perfix + "/user_register"),
                                         json_obj, HttpReqId::REQ_REG_USER, Modules::MOD_REGISTER);
 }
-

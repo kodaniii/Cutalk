@@ -21,6 +21,8 @@
 //void repolish(QWidget *a);
 extern std::function<void(QWidget*)> repolish;
 
+extern std::function<QString(QString)> xorString;
+
 enum HttpReqId{
     REQ_GET_VERIFY_CODE = 0x01, //获取验证码
     REQ_REG_USER = 0x02,        //注册新用户
@@ -28,6 +30,17 @@ enum HttpReqId{
 
 enum Modules{
     MOD_REGISTER = 0x01,
+};
+
+enum TipErr{
+    TIP_SUCCESS = 0,           //成功
+    TIP_EMAIL_ERR = 1,         //邮箱格式错误
+    TIP_USER_ERR = 2,          //用户名错误
+    TIP_PSWD_ERR = 3,          //密码错误
+    TIP_CONFIRM_PSWD_ERR = 4,  //确认密码错误
+    TIP_PSWD_CONFIRM_ERR = 5,  //密码和确认密码不匹配
+    TIP_VERIFY_CODE_ERR = 6,   //验证码错误
+
 };
 
 enum StatusCodes{

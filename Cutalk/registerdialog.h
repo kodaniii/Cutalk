@@ -32,6 +32,12 @@ private:
     QMap<HttpReqId, std::function<void(const QJsonObject&)>> _handlers;
 
     void showTip(bool, QString);
+
+    bool isVaildEmail(QString);
+
+    void AddTipErr(TipErr te, QString str);
+    void DelTipErr(TipErr te);
+    QMap<TipErr, QString> tipErrs;
 };
 
 #endif // REGISTERDIALOG_H
