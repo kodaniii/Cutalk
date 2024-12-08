@@ -128,6 +128,37 @@ RegisterDialog::RegisterDialog(QWidget *parent)
         return true;
     });
 
+
+    //鼠标移动到该label时，变为手状
+    ui->passwd_visible->setCursor(Qt::PointingHandCursor);
+    ui->confirm_pswd_visible->setCursor(Qt::PointingHandCursor);
+
+    //初始化
+    ui->passwd_visible->init("unvisible", "unvisible_hover", "",
+                             "visible", "visible_hover", "");
+    ui->confirm_pswd_visible->init("unvisible", "unvisible_hover", "",
+                                   "visible", "visible_hover", "");
+
+    //根据visible_label的状态，设置密码是否可见
+    connect(ui->passwd_visible, &ClickLabel::clicked, this, [this](){
+        auto state = ui->passwd_visible->GetCurState();
+        if(state == LabelClickState::Unselected){
+            ui->passwd_lineEdit->setEchoMode(QLineEdit::Password);
+        }else{
+            ui->passwd_lineEdit->setEchoMode(QLineEdit::Normal);
+        }
+        qDebug() << "Label was clicked!";
+    });
+
+    connect(ui->confirm_pswd_visible, &ClickLabel::clicked, this, [this](){
+        auto state = ui->passwd_visible->GetCurState();
+        if(state == LabelClickState::Unselected){
+            ui->confirm_pswd_lineEdit->setEchoMode(QLineEdit::Password);
+        }else{
+            ui->confirm_pswd_lineEdit->setEchoMode(QLineEdit::Normal);
+        }
+        qDebug() << "Label was clicked!";
+    });
 }
 
 RegisterDialog::~RegisterDialog(){

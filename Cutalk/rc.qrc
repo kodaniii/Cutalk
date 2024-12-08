@@ -3,5 +3,9 @@
         <file>res/login_head.jpg</file>
         <file>style/stylesheet.qss</file>
         <file>res/register_head.png</file>
+        <file>res/register_ui/unvisible.png</file>
+        <file>res/register_ui/unvisible_hover.png</file>
+        <file>res/register_ui/visible.png</file>
+        <file>res/register_ui/visible_hover.png</file>
     </qresource>
 </RCC>

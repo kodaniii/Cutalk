@@ -12,6 +12,7 @@ RC_ICONS = .\res\ico\logo.ico
 DESTDIR = .\bin
 
 SOURCES += \
+    clicklabel.cpp \
     defs.cpp \
     httpmgr.cpp \
     logindialog.cpp \
@@ -21,6 +22,7 @@ SOURCES += \
     timerbtn.cpp
 
 HEADERS += \
+    clicklabel.h \
     defs.h \
     httpmgr.h \
     logindialog.h \

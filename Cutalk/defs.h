@@ -52,7 +52,11 @@ enum StatusCodes{
     VerifyCodeErr = 0x104,      //验证码错误
     UserExist = 0x105,          //用户已经存在，重复注册
     PasswdErr = 0x106           //确认密码和密码不一致
+};
 
+enum LabelClickState{
+    Unselected = 0,
+    Selected = 1
 };
 
 extern QString GateServer_url_perfix;
