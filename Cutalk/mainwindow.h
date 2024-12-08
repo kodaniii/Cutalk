@@ -35,5 +35,6 @@ private:
 
 public slots:
     void slot_switch_register();
+    void slot_switch_login();
 };
 #endif // MAINWINDOW_H

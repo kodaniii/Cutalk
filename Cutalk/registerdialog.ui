@@ -25,9 +25,9 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
-    <layout class="QGridLayout" name="gridLayout_2">
+  <layout class="QHBoxLayout" name="horizontalLayout">
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout_2">
      <property name="leftMargin">
       <number>5</number>
      </property>
@@ -40,7 +40,7 @@
      <property name="bottomMargin">
       <number>5</number>
      </property>
-     <item row="0" column="0">
+     <item>
       <widget class="QStackedWidget" name="stackedWidget">
        <property name="currentIndex">
         <number>0</number>
@@ -572,7 +572,119 @@
          </item>
         </layout>
        </widget>
-       <widget class="QWidget" name="page_2"/>
+       <widget class="QWidget" name="page_2">
+        <layout class="QVBoxLayout" name="verticalLayout_3">
+         <item>
+          <widget class="QWidget" name="widget_5" native="true">
+           <layout class="QVBoxLayout" name="verticalLayout_5">
+            <item>
+             <spacer name="verticalSpacer_5">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QLabel" name="page2_msg_label">
+              <property name="text">
+               <string>注册成功，5 秒后跳转登录界面</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QWidget" name="widget_4" native="true">
+           <layout class="QVBoxLayout" name="verticalLayout_4">
+            <item>
+             <widget class="QLabel" name="page2_msg2_label">
+              <property name="text">
+               <string>也可点击下方按钮立即返回登录界面</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="verticalSpacer_6">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QWidget" name="widget_3" native="true">
+           <layout class="QHBoxLayout" name="horizontalLayout_4">
+            <item>
+             <spacer name="horizontalSpacer_4">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="return_logic_ui_button">
+              <property name="minimumSize">
+               <size>
+                <width>200</width>
+                <height>25</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>200</width>
+                <height>25</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>返回登录界面</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_7">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
+       </widget>
       </widget>
      </item>
     </layout>
@@ -595,10 +707,12 @@
   <tabstop>username_lineEdit</tabstop>
   <tabstop>passwd_lineEdit</tabstop>
   <tabstop>confirm_pswd_lineEdit</tabstop>
+  <tabstop>email_edit</tabstop>
   <tabstop>verificationCode_lineEdit</tabstop>
   <tabstop>verificationCode_get_Button</tabstop>
   <tabstop>register_button</tabstop>
   <tabstop>cancel_button</tabstop>
+  <tabstop>return_logic_ui_button</tabstop>
  </tabstops>
  <resources>
   <include location="rc.qrc"/>

@@ -5,7 +5,8 @@
 
 RegisterDialog::RegisterDialog(QWidget *parent)
     : QDialog(parent)
-    , ui(new Ui::RegisterDialog){
+    , ui(new Ui::RegisterDialog)
+    , count_down(5) {
     ui->setupUi(this);
 
     ui->passwd_lineEdit->setEchoMode(QLineEdit::Password);
@@ -147,17 +148,31 @@ RegisterDialog::RegisterDialog(QWidget *parent)
         }else{
             ui->passwd_lineEdit->setEchoMode(QLineEdit::Normal);
         }
-        qDebug() << "Label was clicked!";
+        //qDebug() << "Label was clicked!";
     });
 
     connect(ui->confirm_pswd_visible, &ClickLabel::clicked, this, [this](){
-        auto state = ui->passwd_visible->GetCurState();
+        auto state = ui->confirm_pswd_visible->GetCurState();
         if(state == LabelClickState::Unselected){
             ui->confirm_pswd_lineEdit->setEchoMode(QLineEdit::Password);
         }else{
             ui->confirm_pswd_lineEdit->setEchoMode(QLineEdit::Normal);
         }
-        qDebug() << "Label was clicked!";
+        //qDebug() << "Label was clicked!";
+    });
+
+
+    //注册页面2跳转回登陆界面的定时器
+    count_down_timer = new QTimer(this);
+    connect(count_down_timer, &QTimer::timeout, [this](){
+        if(count_down == 1){
+            count_down_timer->stop();
+            emit sig_switch_login();
+            return;
+        }
+        count_down--;
+        auto str = QString("注册成功，%1 秒后跳转登录界面").arg(count_down);
+        ui->page2_msg_label->setText(str);
     });
 }
 
@@ -165,14 +180,20 @@ RegisterDialog::~RegisterDialog(){
     delete ui;
 }
 
-void RegisterDialog::AddTipErr(TipErr te, QString tips)
-{
+void RegisterDialog::ChangeRegisterDialogPage(){
+    count_down_timer->stop();
+    ui->stackedWidget->setCurrentWidget(ui->page_2);
+
+    // 启动定时器，设置间隔为1000毫秒（1秒）
+    count_down_timer->start(1000);
+}
+
+void RegisterDialog::AddTipErr(TipErr te, QString tips){
     tipErrs[te] = tips;
     showTip(false, tips);
 }
 
-void RegisterDialog::DelTipErr(TipErr te)
-{
+void RegisterDialog::DelTipErr(TipErr te){
     tipErrs.remove(te);
 
     if(tipErrs.empty()){
@@ -228,7 +249,10 @@ void RegisterDialog::showTip(bool stat, QString str){
 
 void RegisterDialog::on_cancel_button_clicked()
 {
-    //TODO register back button
+    //TODO register back button, is ok
+    //qDebug() << "RegisterDialog::on_cancel_button_clicked()";
+    count_down_timer->stop();
+    emit sig_switch_login();
 }
 
 //验证码获取button，处理从GateServer返回的json
@@ -317,6 +341,7 @@ void RegisterDialog::initHttpHandlers()
         auto uid = jsonObj["uid"].toString();
         showTip(true, tr("注册成功"));
         qDebug() << "regist success, email =" << email << ", uuid =" << uid;
+        ChangeRegisterDialogPage();
     });
 }
 
@@ -383,3 +408,10 @@ void RegisterDialog::on_register_button_clicked()
     HttpMgr::GetInstance()->postHttpReq(QUrl(GateServer_url_perfix + "/user_register"),
                                         json_obj, HttpReqId::REQ_REG_USER, Modules::MOD_REGISTER);
 }
+
+//注册界面Page2点击返回登录按钮
+void RegisterDialog::on_return_logic_ui_button_clicked() {
+    count_down_timer->stop();
+    emit sig_switch_login();
+}
+

@@ -25,6 +25,8 @@ private slots:
 
     void on_register_button_clicked();
 
+    void on_return_logic_ui_button_clicked();
+
 private:
     Ui::RegisterDialog *ui;
 
@@ -38,6 +40,13 @@ private:
     void AddTipErr(TipErr te, QString str);
     void DelTipErr(TipErr te);
     QMap<TipErr, QString> tipErrs;
+
+    void ChangeRegisterDialogPage();
+    QTimer *count_down_timer;
+    int count_down;
+
+signals:
+    void sig_switch_login();
 };
 
 #endif // REGISTERDIALOG_H
