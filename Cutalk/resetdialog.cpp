@@ -38,6 +38,22 @@ ResetDialog::ResetDialog(QWidget *parent) :
     connect(HttpMgr::GetInstance().get(), &HttpMgr::sig_reset_mod_finish,
             this, &ResetDialog::slot_reset_mod_finish);
 
+
+    //初始化
+    ui->passwd_visible->init("unvisible", "unvisible_hover", "",
+                             "visible", "visible_hover", "");
+    ui->pwd_edit->setEchoMode(QLineEdit::Password);
+
+    //根据visible_label的状态，设置密码是否可见
+    connect(ui->passwd_visible, &ClickLabel::clicked, this, [this](){
+        auto state = ui->passwd_visible->GetCurState();
+        if(state == LabelClickState::Unselected){
+            ui->pwd_edit->setEchoMode(QLineEdit::Password);
+        }else{
+            ui->pwd_edit->setEchoMode(QLineEdit::Normal);
+        }
+        //qDebug() << "Label was clicked!";
+    });
 }
 
 
@@ -287,6 +303,8 @@ void ResetDialog::on_sure_btn_clicked()
     }
 
     qDebug() << "ResetDialog::on_sure_btn_clicked() valid" << valid;
+
+    showTip(true, "重置请求已发送");
     //发送http重置请求
     QJsonObject json_obj;
     json_obj["email"] = ui->email_edit->text();

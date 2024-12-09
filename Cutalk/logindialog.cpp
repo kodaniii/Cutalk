@@ -14,6 +14,22 @@ LoginDialog::LoginDialog(QWidget *parent)
                                   "selected", "selected_hover", "");
     connect(ui->forget_passwd_label, &ClickLabel::clicked, this, &LoginDialog::slot_forget_passwd);
 
+
+    //初始化
+    ui->passwd_visible->init("unvisible", "unvisible_hover", "",
+                             "visible", "visible_hover", "");
+    ui->passwd_edit->setEchoMode(QLineEdit::Password);
+
+    //根据visible_label的状态，设置密码是否可见
+    connect(ui->passwd_visible, &ClickLabel::clicked, this, [this](){
+        auto state = ui->passwd_visible->GetCurState();
+        if(state == LabelClickState::Unselected){
+            ui->passwd_edit->setEchoMode(QLineEdit::Password);
+        }else{
+            ui->passwd_edit->setEchoMode(QLineEdit::Normal);
+        }
+        //qDebug() << "Label was clicked!";
+    });
 }
 
 LoginDialog::~LoginDialog() {
