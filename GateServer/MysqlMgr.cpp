@@ -1,5 +1,8 @@
 #include "MysqlMgr.h"
 
+MysqlMgr::MysqlMgr() {
+	std::cout << "MysqlMgr::MysqlMgr()" << std::endl;
+}
 
 MysqlMgr::~MysqlMgr() {
 
@@ -11,6 +14,12 @@ int MysqlMgr::RegUser(const std::string& name, const std::string& email, const s
 	return dao.RegUser(name, email, pswd);
 }
 
-MysqlMgr::MysqlMgr() {
-	std::cout << "MysqlMgr::MysqlMgr()" << std::endl;
+int MysqlMgr::CheckResetIsVaild(const std::string& name, const std::string& email) {
+	std::cout << "MysqlMgr::CheckResetIsVaild()" << std::endl;
+	return dao.CheckResetIsVaild(name, email);
+}
+
+bool MysqlMgr::UpdateUserAndPswd(const std::string& name, const std::string& pswd, const std::string& email) {
+	std::cout << "MysqlMgr::UpdateUserAndPswd()" << std::endl;
+	return dao.UpdateUserAndPswd(name, pswd, email);
 }

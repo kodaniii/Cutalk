@@ -241,7 +241,7 @@
         </spacer>
        </item>
        <item>
-        <widget class="QLabel" name="forget_passwd_label">
+        <widget class="ClickLabel" name="forget_passwd_label">
          <property name="minimumSize">
           <size>
            <width>0</width>
@@ -376,6 +376,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ClickLabel</class>
+   <extends>QLabel</extends>
+   <header>clicklabel.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="rc.qrc"/>
  </resources>

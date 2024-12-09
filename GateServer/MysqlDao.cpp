@@ -70,6 +70,74 @@ int MysqlDao::RegUser(const std::string& name, const std::string& email, const s
 	}
 }
 
+int MysqlDao::CheckResetIsVaild(const std::string& name, const std::string& email) {
+	auto conn = sql_pool->GetConnection();
+	try {
+		if (conn == nullptr) {
+			return -3;	//数据库操作失败
+		}
+
+		//检查邮箱是否存在
+		std::unique_ptr<sql::PreparedStatement> pstmt(conn->sql_conn->prepareStatement("SELECT COUNT(*) FROM user WHERE email = ?"));
+		pstmt->setString(1, email);
+		std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
+		if (!res->next() || res->getInt(1) == 0) {
+			sql_pool->PushConnection(std::move(conn));
+			return -1;	//邮箱不存在
+		}
+
+		//检查用户名是否被其他邮箱占用
+		//查询规则WHERE：除了当前email的所有条目中是否有name = name的条目
+		pstmt.reset(conn->sql_conn->prepareStatement("SELECT name FROM user WHERE name = ? AND email <> ?"));
+		pstmt->setString(1, name);
+		pstmt->setString(2, email);
+		res.reset(pstmt->executeQuery());
+		if (res->next()) {
+			sql_pool->PushConnection(std::move(conn));
+			return -2;	//用户名被其他邮箱占用
+		}
+	}
+	catch (sql::SQLException& e) {
+		sql_pool->PushConnection(std::move(conn));
+		std::cerr << "SQLException: " << e.what();
+		std::cerr << ", MySQL error code: " << e.getErrorCode();
+		std::cerr << ", SQLState: " << e.getSQLState() << " " << std::endl;
+		return -3;	//数据库操作失败
+	}
+}
+
+bool MysqlDao::UpdateUserAndPswd(const std::string& name, const std::string& pswd, const std::string& email) {
+	auto conn = sql_pool->GetConnection();
+	try {
+		if (conn == nullptr) {
+			return false;
+		}
+
+		// 准备查询语句
+		std::unique_ptr<sql::PreparedStatement> pstmt(conn->sql_conn->prepareStatement("UPDATE user SET name = ?, pswd = ? WHERE email = ?"));
+
+		// 绑定参数
+		pstmt->setString(1, name);
+		pstmt->setString(2, pswd);
+		pstmt->setString(3, email);
+
+		// 执行更新
+		int updateCount = pstmt->executeUpdate();
+
+		std::cout << "Reset rows: " << updateCount << std::endl;
+		sql_pool->PushConnection(std::move(conn));
+		return true;
+	}
+	catch (sql::SQLException& e) {
+		sql_pool->PushConnection(std::move(conn));
+		std::cerr << "SQLException: " << e.what();
+		std::cerr << ", MySQL error code: " << e.getErrorCode();
+		std::cerr << ", SQLState: " << e.getSQLState() << " " << std::endl;
+		return false;
+	}
+}
+
+
 MysqlPool::MysqlPool(const std::string& _url, const std::string& _user, const std::string& _pswd, const std::string& _schema, int _poolSize)
 	: url(_url), user(_user), pswd(_pswd), schema(_schema), poolSize(_poolSize), isStop(false) {
 	std::cout << "MysqlPool(url, user, pswd, schema, poolSize) = {"

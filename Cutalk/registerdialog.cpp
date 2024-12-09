@@ -131,8 +131,9 @@ RegisterDialog::RegisterDialog(QWidget *parent)
 
 
     //鼠标移动到该label时，变为手状
-    ui->passwd_visible->setCursor(Qt::PointingHandCursor);
-    ui->confirm_pswd_visible->setCursor(Qt::PointingHandCursor);
+    //已经在提升为ClickLabel类的label的构造函数中实现
+    //ui->passwd_visible->setCursor(Qt::PointingHandCursor);
+    //ui->confirm_pswd_visible->setCursor(Qt::PointingHandCursor);
 
     //初始化
     ui->passwd_visible->init("unvisible", "unvisible_hover", "",
@@ -316,13 +317,13 @@ void RegisterDialog::initHttpHandlers()
             return;
         }
 
-        if(err == StatusCodes::VerifyCodeErr){
-            showTip(false, tr("验证码错误"));
+        if(err == StatusCodes::VerifyExpired){
+            showTip(false, tr("验证码不存在或过期"));
             return;
         }
 
-        if(err == StatusCodes::VerifyExpired){
-            showTip(false, tr("验证码不存在或过期"));
+        if(err == StatusCodes::VerifyCodeErr){
+            showTip(false, tr("验证码错误"));
             return;
         }
 

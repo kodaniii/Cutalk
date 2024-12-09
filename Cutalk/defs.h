@@ -26,10 +26,12 @@ extern std::function<QString(QString)> xorString;
 enum HttpReqId{
     REQ_GET_VERIFY_CODE = 0x01, //获取验证码
     REQ_REG_USER = 0x02,        //注册新用户
+    REQ_RESET_PSWD = 0X03       //重置密码
 };
 
 enum Modules{
-    MOD_REGISTER = 0x01,
+    MOD_REGISTER = 0x01,        //注册
+    MOD_RESET = 0x02            //密码重置
 };
 
 enum TipErr{
@@ -51,7 +53,12 @@ enum StatusCodes{
     VerifyExpired = 0x103,      //验证码过期
     VerifyCodeErr = 0x104,      //验证码错误
     UserExist = 0x105,          //用户已经存在，重复注册
-    PasswdErr = 0x106           //确认密码和密码不一致
+    PasswdErr = 0x106,          //确认密码和密码不一致
+
+    EmailNotRegistered = 0x107,		//该邮箱没有被注册过，不允许重置密码
+    UsernameCannotUse = 0x108,		//该用户名被其他用户占用，不允许重置用户名
+    ResetUpdateFailed = 0x109		//重置用户名和密码失败
+
 };
 
 enum LabelClickState{

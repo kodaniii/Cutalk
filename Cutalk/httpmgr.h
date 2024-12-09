@@ -31,5 +31,7 @@ signals:
     void sig_http_finish(HttpReqId, Modules, QString, StatusCodes);
 
     void sig_reg_mod_finish(HttpReqId, QString, StatusCodes);
+
+    void sig_reset_mod_finish(HttpReqId, QString, StatusCodes);
 };
 #endif // HTTPMGR_H

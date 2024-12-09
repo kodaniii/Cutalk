@@ -166,6 +166,89 @@ LogicSystem::LogicSystem() {
 		*/
 		return true;
 		});
+
+	//重置回调逻辑
+	RegisterPost("/reset_user_and_passwd", [](std::shared_ptr<HttpConnection> conn) {
+		auto body_str = boost::beast::buffers_to_string(conn->_request.body().data());
+		std::cout << "/reset_user_and_passwd receive body " << body_str << std::endl;
+		conn->_response.set(http::field::content_type, "text/json");
+		Json::Value root;
+		Json::Reader reader;
+		Json::Value src_root;
+		bool parse_succ = reader.parse(body_str, src_root);
+		if (!parse_succ) {
+			std::cout << "Failed to parse JSON data!" << std::endl;
+			root["error"] = ErrorCodes::Error_Json;
+			std::string jsonstr = root.toStyledString();
+			beast::ostream(conn->_response.body()) << jsonstr;
+			return true;
+		}
+
+		auto email = src_root["email"].asString();
+		auto name = src_root["user"].asString();
+		auto pswd = src_root["pswd"].asString();
+
+		//先查找redis中email对应的验证码是否过期
+		std::string verify_code;
+		bool b_get_verify = RedisMgr::GetInstance()->Get(CODE_PREFIX + email, verify_code);
+		std::cout << "RedisMgr Get " << CODE_PREFIX + email << " is " << verify_code << std::endl;
+		if (!b_get_verify) {
+			std::cout << "Get verify code expired" << std::endl;
+			root["error"] = ErrorCodes::VerifyExpired;
+			std::string jsonstr = root.toStyledString();
+			beast::ostream(conn->_response.body()) << jsonstr;
+			return true;
+		}
+
+		//检查验证码是否正确
+		if (verify_code != src_root["verifycode"].asString()) {
+			std::cout << "Verify code error" << std::endl;
+			root["error"] = ErrorCodes::VerifyCodeErr;
+			std::string jsonstr = root.toStyledString();
+			beast::ostream(conn->_response.body()) << jsonstr;
+			return true;
+		}
+
+		//查找MySQL数据库判断邮箱已经注册，且用户名是否可用
+		int ret_reset_is_vaild = MysqlMgr::GetInstance()->CheckResetIsVaild(name, email);
+		//-1：邮箱没有被注册过
+		if (ret_reset_is_vaild == -1) {
+			std::cout << "This email address has not been registered" << std::endl;
+			root["error"] = ErrorCodes::EmailNotRegistered;
+			std::string jsonstr = root.toStyledString();
+			beast::ostream(conn->_response.body()) << jsonstr;
+			return true;
+		}
+		//-2：用户名被其他用户占用
+		else if (ret_reset_is_vaild == -2) {
+			std::cout << "Username is already taken by another user" << std::endl;
+			root["error"] = ErrorCodes::UsernameCannotUse;
+			std::string jsonstr = root.toStyledString();
+			beast::ostream(conn->_response.body()) << jsonstr;
+			return true;
+		}
+
+		//更新密码为最新密码
+		bool b_up = MysqlMgr::GetInstance()->UpdateUserAndPswd(name, pswd, email);
+		if (!b_up) {
+			std::cout << "Update username and passwd failed" << std::endl;
+			root["error"] = ErrorCodes::ResetUpdateFailed;
+			std::string jsonstr = root.toStyledString();
+			beast::ostream(conn->_response.body()) << jsonstr;
+			return true;
+		}
+
+		std::cout << "succeed to reset username = " << name << ", passwd = " << pswd << std::endl;
+
+		root["error"] = ErrorCodes::Success;
+		root["email"] = email;
+		root["user"] = name;
+		root["pswd"] = pswd;
+		root["verifycode"] = src_root["verifycode"].asString();
+		std::string jsonstr = root.toStyledString();
+		beast::ostream(conn->_response.body()) << jsonstr;
+		return true;
+		});
 }
 
 void LogicSystem::RegisterGet(std::string url, HttpHandler handler) {

@@ -40,7 +40,10 @@ void HttpMgr::slot_http_finish(HttpReqId req_id, Modules mod, QString res, Statu
         qDebug() << "sig_reg_mod_finish statusCode =" << statusCode;
         emit sig_reg_mod_finish(req_id, res, statusCode);
         break;
-
+    case Modules::MOD_RESET:
+        //TODO Modules::MOD_RESET, is ok
+        qDebug() << "sig_reset_mod_finish statusCode =" << statusCode;
+        emit sig_reset_mod_finish(req_id, res, statusCode);
+        break;
     }
-
 }
