@@ -53,14 +53,16 @@ int MysqlDao::RegUser(const std::string& name, const std::string& email, const s
 		//获取uid
 		/*
 		0：表示用户名或邮箱已存在。
+			-2：邮箱已经被注册过，即当前邮箱不能注册
+			-3：用户名被注册过，但邮箱没有被注册，可以更换用户名
 		-1：表示在执行过程中遇到错误。
 		其他值（如@new_id）：表示新插入的用户ID，即注册成功。
 		*/
 		std::unique_ptr<sql::ResultSet> res(stmtResult->executeQuery("SELECT @result AS result"));
 		if (res->next()) {
 			int result = res->getInt("result");
-			std::cout << "MysqlDao::RegUser() Get uuid: " << result << std::endl;
-			return result;
+			std::cout << "MysqlDao::RegUser() Get res: " << result << std::endl;
+			return result;	//GOTO LogicSystem /user_register
 		}
 		return -1;
 	}

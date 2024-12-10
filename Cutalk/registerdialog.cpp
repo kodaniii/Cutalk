@@ -321,8 +321,14 @@ void RegisterDialog::initHttpHandlers()
     _handlers.insert(HttpReqId::REQ_REG_USER, [this](const QJsonObject& jsonObj){
         int err = jsonObj["error"].toInt();
         qDebug() << "RegisterDialog::initHttpHandlers() REQ_REG_USER" << err;
+
+        if(err == StatusCodes::EmailExist){
+            showTip(false, tr("该邮箱已经被注册过"));
+            return;
+        }
+
         if(err == StatusCodes::UserExist){
-            showTip(false, tr("用户名已经被注册过"));
+            showTip(false, tr("用户名已被其它用户注册"));
             return;
         }
 

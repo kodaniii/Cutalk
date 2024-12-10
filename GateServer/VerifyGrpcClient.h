@@ -11,10 +11,10 @@ using message::GetVerifyReq;
 using message::GetVerifyRsp;
 using message::VerifyService;
 
-class RPCPool {
+class VerifyPool {
 public:
-	RPCPool(size_t _size, std::string _host, std::string port);
-	~RPCPool();
+	VerifyPool(size_t _size, std::string _host, std::string port);
+	~VerifyPool();
 	void NotifyUsed();
 	
 	std::unique_ptr<VerifyService::Stub> GetConnection();
@@ -66,7 +66,7 @@ private:
 		_stub = VerifyService::NewStub(chan);*/
 
 	//std::unique_ptr<VerifyService::Stub> _stub;
-	std::unique_ptr<RPCPool> rpc_pool;
+	std::unique_ptr<VerifyPool> rpc_pool;
 };
 
 

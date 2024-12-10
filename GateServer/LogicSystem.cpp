@@ -3,6 +3,7 @@
 #include "VerifyGrpcClient.h"
 #include "RedisMgr.h"
 #include "MysqlMgr.h"
+#include "StatusGrpcClient.h"
 
 LogicSystem::LogicSystem() {
 	//Get测试
@@ -125,11 +126,33 @@ LogicSystem::LogicSystem() {
 		}
 
 		//TODO 查找MySQL数据库判断用户是否存在，is ok
+		/*
+		0：表示用户名或邮箱已存在(废弃)。
+			(下面是新改的return值)
+			-2：邮箱已经被注册过，即当前邮箱不能注册
+			-3：用户名被注册过，但邮箱没有被注册，可以更换用户名
+		-1：表示在执行过程中遇到错误。
+		其他值（如@new_id）：表示新插入的用户ID，即注册成功。
+		*/
 		int uid = MysqlMgr::GetInstance()->RegUser(name, email, pswd);
 		std::cout << "/user_register RegUser() ret uuid = " << uid << std::endl;
-		if (uid == 0 || uid == -1) {
-			std::cout << "user or email exist" << std::endl;
+		if (uid == -2) {
+			std::cout << "Email exist" << std::endl;
+			root["error"] = ErrorCodes::EmailExist;
+			std::string jsonstr = root.toStyledString();
+			beast::ostream(conn->_response.body()) << jsonstr;
+			return true;
+		}
+		else if (uid == -3) {
+			std::cout << "Username is already taken by another user" << std::endl;
 			root["error"] = ErrorCodes::UserExist;
+			std::string jsonstr = root.toStyledString();
+			beast::ostream(conn->_response.body()) << jsonstr;
+			return true;
+		}
+		else if (uid == -1) {
+			std::cout << "UnKnownedFailed" << std::endl;
+			root["error"] = ErrorCodes::UnKnownedFailed;
 			std::string jsonstr = root.toStyledString();
 			beast::ostream(conn->_response.body()) << jsonstr;
 			return true;
@@ -280,24 +303,24 @@ LogicSystem::LogicSystem() {
 			return true;
 		}
 
-		/*
+		
 		//查询StatusServer找到合适的连接
 		auto reply = StatusGrpcClient::GetInstance()->GetChatServer(userInfo.uid);
 		if (reply.error()) {
-			std::cout << "StatusGrpcClient GetInstance() failed, error " << reply.error() << std::endl;
+			std::cout << "StatusGrpcClient::GetInstance() failed, error " << reply.error() << std::endl;
 			root["error"] = ErrorCodes::RPCFailed;
 			std::string jsonstr = root.toStyledString();
 			beast::ostream(conn->_response.body()) << jsonstr;
 			return true;
-		}*/
+		}
 
 		std::cout << "User login success, uid is " << userInfo.uid << std::endl;
 		root["error"] = ErrorCodes::Success;
 		root["user"] = user_or_email;
 		root["uid"] = userInfo.uid;
-		//root["token"] = reply.token();
-		//root["host"] = reply.host();
-		//root["port"] = reply.port();
+		root["token"] = reply.token();
+		root["host"] = reply.host();
+		root["port"] = reply.port();
 		std::string jsonstr = root.toStyledString();
 		beast::ostream(conn->_response.body()) << jsonstr;
 		return true;

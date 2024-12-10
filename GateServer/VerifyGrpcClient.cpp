@@ -1,9 +1,9 @@
 #include "VerifyGrpcClient.h"
 #include "ConfigMgr.h"
 
-RPCPool::RPCPool(size_t _size, std::string _host, std::string _port)
+VerifyPool::VerifyPool(size_t _size, std::string _host, std::string _port)
 	: poolSize(_size), host(_host), port(_port), isStop(false) {
-	std::cout << "RPCPool::RPCPool(): poolSize, host, port={"
+	std::cout << "VerifyPool::VerifyPool(): poolSize, host, port={"
 				<< _size << ", " << _host << ", " << _port << "}" << std::endl;
 	for (size_t i = 0; i < poolSize; i++) {
 		std::shared_ptr<Channel> chan = grpc::CreateChannel(host + ":" + port, //"127.0.0.1:50051",
@@ -15,8 +15,8 @@ RPCPool::RPCPool(size_t _size, std::string _host, std::string _port)
 	}
 }
 
-std::unique_ptr<VerifyService::Stub> RPCPool::GetConnection() {
-	std::cout << "RPCPool::GetConnection()" << std::endl;
+std::unique_ptr<VerifyService::Stub> VerifyPool::GetConnection() {
+	std::cout << "VerifyPool::GetConnection()" << std::endl;
 	//std::lock_guard<std::mutex> lk(mtx);
 	std::unique_lock<std::mutex> lk_gc(mtx);
 
@@ -37,8 +37,8 @@ std::unique_ptr<VerifyService::Stub> RPCPool::GetConnection() {
 	return conn;
 }
 
-void RPCPool::PushConnection(std::unique_ptr<VerifyService::Stub> conn) {
-	std::cout << "RPCPool::PushConnection()" << std::endl;
+void VerifyPool::PushConnection(std::unique_ptr<VerifyService::Stub> conn) {
+	std::cout << "VerifyPool::PushConnection()" << std::endl;
 	std::lock_guard<std::mutex> lk_pc(mtx);
 	if (isStop) {
 		return;
@@ -48,7 +48,7 @@ void RPCPool::PushConnection(std::unique_ptr<VerifyService::Stub> conn) {
 	cond.notify_one();
 }
 
-RPCPool::~RPCPool() {
+VerifyPool::~VerifyPool() {
 	//RAII
 	std::lock_guard<std::mutex> lk_des(mtx);
 	NotifyUsed();
@@ -57,7 +57,7 @@ RPCPool::~RPCPool() {
 	}
 }
 
-void RPCPool::NotifyUsed() {
+void VerifyPool::NotifyUsed() {
 	isStop = true;
 	cond.notify_all();
 }
@@ -74,5 +74,5 @@ VerifyGrpcClient::VerifyGrpcClient() {
 	std::cout << "GateServer Host = " << gateServerHost 
 		<< ", Port = " << gateServerPort << std::endl;
 
-	rpc_pool.reset(new RPCPool(5, gateServerHost, gateServerPort));
+	rpc_pool.reset(new VerifyPool(5, gateServerHost, gateServerPort));
 }

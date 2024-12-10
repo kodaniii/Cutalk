@@ -16,14 +16,14 @@ BEGIN
     -- 开始事务
     START TRANSACTION;
 
-    -- 检查用户名是否已存在
-    IF EXISTS (SELECT 1 FROM `user` WHERE `name` = new_name) THEN
-        SET result = 0; -- 用户名已存在
+    -- 检查email是否已存在，即本邮箱是否被注册过
+    IF EXISTS (SELECT 1 FROM `user` WHERE `email` = new_email) THEN
+        SET result = -2; -- email已存在
         COMMIT;
     ELSE
-        -- 用户名不存在，检查email是否已存在
-        IF EXISTS (SELECT 1 FROM `user` WHERE `email` = new_email) THEN
-            SET result = 0; -- email已存在
+        -- email不存在，检查用户名是否已存在
+        IF EXISTS (SELECT 1 FROM `user` WHERE `name` = new_name) THEN
+            SET result = -3; -- 用户名已存在
             COMMIT;
         ELSE
             -- email也不存在，更新user_id表

@@ -74,6 +74,12 @@ void LoginDialog::initHandlers()
             return;
         }
 
+        if(err == StatusCodes::RPCFailed){
+            showTip(false, tr("VerifyServer服务连接失败"));
+            enableBtn(true);
+            return;
+        }
+
         if(err != StatusCodes::SUCCESS){
             showTip(false, tr("不可预知的错误"));
             enableBtn(true);
