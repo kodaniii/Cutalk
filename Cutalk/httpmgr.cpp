@@ -37,13 +37,17 @@ void HttpMgr::postHttpReq(QUrl url, QJsonObject json, HttpReqId req_id, Modules 
 void HttpMgr::slot_http_finish(HttpReqId req_id, Modules mod, QString res, StatusCodes statusCode){
     switch (mod){
     case Modules::MOD_REGISTER:
-        qDebug() << "sig_reg_mod_finish statusCode =" << statusCode;
+        qDebug() << "HttpMgr::sig_reg_mod_finish statusCode =" << statusCode;
         emit sig_reg_mod_finish(req_id, res, statusCode);
         break;
     case Modules::MOD_RESET:
         //TODO Modules::MOD_RESET, is ok
-        qDebug() << "sig_reset_mod_finish statusCode =" << statusCode;
+        qDebug() << "HttpMgr::sig_reset_mod_finish statusCode =" << statusCode;
         emit sig_reset_mod_finish(req_id, res, statusCode);
+        break;
+    case Modules::MOD_LOGIN:
+        qDebug() << "HttpMgr::slot_http_finish statusCode =" << statusCode;
+        emit sig_login_mod_finish(req_id, res, statusCode);
         break;
     }
 }

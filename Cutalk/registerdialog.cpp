@@ -25,7 +25,16 @@ RegisterDialog::RegisterDialog(QWidget *parent)
 
     connect(ui->username_lineEdit, &QLineEdit::editingFinished, this, [this]() -> bool {
         //checkUserValid();
-        if(ui->username_lineEdit->text().length() < 4){
+        auto user = ui->username_lineEdit->text();
+
+        QRegularExpression regex(R"([@\.])");
+        bool match = regex.match(ui->username_lineEdit->text()).hasMatch();
+        if(match){
+            AddTipErr(TipErr::TIP_USER_ERR, tr("用户名不能包含@和."));
+            return false;
+        }
+
+        if(user.length() < 4){
             AddTipErr(TipErr::TIP_USER_ERR, tr("用户名长度必须大于等于4个字符"));
             return false;
         }
@@ -205,18 +214,18 @@ void RegisterDialog::DelTipErr(TipErr te){
     showTip(false, tipErrs.first());
 }
 
-bool RegisterDialog::isVaildEmail(QString email){
+bool RegisterDialog::isValidEmail(QString email){
     static QRegularExpression regex(R"((\w+)(\.|_)?(\w*)@(\w+)(\.(\w+))+)");
     bool isMatch = regex.match(email).hasMatch();
 
-    qDebug() << "RegisterDialog::isVaildEmail() =" << isMatch;
+    qDebug() << "RegisterDialog::isValidEmail() =" << isMatch;
     return isMatch;
 }
 
 //获取验证码button
 void RegisterDialog::on_verificationCode_get_Button_clicked(){
     auto email = ui->email_edit->text();
-    bool isMatch = isVaildEmail(email);
+    bool isMatch = isValidEmail(email);
 
     qDebug() << "get email =" << email << ", isMatch =" << isMatch;
 

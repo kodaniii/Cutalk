@@ -3,9 +3,22 @@
         <file>res/login_head.jpg</file>
         <file>style/stylesheet.qss</file>
         <file>res/register_head.png</file>
-        <file>res/register_ui/unvisible.png</file>
-        <file>res/register_ui/unvisible_hover.png</file>
-        <file>res/register_ui/visible.png</file>
-        <file>res/register_ui/visible_hover.png</file>
+        <file>res/visible_ui/unvisible.png</file>
+        <file>res/visible_ui/unvisible_hover.png</file>
+        <file>res/visible_ui/visible.png</file>
+        <file>res/visible_ui/visible_hover.png</file>
+        <file>res/add_friend.png</file>
+        <file>res/add_friend_hover.png</file>
+        <file>res/add_friend_normal.png</file>
+        <file>res/close_search.png</file>
+        <file>res/close_transparent.png</file>
+        <file>res/filedir.png</file>
+        <file>res/filedir_hover.png</file>
+        <file>res/filedir_press.png</file>
+        <file>res/loading.gif</file>
+        <file>res/search.png</file>
+        <file>res/smile.png</file>
+        <file>res/smile_hover.png</file>
+        <file>res/smile_press.png</file>
     </qresource>
 </RCC>

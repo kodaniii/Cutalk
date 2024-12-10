@@ -26,12 +26,14 @@ extern std::function<QString(QString)> xorString;
 enum HttpReqId{
     REQ_GET_VERIFY_CODE = 0x01, //获取验证码
     REQ_REG_USER = 0x02,        //注册新用户
-    REQ_RESET_PSWD = 0X03       //重置密码
+    REQ_RESET_PSWD = 0x03,      //重置密码
+    REQ_USER_LOGIN = 0X04,      //用户登录
 };
 
 enum Modules{
     MOD_REGISTER = 0x01,        //注册
-    MOD_RESET = 0x02            //密码重置
+    MOD_RESET = 0x02,           //密码重置
+    MOD_LOGIN = 0x03            //登录
 };
 
 enum TipErr{
@@ -57,8 +59,16 @@ enum StatusCodes{
 
     EmailNotRegistered = 0x107,		//该邮箱没有被注册过，不允许重置密码
     UsernameCannotUse = 0x108,		//该用户名被其他用户占用，不允许重置用户名
-    ResetUpdateFailed = 0x109		//重置用户名和密码失败
+    ResetUpdateFailed = 0x109,		//重置用户名和密码失败
 
+    LoginFailed = 0x10a,            //登录的用户名或密码错误
+};
+
+struct ServerInfo{
+    QString host;
+    QString port;
+    QString token;
+    int uid;
 };
 
 enum LabelClickState{

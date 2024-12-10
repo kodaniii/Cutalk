@@ -23,3 +23,8 @@ bool MysqlMgr::UpdateUserAndPswd(const std::string& name, const std::string& psw
 	std::cout << "MysqlMgr::UpdateUserAndPswd()" << std::endl;
 	return dao.UpdateUserAndPswd(name, pswd, email);
 }
+
+bool MysqlMgr::LoginCheckPswd(const std::string& name_or_email, const std::string& pswd, UserInfo& userInfo) {
+	std::cout << "MysqlMgr::LoginCheckPswd()" << std::endl;
+	return dao.LoginCheckPswd(name_or_email, pswd, userInfo);
+}

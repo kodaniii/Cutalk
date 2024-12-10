@@ -249,6 +249,60 @@ LogicSystem::LogicSystem() {
 		beast::ostream(conn->_response.body()) << jsonstr;
 		return true;
 		});
+
+	//用户登录逻辑
+	RegisterPost("/user_login", [](std::shared_ptr<HttpConnection> conn) {
+		auto body_str = boost::beast::buffers_to_string(conn->_request.body().data());
+		std::cout << "/user_login receive body " << body_str << std::endl;
+		conn->_response.set(http::field::content_type, "text/json");
+		Json::Value root;
+		Json::Reader reader;
+		Json::Value src_root;
+		bool parse_succ = reader.parse(body_str, src_root);
+		if (!parse_succ) {
+			std::cout << "Failed to parse JSON data!" << std::endl;
+			root["error"] = ErrorCodes::Error_Json;
+			std::string jsonstr = root.toStyledString();
+			beast::ostream(conn->_response.body()) << jsonstr;
+			return true;
+		}
+
+		auto user_or_email = src_root["user"].asString();
+		auto pswd = src_root["pswd"].asString();
+		UserInfo userInfo;
+		//查询数据库判断用户名和密码是否匹配
+		bool b_pswd_is_true = MysqlMgr::GetInstance()->LoginCheckPswd(user_or_email, pswd, userInfo);
+		if (!b_pswd_is_true) {
+			std::cout << "User pwd not match" << std::endl;
+			root["error"] = ErrorCodes::LoginFailed;
+			std::string jsonstr = root.toStyledString();
+			beast::ostream(conn->_response.body()) << jsonstr;
+			return true;
+		}
+
+		/*
+		//查询StatusServer找到合适的连接
+		auto reply = StatusGrpcClient::GetInstance()->GetChatServer(userInfo.uid);
+		if (reply.error()) {
+			std::cout << "StatusGrpcClient GetInstance() failed, error " << reply.error() << std::endl;
+			root["error"] = ErrorCodes::RPCFailed;
+			std::string jsonstr = root.toStyledString();
+			beast::ostream(conn->_response.body()) << jsonstr;
+			return true;
+		}*/
+
+		std::cout << "User login success, uid is " << userInfo.uid << std::endl;
+		root["error"] = ErrorCodes::Success;
+		root["user"] = user_or_email;
+		root["uid"] = userInfo.uid;
+		//root["token"] = reply.token();
+		//root["host"] = reply.host();
+		//root["port"] = reply.port();
+		std::string jsonstr = root.toStyledString();
+		beast::ostream(conn->_response.body()) << jsonstr;
+		return true;
+		});
+
 }
 
 void LogicSystem::RegisterGet(std::string url, HttpHandler handler) {

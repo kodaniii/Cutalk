@@ -58,7 +58,9 @@ enum ErrorCodes {
 
 	EmailNotRegistered = 0x107,		//该邮箱没有被注册过，不允许重置密码
 	UsernameCannotUse = 0x108,		//该用户名被其他用户占用，不允许重置用户名
-	ResetUpdateFailed = 0x109		//重置用户名和密码失败
+	ResetUpdateFailed = 0x109,		//重置用户名和密码失败
+
+	LoginFailed = 0x10a,            //登录的用户名或密码错误
 };
 
 // Defer类

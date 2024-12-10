@@ -23,6 +23,11 @@ MysqlDao::~MysqlDao() {
 */
 int MysqlDao::RegUser(const std::string& name, const std::string& email, const std::string& pswd){
 	auto conn = sql_pool->GetConnection();
+
+	Defer defer([this, &conn]() {
+		sql_pool->PushConnection(std::move(conn));
+	});
+
 	try {
 		if (conn == nullptr) {
 			//这行是BUG，空连接是isStop情况下凭空产生的，不能move回去
@@ -55,14 +60,11 @@ int MysqlDao::RegUser(const std::string& name, const std::string& email, const s
 		if (res->next()) {
 			int result = res->getInt("result");
 			std::cout << "MysqlDao::RegUser() Get uuid: " << result << std::endl;
-			sql_pool->PushConnection(std::move(conn));
 			return result;
 		}
-		sql_pool->PushConnection(std::move(conn));
 		return -1;
 	}
 	catch (sql::SQLException& e) {
-		sql_pool->PushConnection(std::move(conn));
 		std::cerr << "SQLException: " << e.what();
 		std::cerr << ", MySQL error code: " << e.getErrorCode();
 		std::cerr << ", SQLState: " << e.getSQLState() << " " << std::endl;
@@ -72,6 +74,11 @@ int MysqlDao::RegUser(const std::string& name, const std::string& email, const s
 
 int MysqlDao::CheckResetIsVaild(const std::string& name, const std::string& email) {
 	auto conn = sql_pool->GetConnection();
+
+	Defer defer([this, &conn]() {
+		sql_pool->PushConnection(std::move(conn));
+	});
+
 	try {
 		if (conn == nullptr) {
 			return -3;	//数据库操作失败
@@ -82,7 +89,6 @@ int MysqlDao::CheckResetIsVaild(const std::string& name, const std::string& emai
 		pstmt->setString(1, email);
 		std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
 		if (!res->next() || res->getInt(1) == 0) {
-			sql_pool->PushConnection(std::move(conn));
 			return -1;	//邮箱不存在
 		}
 
@@ -93,12 +99,10 @@ int MysqlDao::CheckResetIsVaild(const std::string& name, const std::string& emai
 		pstmt->setString(2, email);
 		res.reset(pstmt->executeQuery());
 		if (res->next()) {
-			sql_pool->PushConnection(std::move(conn));
 			return -2;	//用户名被其他邮箱占用
 		}
 	}
 	catch (sql::SQLException& e) {
-		sql_pool->PushConnection(std::move(conn));
 		std::cerr << "SQLException: " << e.what();
 		std::cerr << ", MySQL error code: " << e.getErrorCode();
 		std::cerr << ", SQLState: " << e.getSQLState() << " " << std::endl;
@@ -108,6 +112,11 @@ int MysqlDao::CheckResetIsVaild(const std::string& name, const std::string& emai
 
 bool MysqlDao::UpdateUserAndPswd(const std::string& name, const std::string& pswd, const std::string& email) {
 	auto conn = sql_pool->GetConnection();
+
+	Defer defer([this, &conn]() {
+		sql_pool->PushConnection(std::move(conn));
+	});
+
 	try {
 		if (conn == nullptr) {
 			return false;
@@ -125,11 +134,9 @@ bool MysqlDao::UpdateUserAndPswd(const std::string& name, const std::string& psw
 		int updateCount = pstmt->executeUpdate();
 
 		std::cout << "Reset rows: " << updateCount << std::endl;
-		sql_pool->PushConnection(std::move(conn));
 		return true;
 	}
 	catch (sql::SQLException& e) {
-		sql_pool->PushConnection(std::move(conn));
 		std::cerr << "SQLException: " << e.what();
 		std::cerr << ", MySQL error code: " << e.getErrorCode();
 		std::cerr << ", SQLState: " << e.getSQLState() << " " << std::endl;
@@ -137,6 +144,51 @@ bool MysqlDao::UpdateUserAndPswd(const std::string& name, const std::string& psw
 	}
 }
 
+bool MysqlDao::LoginCheckPswd(const std::string& login_key, const std::string& pwd, UserInfo& userInfo) {
+	auto conn = sql_pool->GetConnection();
+	if (conn == nullptr) {
+		return false;
+	}
+
+	Defer defer([this, &conn]() {
+		sql_pool->PushConnection(std::move(conn));
+	});
+
+	try {
+		std::unique_ptr<sql::PreparedStatement> pstmt(conn->sql_conn->prepareStatement("SELECT * FROM user WHERE name = ? OR email = ?"));
+		pstmt->setString(1, login_key); // 第一个参数尝试匹配用户名
+		pstmt->setString(2, login_key); // 第二个参数尝试匹配邮箱
+
+		// 执行查询
+		std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
+		std::string correct_pwd = "";
+
+		if (res->next()) {
+			correct_pwd = res->getString("pswd"); // 确保字段名与数据库中的字段名匹配
+			std::cout << "Login user passwd: " << correct_pwd << std::endl;
+			std::cout << "Login input passwd: " << pwd << std::endl;
+		}
+		//结果为空
+		else {
+			return false;
+		}
+
+		if (pwd != correct_pwd) {
+			return false;
+		}
+		userInfo.user = res->getString("name");
+		userInfo.pswd = correct_pwd;
+		userInfo.email = res->getString("email");
+		userInfo.uid = res->getInt("uid");
+		return true;
+	}
+	catch (sql::SQLException& e) {
+		std::cerr << "SQLException: " << e.what();
+		std::cerr << ", MySQL error code: " << e.getErrorCode();
+		std::cerr << ", SQLState: " << e.getSQLState() << " " << std::endl;
+		return false;
+	}
+}
 
 MysqlPool::MysqlPool(const std::string& _url, const std::string& _user, const std::string& _pswd, const std::string& _schema, int _poolSize)
 	: url(_url), user(_user), pswd(_pswd), schema(_schema), poolSize(_poolSize), isStop(false) {

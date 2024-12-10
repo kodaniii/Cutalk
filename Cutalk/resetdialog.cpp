@@ -123,11 +123,21 @@ void ResetDialog::slot_reset_mod_finish(HttpReqId id, QString res, StatusCodes e
 
 bool ResetDialog::checkUserValid()
 {
-    if(ui->username_edit->text().length() < 4){
+    auto user = ui->username_edit->text();
+
+    QRegularExpression regex(R"([@\.])");
+    bool match = regex.match(ui->username_edit->text()).hasMatch();
+    if(match){
+        AddTipErr(TipErr::TIP_USER_ERR, tr("用户名不能包含@和."));
+        return false;
+    }
+
+    if(user.length() < 4){
         AddTipErr(TipErr::TIP_USER_ERR, tr("用户名长度必须大于等于4个字符"));
         return false;
     }
 
+    //都满足, 删除对应错误
     DelTipErr(TipErr::TIP_USER_ERR);
     return true;
 }

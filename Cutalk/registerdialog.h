@@ -35,7 +35,7 @@ private:
 
     void showTip(bool, QString);
 
-    bool isVaildEmail(QString);
+    bool isValidEmail(QString);
 
     void AddTipErr(TipErr te, QString str);
     void DelTipErr(TipErr te);
