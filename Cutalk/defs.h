@@ -56,7 +56,7 @@ enum StatusCodes{
     StatusFailed = 0x104,       //Status服务器连接错误
 
     VerifyExpired = 0x201,      //验证码过期
-    VerifyCodeErr = 0x102,      //验证码错误
+    VerifyCodeErr = 0x202,      //验证码错误
 
     EmailExist = 0x301,         //邮箱已经注册过，重复注册
     UserExist = 0x302,          //用户名已被其他用户占用，但邮箱没有被注册过
