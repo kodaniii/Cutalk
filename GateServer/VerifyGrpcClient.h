@@ -53,7 +53,7 @@ public:
 		else {
 			//异常情况conn回收至grpc pool
 			rpc_pool->PushConnection(std::move(_stub));
-			reply.set_error(ErrorCodes::RPCFailed);
+			reply.set_error(ErrorCodes::VerifyFailed);
 			return reply;
 		}
 	}

@@ -16,7 +16,7 @@ class HttpMgr: public QObject, public Singleton<HttpMgr>, public std::enable_sha
 
 public:
     ~HttpMgr();
-    void postHttpReq(QUrl, QJsonObject, HttpReqId, Modules);
+    void postHttpReq(QUrl, QJsonObject, ReqId, Modules);
 
 private:
     //call Base Class(Singleton<HttpMgr>) constructor
@@ -25,15 +25,15 @@ private:
     QNetworkAccessManager _networkMgr;
 
 private slots:
-    void slot_http_finish(HttpReqId, Modules, QString, StatusCodes);
+    void slot_http_finish(ReqId, Modules, QString, StatusCodes);
 
 signals:
-    void sig_http_finish(HttpReqId, Modules, QString, StatusCodes);
+    void sig_http_finish(ReqId, Modules, QString, StatusCodes);
 
-    void sig_reg_mod_finish(HttpReqId, QString, StatusCodes);
+    void sig_reg_mod_finish(ReqId, QString, StatusCodes);
 
-    void sig_reset_mod_finish(HttpReqId, QString, StatusCodes);
+    void sig_reset_mod_finish(ReqId, QString, StatusCodes);
 
-    void sig_login_mod_finish(HttpReqId, QString, StatusCodes);
+    void sig_login_mod_finish(ReqId, QString, StatusCodes);
 };
 #endif // HTTPMGR_H

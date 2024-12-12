@@ -21,7 +21,7 @@ private slots:
 
     void on_cancel_button_clicked();
 
-    void slot_reg_mod_finish(HttpReqId, QString, StatusCodes);
+    void slot_reg_mod_finish(ReqId, QString, StatusCodes);
 
     void on_register_button_clicked();
 
@@ -31,7 +31,7 @@ private:
     Ui::RegisterDialog *ui;
 
     void initHttpHandlers();
-    QMap<HttpReqId, std::function<void(const QJsonObject&)>> _handlers;
+    QMap<ReqId, std::function<void(const QJsonObject&)>> _handlers;
 
     void showTip(bool, QString);
 

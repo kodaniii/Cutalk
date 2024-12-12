@@ -83,7 +83,7 @@ void ResetDialog::on_verify_btn_clicked()
         QString _url = GateServer_url_perfix + "/get_verifycode";
         qDebug() << "RegisterDialog::on_verificationCode_get_Button_clicked postHttpReq Qurl =" << _url;
         HttpMgr::GetInstance()->postHttpReq(QUrl(_url), json_obj,
-                                            HttpReqId::REQ_GET_VERIFY_CODE, Modules::MOD_RESET);
+                                            ReqId::REQ_GET_VERIFY_CODE, Modules::MOD_RESET);
 
         showTip(isMatch, tr("正在发送验证码"));
     }
@@ -92,10 +92,15 @@ void ResetDialog::on_verify_btn_clicked()
     }
 }
 
-void ResetDialog::slot_reset_mod_finish(HttpReqId id, QString res, StatusCodes err)
+void ResetDialog::slot_reset_mod_finish(ReqId id, QString res, StatusCodes statusCode)
 {
-    if(err != StatusCodes::SUCCESS){
+    if(statusCode == StatusCodes::GateFailed){
         showTip(false, tr("GateServer服务连接失败"));
+        return;
+    }
+
+    if(statusCode != StatusCodes::Success){
+        showTip(false, tr("不可预知的错误"));
         return;
     }
 
@@ -214,15 +219,15 @@ void ResetDialog::DelTipErr(TipErr te)
 void ResetDialog::initHandlers()
 {
     //获取验证码回包逻辑
-    _handlers.insert(HttpReqId::REQ_GET_VERIFY_CODE, [this](const QJsonObject& jsonObj){
+    _handlers.insert(ReqId::REQ_GET_VERIFY_CODE, [this](const QJsonObject& jsonObj){
         int err = jsonObj["error"].toInt();
         qDebug() << "ResetDialog::initHandlers() REQ_GET_VERIFY_CODE" << err;
-        if(err == StatusCodes::RPCFailed){
+        if(err == StatusCodes::VerifyFailed){
             showTip(false, tr("VerifyServer服务连接失败"));
             return;
         }
 
-        if(err != StatusCodes::SUCCESS){
+        if(err != StatusCodes::Success){
             showTip(false, tr("不可预知的错误"));
             return;
         }
@@ -233,7 +238,7 @@ void ResetDialog::initHandlers()
     });
 
     //重置密码回包逻辑
-    _handlers.insert(HttpReqId::REQ_RESET_PSWD, [this](QJsonObject jsonObj){
+    _handlers.insert(ReqId::REQ_RESET_PSWD, [this](QJsonObject jsonObj){
         int err = jsonObj["error"].toInt();
         qDebug() << "ResetDialog::initHandlers() REQ_RESET_PSWD" << err;
 
@@ -262,7 +267,7 @@ void ResetDialog::initHandlers()
             return;
         }
 
-        if(err != StatusCodes::SUCCESS){
+        if(err != StatusCodes::Success){
             showTip(false, tr("不可预知的错误"));
             return;
         }
@@ -322,5 +327,5 @@ void ResetDialog::on_sure_btn_clicked()
     json_obj["pswd"] = xorString(ui->pwd_edit->text());
     json_obj["verifycode"] = ui->verify_edit->text();
     HttpMgr::GetInstance()->postHttpReq(QUrl(GateServer_url_perfix + "/reset_user_and_passwd"),
-                 json_obj, HttpReqId::REQ_RESET_PSWD, Modules::MOD_RESET);
+                 json_obj, ReqId::REQ_RESET_PSWD, Modules::MOD_RESET);
 }

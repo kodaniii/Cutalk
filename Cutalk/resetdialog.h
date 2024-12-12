@@ -21,7 +21,7 @@ private slots:
 
     void on_verify_btn_clicked();
 
-    void slot_reset_mod_finish(HttpReqId id, QString res, StatusCodes err);
+    void slot_reset_mod_finish(ReqId, QString, StatusCodes);
     void on_sure_btn_clicked();
 
 private:
@@ -37,7 +37,7 @@ private:
     void initHandlers();
     Ui::ResetDialog *ui;
     QMap<TipErr, QString> _tip_errs;
-    QMap<HttpReqId, std::function<void(const QJsonObject&)>> _handlers;
+    QMap<ReqId, std::function<void(const QJsonObject&)>> _handlers;
 signals:
     void sig_switch_login();
 };

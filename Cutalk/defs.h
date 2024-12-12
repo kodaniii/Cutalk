@@ -23,11 +23,11 @@ extern std::function<void(QWidget*)> repolish;
 
 extern std::function<QString(QString)> xorString;
 
-enum HttpReqId{
+enum ReqId{
     REQ_GET_VERIFY_CODE = 0x01, //获取验证码
     REQ_REG_USER = 0x02,        //注册新用户
     REQ_RESET_PSWD = 0x03,      //重置密码
-    REQ_USER_LOGIN = 0X04,      //用户登录
+    REQ_USER_LOGIN = 0x04,      //用户登录
 };
 
 enum Modules{
@@ -48,22 +48,27 @@ enum TipErr{
 };
 
 enum StatusCodes{
-    SUCCESS = 0,
-    ERR_JSON = 0x101,           //json解析失败
-    RPCFailed = 0x102,          //RPC连接错误
+    Success = 0,
 
-    VerifyExpired = 0x103,      //验证码过期
-    VerifyCodeErr = 0x104,      //验证码错误
+    Error_Json = 0x101,         //json解析失败
+    GateFailed = 0x102,         //GateServer服务器连接错误
+    VerifyFailed = 0x103,       //Verify服务器连接错误
+    StatusFailed = 0x104,       //Status服务器连接错误
 
-    EmailExist = 0x105,         //邮箱已经注册过，重复注册
-    UserExist = 0x106,          //用户名已被其他用户占用，但邮箱没有被注册过
-    PasswdErr = 0x107,          //确认密码和密码不一致
+    VerifyExpired = 0x201,      //验证码过期
+    VerifyCodeErr = 0x102,      //验证码错误
 
-    EmailNotRegistered = 0x108,		//该邮箱没有被注册过，不允许重置密码
-    UsernameCannotUse = 0x109,		//该用户名被其他用户占用，不允许重置用户名
-    ResetUpdateFailed = 0x10a,		//重置用户名和密码失败
+    EmailExist = 0x301,         //邮箱已经注册过，重复注册
+    UserExist = 0x302,          //用户名已被其他用户占用，但邮箱没有被注册过
+    PasswdErr = 0x303,          //确认密码和密码不一致
 
-    LoginFailed = 0x10b,            //登录的用户名或密码错误
+    EmailNotRegistered = 0x401,		//该邮箱没有被注册过，不允许重置密码
+    UsernameCannotUse = 0x402,		//该用户名被其他用户占用，不允许重置用户名
+    ResetUpdateFailed = 0x403,		//重置用户名和密码失败
+
+    LoginFailed = 0x404,            //登录的用户名或密码错误
+    TokenInvalid = 0x405,			//Token失效
+    UidInvalid = 0x406, 			//uid无效
 };
 
 struct ServerInfo{

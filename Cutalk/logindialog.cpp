@@ -4,6 +4,7 @@
 #include <QPainter>
 #include <QPainterPath>
 #include "httpmgr.h"
+#include "tcpmgr.h"
 
 LoginDialog::LoginDialog(QWidget *parent)
     : QDialog(parent)
@@ -52,8 +53,19 @@ LoginDialog::LoginDialog(QWidget *parent)
     });
 
     //注册登录回包信号
+    //点击登录，发送登录请求，收到了回包信号
     connect(HttpMgr::GetInstance().get(), &HttpMgr::sig_login_mod_finish,
             this, &LoginDialog::slot_login_mod_finish);
+
+    //tcp长连接聊天服务器
+    connect(this, &LoginDialog::sig_tcp_connect, TcpMgr::GetInstance().get(), &TcpMgr::slot_tcp_connect);
+
+    //tcp长连接完成
+    connect(TcpMgr::GetInstance().get(), &TcpMgr::sig_tcp_conn_fin, this, &LoginDialog::slot_tcp_conn_fin);
+
+    //登录失败
+    connect(TcpMgr::GetInstance().get(), &TcpMgr::sig_login_failed, this, &LoginDialog::slot_login_failed);
+
 }
 
 LoginDialog::~LoginDialog() {
@@ -64,7 +76,7 @@ LoginDialog::~LoginDialog() {
 void LoginDialog::initHandlers()
 {
     //用户登录回包逻辑
-    _handlers.insert(HttpReqId::REQ_USER_LOGIN, [this](const QJsonObject& jsonObj){
+    _handlers.insert(ReqId::REQ_USER_LOGIN, [this](const QJsonObject& jsonObj){
         int err = jsonObj["error"].toInt();
         qDebug() << "LoginDialog::initHandlers() REQ_USER_LOGIN" << err;
 
@@ -74,13 +86,19 @@ void LoginDialog::initHandlers()
             return;
         }
 
-        if(err == StatusCodes::RPCFailed){
-            showTip(false, tr("VerifyServer服务连接失败"));
+        if(err == StatusCodes::GateFailed){
+            showTip(false, tr("GateServer服务连接失败"));
             enableBtn(true);
             return;
         }
 
-        if(err != StatusCodes::SUCCESS){
+        if(err == StatusCodes::StatusFailed){
+            showTip(false, tr("StatusServer服务连接失败"));
+            enableBtn(true);
+            return;
+        }
+
+        if(err != StatusCodes::Success){
             showTip(false, tr("不可预知的错误"));
             enableBtn(true);
             return;
@@ -97,16 +115,28 @@ void LoginDialog::initHandlers()
 
         qDebug() << "LoginDialog::initHandlers() REQ_USER_LOGIN: user" << user << ", uid" << si.uid
                  << ", host" << si.host << ", port" << si.port << ", token" << si.token;
-        showTip(true, tr("登录成功"));
-        emit sig_connect_tcp(si);
+        showTip(true, tr("登录成功，正在连接服务器..."));
+        emit sig_tcp_connect(si);
     });
 }
 
-void LoginDialog::slot_login_mod_finish(HttpReqId id, QString res, StatusCodes err)
+void LoginDialog::slot_login_mod_finish(ReqId id, QString res, StatusCodes statusCode)
 {
     qDebug() << "LoginDialog::slot_login_mod_finish()";
-    if(err != StatusCodes::SUCCESS){
+    if(statusCode == StatusCodes::GateFailed){
         showTip(false, tr("GateServer服务连接失败"));
+        enableBtn(true);
+        return;
+    }
+
+    if(statusCode == StatusCodes::StatusFailed){
+        showTip(false, tr("StatusServer服务连接失败"));
+        enableBtn(true);
+        return;
+    }
+
+    if(statusCode != StatusCodes::Success){
+        showTip(false, tr("不可预知的错误"));
         enableBtn(true);
         return;
     }
@@ -132,6 +162,33 @@ void LoginDialog::slot_login_mod_finish(HttpReqId id, QString res, StatusCodes e
     _handlers[id](jsonDoc.object());
 
     return;
+}
+
+void LoginDialog::slot_tcp_conn_fin(bool b_success){
+    qDebug() << "LoginDialog::slot_tcp_conn_fin()" << b_success;
+    if(b_success){
+        showTip(true, tr("已连接到聊天服务器"));
+        QJsonObject jsonObj;
+        jsonObj["uid"] = uid;
+        jsonObj["token"] = token;
+
+        QJsonDocument doc(jsonObj);
+        QByteArray jsonData = doc.toJson(QJsonDocument::Indented);
+
+        //发送tcp请求给ChatServer
+        emit TcpMgr::GetInstance()->sig_tcp_send_data(ReqId::REQ_USER_LOGIN, jsonData);
+
+    }else{
+        showTip(false, tr("ChatServer服务连接失败"));
+        enableBtn(true);
+    }
+}
+
+void LoginDialog::slot_login_failed(int err){
+    QString result = QString("登录失败, err is %1").arg(err);
+    qDebug() << result;
+    showTip(false, tr("ChatServer服务连接失败"));
+    enableBtn(true);
 }
 
 void LoginDialog::initHead()
@@ -190,7 +247,7 @@ void LoginDialog::on_login_button_clicked() {
     json_obj["user"] = user_or_email;
     json_obj["pswd"] = xorString(pswd);
     HttpMgr::GetInstance()->postHttpReq(QUrl(GateServer_url_perfix + "/user_login"),
-                                        json_obj, HttpReqId::REQ_USER_LOGIN, Modules::MOD_LOGIN);
+                                        json_obj, ReqId::REQ_USER_LOGIN, Modules::MOD_LOGIN);
     showTip(true, tr("正在登录..."));
 
 }

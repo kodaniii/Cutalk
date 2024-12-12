@@ -39,7 +39,10 @@ private:
     QMap<TipErr, QString> tipErrs;
 
     void initHandlers();
-    QMap<HttpReqId, std::function<void(const QJsonObject&)>> _handlers;
+    QMap<ReqId, std::function<void(const QJsonObject&)>> _handlers;
+
+    int uid;
+    QString token;
 
 signals:
     //切换到注册界面
@@ -48,15 +51,20 @@ signals:
     void sig_switch_reset();
 
     //发起http长连接
-    void sig_connect_tcp(ServerInfo);
+    void sig_tcp_connect(ServerInfo);
 
 public slots:
     void slot_forget_passwd();
 
+    //tcp长连接完成
+    void slot_tcp_conn_fin(bool b_success);
+
+    //登录失败
+    void slot_login_failed(int);
 private slots:
     void on_login_button_clicked();
 
-    void slot_login_mod_finish(HttpReqId, QString, StatusCodes);
+    void slot_login_mod_finish(ReqId, QString, StatusCodes);
 };
 
 #endif // LOGINDIALOG_H

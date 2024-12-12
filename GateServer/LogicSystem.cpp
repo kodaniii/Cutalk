@@ -151,8 +151,8 @@ LogicSystem::LogicSystem() {
 			return true;
 		}
 		else if (uid == -1) {
-			std::cout << "UnKnownedFailed" << std::endl;
-			root["error"] = ErrorCodes::UnKnownedFailed;
+			std::cout << "UnKnownFailed" << std::endl;
+			root["error"] = ErrorCodes::UnKnownFailed;
 			std::string jsonstr = root.toStyledString();
 			beast::ostream(conn->_response.body()) << jsonstr;
 			return true;
@@ -308,7 +308,7 @@ LogicSystem::LogicSystem() {
 		auto reply = StatusGrpcClient::GetInstance()->GetChatServer(userInfo.uid);
 		if (reply.error()) {
 			std::cout << "StatusGrpcClient::GetInstance() failed, error " << reply.error() << std::endl;
-			root["error"] = ErrorCodes::RPCFailed;
+			root["error"] = ErrorCodes::StatusFailed;
 			std::string jsonstr = root.toStyledString();
 			beast::ostream(conn->_response.body()) << jsonstr;
 			return true;

@@ -237,7 +237,7 @@ void RegisterDialog::on_verificationCode_get_Button_clicked(){
         //QString _url = "http://localhost:8080/get_verifycode";
         QString _url = GateServer_url_perfix + "/get_verifycode";
         qDebug() << "RegisterDialog::on_verificationCode_get_Button_clicked postHttpReq Qurl =" << _url;
-        HttpMgr::GetInstance()->postHttpReq(QUrl(_url), json_obj, HttpReqId::REQ_GET_VERIFY_CODE, Modules::MOD_REGISTER);
+        HttpMgr::GetInstance()->postHttpReq(QUrl(_url), json_obj, ReqId::REQ_GET_VERIFY_CODE, Modules::MOD_REGISTER);
 
         showTip(isMatch, tr("正在发送验证码"));
     }
@@ -266,9 +266,14 @@ void RegisterDialog::on_cancel_button_clicked()
 }
 
 //验证码获取button，处理从GateServer返回的json
-void RegisterDialog::slot_reg_mod_finish(HttpReqId req_id, QString res, StatusCodes statusCode) {
-    if(statusCode != StatusCodes::SUCCESS){
+void RegisterDialog::slot_reg_mod_finish(ReqId req_id, QString res, StatusCodes statusCode) {
+    if(statusCode == StatusCodes::GateFailed){
         showTip(false, tr("GateServer服务连接失败"));
+        return;
+    }
+
+    if(statusCode != StatusCodes::Success){
+        showTip(false, tr("不可预知的错误"));
         return;
     }
 
@@ -293,20 +298,20 @@ void RegisterDialog::slot_reg_mod_finish(HttpReqId req_id, QString res, StatusCo
     return;
 }
 
-//HttpReqId处理逻辑
+//ReqId处理逻辑
 void RegisterDialog::initHttpHandlers()
 {
     //GET_VERIFY_CODE request
     //从GateServer拿到json数据，json["error"]记录的是GateServer和VerifyServer连接情况
-    _handlers.insert(HttpReqId::REQ_GET_VERIFY_CODE, [this](const QJsonObject& jsonObj){
+    _handlers.insert(ReqId::REQ_GET_VERIFY_CODE, [this](const QJsonObject& jsonObj){
         int err = jsonObj["error"].toInt();
         qDebug() << "RegisterDialog::initHttpHandlers() REQ_GET_VERIFY_CODE" << err;
-        if(err == StatusCodes::RPCFailed){
+        if(err == StatusCodes::VerifyFailed){
             showTip(false, tr("VerifyServer服务连接失败"));
             return;
         }
 
-        if(err != StatusCodes::SUCCESS){
+        if(err != StatusCodes::Success){
             showTip(false, tr("不可预知的错误"));
             return;
         }
@@ -318,7 +323,7 @@ void RegisterDialog::initHttpHandlers()
 
     //REQ_REG_USER
     //从GateServer拿到json回包
-    _handlers.insert(HttpReqId::REQ_REG_USER, [this](const QJsonObject& jsonObj){
+    _handlers.insert(ReqId::REQ_REG_USER, [this](const QJsonObject& jsonObj){
         int err = jsonObj["error"].toInt();
         qDebug() << "RegisterDialog::initHttpHandlers() REQ_REG_USER" << err;
 
@@ -347,7 +352,7 @@ void RegisterDialog::initHttpHandlers()
             return;
         }
 
-        if(err != StatusCodes::SUCCESS){
+        if(err != StatusCodes::Success){
             showTip(false, tr("不可预知的错误"));
             return;
         }
@@ -422,7 +427,7 @@ void RegisterDialog::on_register_button_clicked()
     json_obj["verifycode"] = ui->verificationCode_lineEdit->text();
     //发注册请求
     HttpMgr::GetInstance()->postHttpReq(QUrl(GateServer_url_perfix + "/user_register"),
-                                        json_obj, HttpReqId::REQ_REG_USER, Modules::MOD_REGISTER);
+                                        json_obj, ReqId::REQ_REG_USER, Modules::MOD_REGISTER);
 }
 
 //注册界面Page2点击返回登录按钮

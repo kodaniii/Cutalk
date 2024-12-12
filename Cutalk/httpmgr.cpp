@@ -9,7 +9,7 @@ HttpMgr::~HttpMgr(){
 }
 
 //发http post req
-void HttpMgr::postHttpReq(QUrl url, QJsonObject json, HttpReqId req_id, Modules mod){
+void HttpMgr::postHttpReq(QUrl url, QJsonObject json, ReqId req_id, Modules mod){
     QByteArray data = QJsonDocument(json).toJson();
     QNetworkRequest request(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
@@ -22,19 +22,19 @@ void HttpMgr::postHttpReq(QUrl url, QJsonObject json, HttpReqId req_id, Modules 
         //连接失败
         if(reply->error() != QNetworkReply::NoError){
             qDebug() << "HttpMgr reply" << reply->errorString();
-            emit self->sig_http_finish(req_id, mod, "", StatusCodes::RPCFailed); // -> &RegisterDialog::slot_reg_mod_finish
+            emit self->sig_http_finish(req_id, mod, "", StatusCodes::GateFailed); // -> &RegisterDialog::slot_reg_mod_finish
             reply->deleteLater();
             return;
         }
 
         QString res = reply->readAll();
-        emit self->sig_http_finish(req_id, mod, res, StatusCodes::SUCCESS);
+        emit self->sig_http_finish(req_id, mod, res, StatusCodes::Success);
         reply->deleteLater();
         return;
     });
 }
 
-void HttpMgr::slot_http_finish(HttpReqId req_id, Modules mod, QString res, StatusCodes statusCode){
+void HttpMgr::slot_http_finish(ReqId req_id, Modules mod, QString res, StatusCodes statusCode){
     switch (mod){
     case Modules::MOD_REGISTER:
         qDebug() << "HttpMgr::sig_reg_mod_finish statusCode =" << statusCode;
