@@ -122,6 +122,8 @@ Status StatusServiceImpl::Login(ServerContext* context, const LoginReq* request,
 	std::string token_key = USER_TOKEN_PREFIX + uid_str;
 	std::string token_value = "";
 	bool succ = RedisMgr::GetInstance()->Get(token_key, token_value);
+	std::cout << "RedisMgr::GetInstance()->Get() " << token_key << ": "
+			<< token_value << ", ret " << succ << std::endl;
 	//uid找不到对应的token
 	if (succ) {
 		reply->set_error(ErrorCodes::UidInvalid);
