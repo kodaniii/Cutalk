@@ -59,3 +59,97 @@ QDialog#LoginDialog, #RegisterDialog, #ResetDialog{
 #forget_passwd_label[state='normal_hover'], #forget_passwd_label[state='selected_hover']{
     color: blue;
 }
+
+
+#side_bar{
+  background-color:rgb(237,237,237);
+}
+
+
+#add_btn[state='normal']{
+    border-image: url(:/res/add_friend_normal.png);
+}
+
+#add_btn[state='hover']{
+    border-image: url(:/res/add_friend_hover.png);
+}
+
+#add_btn[state='press']{
+    border-image: url(:/res/add_friend_press.png);
+}
+
+#search_wid{
+    background-color: rgb(247,247,247);
+}
+
+#search_edit{
+    border: 2px solid #f1f1f1;
+}
+
+#chat_user_wid{
+    background-color: rgb(0,0,0);
+}
+
+#chat_user_list{
+    background-color: rgb(247,247,247);
+    border: none;
+    outline: none;
+}
+
+#contact_list{
+    background-color: rgb(247,247,247);
+    border: none;
+    outline: none;
+}
+
+#search_list{
+    background-color: rgb(247,247,247);
+    border: none;
+    outline: none;
+}
+
+#ChatUserWid {
+    background-color: rgb(247,247,247);
+    border: none;
+}
+
+#user_chat_lb{
+    color: rgb(153,153,153);
+    font-size: 14px;
+    font-family: "Microsoft YaHei";
+}
+
+#user_name_lb{
+    color: rgb(0,0,0);
+    font-size: 16px;
+    font-weight: normal;
+    font-family: "Microsoft YaHei";
+}
+
+#time_wid #time_lb{
+   color: rgb(140,140,140);
+   font-size: 12px;
+   font-family: "Microsoft YaHei";
+}
+
+QScrollBar:vertical {
+    background: transparent; /* 将轨道背景设置为透明 */
+    width: 8px; /* 滚动条宽度，根据需要调整 */
+    margin: 0px; /* 移除滚动条与滑块之间的间距 */
+}
+
+QScrollBar::handle:vertical {
+    background: rgb(173,170,169); /* 滑块颜色 */
+    min-height: 10px; /* 滑块最小高度，根据需要调整 */
+    border-radius: 4px; /* 滑块边缘圆角，调整以形成椭圆形状 */
+}
+
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+    height: 0px; /* 移除上下按钮 */
+    border: none; /* 移除边框 */
+    background: transparent; /* 背景透明 */
+}
+
+QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+    background: none; /* 页面滚动部分背景透明 */
+}

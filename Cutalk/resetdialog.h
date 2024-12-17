@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include "defs.h"
+#include <QKeyEvent>
 
 namespace Ui {
 class ResetDialog;
@@ -15,6 +16,17 @@ class ResetDialog : public QDialog
 public:
     explicit ResetDialog(QWidget *parent = nullptr);
     ~ResetDialog();
+
+protected:
+    void keyPressEvent(QKeyEvent *event) override {
+        if (event->key() == Qt::Key_Escape) {
+            // 忽略ESC键事件，不调用QDialog::keyPressEvent(event)
+            event->ignore();
+        } else {
+            // 对于其他按键事件，调用基类的keyPressEvent处理
+            QDialog::keyPressEvent(event);
+        }
+    }
 
 private slots:
     void on_return_btn_clicked();
