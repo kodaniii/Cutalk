@@ -65,9 +65,10 @@ enum ErrorCodes {
     UsernameCannotUse = 0x402,		//该用户名被其他用户占用，不允许重置用户名
     ResetUpdateFailed = 0x403,		//重置用户名和密码失败
 
-    LoginFailed = 0x404,            //登录的用户名或密码错误
-    TokenInvalid = 0x405,			//Token失效
-    UidInvalid = 0x406, 			//uid无效
+    LoginHandlerFailed = 0x501,     //客户端找不到handler
+    LoginFailed = 0x502,            //登录的用户名或密码错误
+    TokenInvalid = 0x503,			//Token失效
+    UidInvalid = 0x504, 			//uid无效
 };
 
 // Defer类

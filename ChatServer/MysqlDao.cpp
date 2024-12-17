@@ -40,11 +40,12 @@ std::shared_ptr<UserInfo> MysqlDao::GetUser(int uid)
 			user_ptr->pswd = res->getString("pswd");
 			user_ptr->email = res->getString("email");
 			user_ptr->name = res->getString("name");
-			user_ptr->nick = res->getString("nick");
-			user_ptr->desc = res->getString("desc");
-			user_ptr->sex = res->getInt("sex");
-			user_ptr->icon = res->getString("icon");
+			//user_ptr->nick = res->getString("nick");
+			//user_ptr->desc = res->getString("desc");
+			//user_ptr->sex = res->getInt("sex");
+			//user_ptr->icon = res->getString("icon");
 			user_ptr->uid = uid;
+			std::cout << "MysqlDao::GetUser uid " << uid << std::endl;
 			break;
 		}
 		return user_ptr;

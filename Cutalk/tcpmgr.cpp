@@ -111,6 +111,7 @@ void TcpMgr::handleMsg(ReqId req, int len, QByteArray data)
     auto find_iter = _handlers.find(req);
     if(find_iter == _handlers.end()){
         qDebug()<< "Not found Req" << req;
+        emit sig_login_failed(StatusCodes::LoginHandlerFailed);
         return ;
     }
 
@@ -121,7 +122,7 @@ void TcpMgr::initHandlers(){
     //这里不能使用CRTP延长this指针寿命
     //auto self = shared_from_this();
     //登录聊天服务器回包
-    _handlers.insert(REQ_USER_LOGIN, [this](ReqId req, int len, QByteArray data){
+    _handlers.insert(REQ_CHAT_LOGIN_RSP, [this](ReqId req, int len, QByteArray data){
         Q_UNUSED(len);
         qDebug()<< "TcpMgr handle"<< req ;
         // 将QByteArray转换为QJsonDocument
@@ -155,6 +156,7 @@ void TcpMgr::initHandlers(){
 
         //切换聊天界面
         emit sig_switch_chatdlg();
+        qDebug() << "emit sig_switch_chatdlg()";
     });
 }
 

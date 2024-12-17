@@ -170,7 +170,7 @@ void LoginDialog::slot_login_mod_finish(ReqId id, QString res, StatusCodes statu
 void LoginDialog::slot_tcp_conn_fin(bool b_success){
     qDebug() << "LoginDialog::slot_tcp_conn_fin()" << b_success;
     if(b_success){
-        showTip(true, tr("已连接到聊天服务器"));
+        showTip(true, tr("已连接到聊天服务器，发送登录请求..."));
         QJsonObject jsonObj;
         jsonObj["uid"] = uid;
         jsonObj["token"] = token;
@@ -179,7 +179,8 @@ void LoginDialog::slot_tcp_conn_fin(bool b_success){
         QByteArray jsonData = doc.toJson(QJsonDocument::Indented);
 
         //发送tcp请求给ChatServer
-        emit TcpMgr::GetInstance()->sig_tcp_send_data(ReqId::REQ_USER_LOGIN, jsonData);
+        //tcp内容是登录到聊天服务器
+        emit TcpMgr::GetInstance()->sig_tcp_send_data(ReqId::REQ_CHAT_LOGIN, jsonData);
 
     }else{
         showTip(false, tr("ChatServer服务连接失败"));
@@ -187,10 +188,33 @@ void LoginDialog::slot_tcp_conn_fin(bool b_success){
     }
 }
 
-void LoginDialog::slot_login_failed(int err){
-    QString result = QString("登录失败, err is %1").arg(err);
-    qDebug() << result;
-    showTip(false, tr("ChatServer服务连接失败"));
+void LoginDialog::slot_login_failed(int statusCode){
+    qDebug() << "LoginDialog::slot_login_failed() err" << statusCode;
+
+    if(statusCode == StatusCodes::LoginHandlerFailed){
+        showTip(false, tr("无法匹配到处理登录请求的函数"));
+        enableBtn(true);
+        return;
+    }
+
+    if(statusCode == StatusCodes::TokenInvalid){
+        showTip(false, tr("Token失效，登录失败"));
+        enableBtn(true);
+        return;
+    }
+
+    if(statusCode == StatusCodes::UidInvalid){
+        showTip(false, tr("Uid失效，登录失败"));
+        enableBtn(true);
+        return;
+    }
+
+    if(statusCode != StatusCodes::Success){
+        showTip(false, tr("登录请求失败"));
+        enableBtn(true);
+        return;
+    }
+
     enableBtn(true);
 }
 

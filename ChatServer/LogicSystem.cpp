@@ -52,6 +52,7 @@ void LogicSystem::DealMsg() {
 
 				//没找到对应的回调函数，直接queue.pop()
 				if (call_back_iter == _func_callbacks.end()) {
+					std::cout << "cannot found _func_callbacks[msg_type_id]" << std::endl;
 					_msg_que.pop();
 					continue;
 				}
@@ -70,6 +71,7 @@ void LogicSystem::DealMsg() {
 		auto call_back_iter = _func_callbacks.find(msg_node->_recvnode->_msg_type_id);
 
 		if (call_back_iter == _func_callbacks.end()) {
+			std::cout << "cannot found _func_callbacks[msg_type_id]" << std::endl;
 			_msg_que.pop();
 			continue;
 		}
@@ -99,6 +101,8 @@ void LogicSystem::LoginHandler(shared_ptr<CSession> session, const short& msg_ty
 	//从状态服务器获取token匹配是否准确
 	//LoginReq(uid, token) -> LoginRsp(error, uid, token)
 	auto rsp = StatusGrpcClient::GetInstance()->Login(uid, root["token"].asString());
+	std::cout << "StatusGrpcClient Login rsp error " << rsp.error() 
+		<< ", uid " << rsp.uid() << ", token " << rsp.token() << std::endl;
 	Json::Value rtvalue;
 	Defer defer([this, &rtvalue, session]() {
 		std::string return_str = rtvalue.toStyledString();
@@ -118,6 +122,7 @@ void LogicSystem::LoginHandler(shared_ptr<CSession> session, const short& msg_ty
 		//通过uid查询数据库
 		user_info = MysqlMgr::GetInstance()->GetUser(uid);
 		if (user_info == nullptr) {
+			std::cout << "Cannot found uid " << uid << " in Mysql user table" << std::endl;
 			rtvalue["error"] = ErrorCodes::UidInvalid;
 			return;
 		}

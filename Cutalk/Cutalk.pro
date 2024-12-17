@@ -12,6 +12,7 @@ RC_ICONS = .\res\ico\logo.ico
 DESTDIR = .\bin
 
 SOURCES += \
+    chatdialog.cpp \
     clicklabel.cpp \
     defs.cpp \
     httpmgr.cpp \
@@ -24,6 +25,7 @@ SOURCES += \
     timerbtn.cpp
 
 HEADERS += \
+    chatdialog.h \
     clicklabel.h \
     defs.h \
     httpmgr.h \
@@ -36,6 +38,7 @@ HEADERS += \
     timerbtn.h
 
 FORMS += \
+    chatdialog.ui \
     logindialog.ui \
     mainwindow.ui \
     registerdialog.ui \

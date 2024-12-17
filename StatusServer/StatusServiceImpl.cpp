@@ -125,13 +125,15 @@ Status StatusServiceImpl::Login(ServerContext* context, const LoginReq* request,
 	std::cout << "RedisMgr::GetInstance()->Get() " << token_key << ": "
 			<< token_value << ", ret " << succ << std::endl;
 	//uid找不到对应的token
-	if (succ) {
+	if (!succ) {
+		std::cout << "ERR RedisMgr::GetInstance()->Get() fail ret UidInvalid" << std::endl;
 		reply->set_error(ErrorCodes::UidInvalid);
 		return Status::OK;
 	}
 
 	//token不匹配
 	if (token_value != token) {
+		std::cout << "ERR token_value != token ret TokenInvalid" << std::endl;
 		reply->set_error(ErrorCodes::TokenInvalid);
 		return Status::OK;
 	}
@@ -147,5 +149,6 @@ void StatusServiceImpl::insertToken(int uid, std::string token) {
 	std::string uid_str = std::to_string(uid);
 	std::string token_key = USER_TOKEN_PREFIX + uid_str;
 	RedisMgr::GetInstance()->Set(token_key, token);
+	std::cout << "RedisMgr::GetInstance()->Set() " << token_key << ": " << token << std::endl;
 }
 
