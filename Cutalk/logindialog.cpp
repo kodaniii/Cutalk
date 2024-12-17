@@ -108,13 +108,16 @@ void LoginDialog::initHandlers()
 
         //发送信号通知tcpMgr发送长链接
         ServerInfo si;
-        si.uid = jsonObj["uid"].toInt();
+        //si.uid = jsonObj["uid"].toInt();
         si.host = jsonObj["host"].toString();
         si.port = jsonObj["port"].toString();
-        si.token = jsonObj["token"].toString();
+        //si.token = jsonObj["token"].toString();
 
-        qDebug() << "LoginDialog::initHandlers() REQ_USER_LOGIN: user" << user << ", uid" << si.uid
-                 << ", host" << si.host << ", port" << si.port << ", token" << si.token;
+        uid = jsonObj["uid"].toInt();
+        token = jsonObj["token"].toString();
+
+        qDebug() << "LoginDialog::initHandlers() REQ_USER_LOGIN: user" << user << ", uid" << uid
+                 << ", host" << si.host << ", port" << si.port << ", token" << token;
         showTip(true, tr("登录成功，正在连接服务器..."));
         emit sig_tcp_connect(si);
     });

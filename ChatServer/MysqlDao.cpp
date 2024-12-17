@@ -1,5 +1,6 @@
 #include "MySQLDao.h"
 #include "ConfigMgr.h"
+#include "data.h"
 
 MysqlDao::MysqlDao() {
 	auto& cfg = ConfigMgr::init();
@@ -16,140 +17,11 @@ MysqlDao::~MysqlDao() {
 	sql_pool->Close();
 }
 
-/*
-查询Mysql中的项，确保用户名和邮箱不存在的情况下，注册用户，返回uid
-如果返回0，表示用户名或邮箱已存在
-如果返回-1，表示错误
-*/
-int MysqlDao::RegUser(const std::string& name, const std::string& email, const std::string& pswd){
-	auto conn = sql_pool->GetConnection();
-
-	Defer defer([this, &conn]() {
-		sql_pool->PushConnection(std::move(conn));
-	});
-
-	try {
-		if (conn == nullptr) {
-			//这行是BUG，空连接是isStop情况下凭空产生的，不能move回去
-			//sql_pool->PushConnection(std::move(conn));
-			return false;
-		}
-		//SQL预编译
-		// 准备调用存储过程
-		std::unique_ptr<sql::PreparedStatement> stmt(conn->sql_conn->prepareStatement("CALL reg_user(?,?,?,@result)"));
-		// 设置输入参数
-		//setString(int parameterIndex, String x), setInt(int parameterIndex, int value)
-		stmt->setString(1, name);
-		stmt->setString(2, email);
-		stmt->setString(3, pswd);
-
-		// 使用会话变量或其他方法来获取输出参数的值
-
-		// 执行存储过程
-		stmt->execute();
-		// 如果存储过程设置了会话变量或有其他方式获取输出参数的值，你可以在这里执行SELECT查询来获取它们
-		// 例如，如果存储过程设置了一个会话变量@result来存储输出结果，可以这样获取：
-		std::unique_ptr<sql::Statement> stmtResult(conn->sql_conn->createStatement());
-		//获取uid
-		/*
-		0：表示用户名或邮箱已存在。
-			-2：邮箱已经被注册过，即当前邮箱不能注册
-			-3：用户名被注册过，但邮箱没有被注册，可以更换用户名
-		-1：表示在执行过程中遇到错误。
-		其他值（如@new_id）：表示新插入的用户ID，即注册成功。
-		*/
-		std::unique_ptr<sql::ResultSet> res(stmtResult->executeQuery("SELECT @result AS result"));
-		if (res->next()) {
-			int result = res->getInt("result");
-			std::cout << "MysqlDao::RegUser() Get res: " << result << std::endl;
-			return result;	//GOTO LogicSystem /user_register
-		}
-		return -1;
-	}
-	catch (sql::SQLException& e) {
-		std::cerr << "SQLException: " << e.what();
-		std::cerr << ", MySQL error code: " << e.getErrorCode();
-		std::cerr << ", SQLState: " << e.getSQLState() << " " << std::endl;
-		return -1;
-	}
-}
-
-int MysqlDao::CheckResetIsVaild(const std::string& name, const std::string& email) {
-	auto conn = sql_pool->GetConnection();
-
-	Defer defer([this, &conn]() {
-		sql_pool->PushConnection(std::move(conn));
-	});
-
-	try {
-		if (conn == nullptr) {
-			return -3;	//数据库操作失败
-		}
-
-		//检查邮箱是否存在
-		std::unique_ptr<sql::PreparedStatement> pstmt(conn->sql_conn->prepareStatement("SELECT COUNT(*) FROM user WHERE email = ?"));
-		pstmt->setString(1, email);
-		std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
-		if (!res->next() || res->getInt(1) == 0) {
-			return -1;	//邮箱不存在
-		}
-
-		//检查用户名是否被其他邮箱占用
-		//查询规则WHERE：除了当前email的所有条目中是否有name = name的条目
-		pstmt.reset(conn->sql_conn->prepareStatement("SELECT name FROM user WHERE name = ? AND email <> ?"));
-		pstmt->setString(1, name);
-		pstmt->setString(2, email);
-		res.reset(pstmt->executeQuery());
-		if (res->next()) {
-			return -2;	//用户名被其他邮箱占用
-		}
-	}
-	catch (sql::SQLException& e) {
-		std::cerr << "SQLException: " << e.what();
-		std::cerr << ", MySQL error code: " << e.getErrorCode();
-		std::cerr << ", SQLState: " << e.getSQLState() << " " << std::endl;
-		return -3;	//数据库操作失败
-	}
-}
-
-bool MysqlDao::UpdateUserAndPswd(const std::string& name, const std::string& pswd, const std::string& email) {
-	auto conn = sql_pool->GetConnection();
-
-	Defer defer([this, &conn]() {
-		sql_pool->PushConnection(std::move(conn));
-	});
-
-	try {
-		if (conn == nullptr) {
-			return false;
-		}
-
-		// 准备查询语句
-		std::unique_ptr<sql::PreparedStatement> pstmt(conn->sql_conn->prepareStatement("UPDATE user SET name = ?, pswd = ? WHERE email = ?"));
-
-		// 绑定参数
-		pstmt->setString(1, name);
-		pstmt->setString(2, pswd);
-		pstmt->setString(3, email);
-
-		// 执行更新
-		int updateCount = pstmt->executeUpdate();
-
-		std::cout << "Reset rows: " << updateCount << std::endl;
-		return true;
-	}
-	catch (sql::SQLException& e) {
-		std::cerr << "SQLException: " << e.what();
-		std::cerr << ", MySQL error code: " << e.getErrorCode();
-		std::cerr << ", SQLState: " << e.getSQLState() << " " << std::endl;
-		return false;
-	}
-}
-
-bool MysqlDao::LoginCheckPswd(const std::string& login_key, const std::string& pwd, UserInfo& userInfo) {
+std::shared_ptr<UserInfo> MysqlDao::GetUser(int uid)
+{
 	auto conn = sql_pool->GetConnection();
 	if (conn == nullptr) {
-		return false;
+		return nullptr;
 	}
 
 	Defer defer([this, &conn]() {
@@ -157,38 +29,72 @@ bool MysqlDao::LoginCheckPswd(const std::string& login_key, const std::string& p
 	});
 
 	try {
-		std::unique_ptr<sql::PreparedStatement> pstmt(conn->sql_conn->prepareStatement("SELECT * FROM user WHERE name = ? OR email = ?"));
-		pstmt->setString(1, login_key); // 第一个参数尝试匹配用户名
-		pstmt->setString(2, login_key); // 第二个参数尝试匹配邮箱
+		std::unique_ptr<sql::PreparedStatement> pstmt(conn->sql_conn->prepareStatement("SELECT * FROM user WHERE uid = ?"));
+		pstmt->setInt(1, uid);
+
+		std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
+		std::shared_ptr<UserInfo> user_ptr = nullptr;
+
+		while (res->next()) {
+			user_ptr.reset(new UserInfo);
+			user_ptr->pswd = res->getString("pswd");
+			user_ptr->email = res->getString("email");
+			user_ptr->name = res->getString("name");
+			user_ptr->nick = res->getString("nick");
+			user_ptr->desc = res->getString("desc");
+			user_ptr->sex = res->getInt("sex");
+			user_ptr->icon = res->getString("icon");
+			user_ptr->uid = uid;
+			break;
+		}
+		return user_ptr;
+	}
+	catch (sql::SQLException& e) {
+		std::cerr << "SQLException: " << e.what();
+		std::cerr << ", MySQL error code: " << e.getErrorCode();
+		std::cerr << ", SQLState: " << e.getSQLState() << " " << std::endl;
+		return nullptr;
+	}
+}
+
+std::shared_ptr<UserInfo> MysqlDao::GetUser(std::string name)
+{
+	auto conn = sql_pool->GetConnection();
+	if (conn == nullptr) {
+		return nullptr;
+	}
+
+	Defer defer([this, &conn]() {
+		sql_pool->PushConnection(std::move(conn));
+	});
+
+	try {
+		// 准备SQL语句
+		std::unique_ptr<sql::PreparedStatement> pstmt(conn->sql_conn->prepareStatement("SELECT * FROM user WHERE name = ?"));
+		pstmt->setString(1, name); // 将uid替换为你要查询的uid
 
 		// 执行查询
 		std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
-		std::string correct_pwd = "";
-
-		if (res->next()) {
-			correct_pwd = res->getString("pswd"); // 确保字段名与数据库中的字段名匹配
-			std::cout << "Login user passwd: " << correct_pwd << std::endl;
-			std::cout << "Login input passwd: " << pwd << std::endl;
+		std::shared_ptr<UserInfo> user_ptr = nullptr;
+		// 遍历结果集
+		while (res->next()) {
+			user_ptr.reset(new UserInfo);
+			user_ptr->pswd = res->getString("pswd");
+			user_ptr->email = res->getString("email");
+			user_ptr->name = res->getString("name");
+			user_ptr->nick = res->getString("nick");
+			user_ptr->desc = res->getString("desc");
+			user_ptr->sex = res->getInt("sex");
+			user_ptr->uid = res->getInt("uid");
+			break;
 		}
-		//结果为空
-		else {
-			return false;
-		}
-
-		if (pwd != correct_pwd) {
-			return false;
-		}
-		userInfo.user = res->getString("name");
-		userInfo.pswd = correct_pwd;
-		userInfo.email = res->getString("email");
-		userInfo.uid = res->getInt("uid");
-		return true;
+		return user_ptr;
 	}
 	catch (sql::SQLException& e) {
 		std::cerr << "SQLException: " << e.what();
 		std::cerr << ", MySQL error code: " << e.getErrorCode();
 		std::cerr << ", SQLState: " << e.getSQLState() << " " << std::endl;
-		return false;
+		return nullptr;
 	}
 }
 

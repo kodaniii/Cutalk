@@ -24,10 +24,15 @@ extern std::function<void(QWidget*)> repolish;
 extern std::function<QString(QString)> xorString;
 
 enum ReqId{
+    //GateServer
     REQ_GET_VERIFY_CODE = 0x01, //获取验证码
     REQ_REG_USER = 0x02,        //注册新用户
     REQ_RESET_PSWD = 0x03,      //重置密码
     REQ_USER_LOGIN = 0x04,      //用户登录
+
+    //ChatServer
+    REQ_CHAT_LOGIN = 0x05,      //登录聊天服务器
+    REQ_CHAT_LOGIN_RSP = 0x06,  //登录聊天服务器回包
 };
 
 enum Modules{

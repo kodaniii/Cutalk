@@ -2,7 +2,7 @@
 #include <QAbstractSocket>
 #include <QJsonDocument>
 
-TcpMgr::TcpMgr():_host(""), _port(0), _b_recv_pending(false), _message_id(0), _message_len(0) {
+TcpMgr::TcpMgr(): _host(""), _port(0), _b_recv_pending(false), _message_type_id(0), _message_len(0) {
 
     //监听到来自_socket.connectToHost(_host, _port)的异步信号
     QObject::connect(&_socket, &QTcpSocket::connected, [&]() {
@@ -27,12 +27,12 @@ TcpMgr::TcpMgr():_host(""), _port(0), _b_recv_pending(false), _message_id(0), _m
                 }
 
                 // 预读取消息ID和消息长度，但不从缓冲区中移除
-                stream >> _message_id >> _message_len;
+                stream >> _message_type_id >> _message_len;
 
                 //将buffer 中的前四个字节移除
                 _buffer = _buffer.mid(sizeof(quint16) * 2);
 
-                qDebug() << "QTcpSocket READ Message ID:" << _message_id << ", Length:" << _message_len;
+                qDebug() << "QTcpSocket READ Message Type ID:" << _message_type_id << ", Length:" << _message_len;
 
             }
 
@@ -53,8 +53,8 @@ TcpMgr::TcpMgr():_host(""), _port(0), _b_recv_pending(false), _message_id(0), _m
 
             _buffer = _buffer.mid(_message_len);
 
-            //_message_id
-            handleMsg(ReqId(_message_id), _message_len, messageBody);
+            //_message_type_id
+            handleMsg(ReqId(_message_type_id), _message_len, messageBody);
         }
 
     });
@@ -108,7 +108,7 @@ TcpMgr::~TcpMgr(){
 void TcpMgr::handleMsg(ReqId req, int len, QByteArray data)
 {
     qDebug() << "TcpMgr::handleMsg() Req" << req << ", len" << len << ", data" << data;
-    auto find_iter =  _handlers.find(req);
+    auto find_iter = _handlers.find(req);
     if(find_iter == _handlers.end()){
         qDebug()<< "Not found Req" << req;
         return ;
@@ -151,7 +151,9 @@ void TcpMgr::initHandlers(){
             return;
         }
 
-        //切换登录界面
+        //TODO USERMGR
+
+        //切换聊天界面
         emit sig_switch_chatdlg();
     });
 }
@@ -176,7 +178,7 @@ void TcpMgr::slot_tcp_send_data(ReqId reqId, QByteArray dataBytes)
 
     //发送数据
     _socket.write(block);
-    qDebug() << "TcpMgr::slot_tcp_send_data() send byte data" << block ;
+    qDebug() << "TcpMgr::slot_tcp_send_data() send" << id << len << block;
 }
 
 void TcpMgr::slot_tcp_connect(ServerInfo si)

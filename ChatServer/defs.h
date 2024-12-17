@@ -70,6 +70,11 @@ enum ErrorCodes {
     UidInvalid = 0x406, 			//uid无效
 };
 
+enum ReqId {
+	REQ_CHAT_LOGIN = 0x05,      //登录聊天服务器
+	REQ_CHAT_LOGIN_RSP = 0x06,  //登录聊天服务器回包
+};
+
 // Defer类
 class Defer {
 public:
@@ -85,7 +90,7 @@ private:
 	std::function<void()> _func;
 };
 
-//msg_id最大长度
+//msg_type_id最大长度
 #define MAX_LENGTH ((1) << (11))
 
 //头部总长度

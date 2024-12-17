@@ -2,9 +2,10 @@
 #include "defs.h"
 #include "Singleton.h"
 #include "CSession.h"
+#include "data.h"
 
 typedef function<void(shared_ptr<CSession>, 
-	const short& msg_id, const string& msg_data)> FunCallBack;
+	const short& msg_type_id, const string& msg_data)> FunCallBack;
 
 class LogicSystem : public Singleton<LogicSystem>
 {
@@ -19,6 +20,7 @@ private:
 
 	void DealMsg();
 	void RegisterCallBacks();
+	void LoginHandler(shared_ptr<CSession> session, const short& msg_type_id, const string& msg_data);
 
 	std::thread _work_thread;
 	std::atomic<bool> _isStop;
@@ -26,8 +28,9 @@ private:
 	std::mutex _mtx;
 	std::condition_variable _cond;
 
-	//msg_id, Func<void(shared_ptr<CSession>, msg_id, msg_data)>
+	//msg_type_id, Func<void(shared_ptr<CSession>, msg_type_id, msg_data)>
 	std::map<short, FunCallBack> _func_callbacks;
+	std::unordered_map<int, std::shared_ptr<UserInfo>> _users;
 };
 
 

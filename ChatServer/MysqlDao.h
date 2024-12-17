@@ -1,6 +1,7 @@
 #pragma once
 #include "defs.h"
 #include <thread>
+#include "data.h"
 
 /*
 	维护sql_conn和last_op_time
@@ -48,13 +49,6 @@ private:
 	std::thread detach_thread;
 };
 
-struct UserInfo {
-	std::string user;
-	std::string pswd;
-	int uid;
-	std::string email;
-};
-
 /*
 	对外调用接口
 	通过sql_pool对象执行各种操作
@@ -65,17 +59,8 @@ public:
 	MysqlDao();
 	~MysqlDao();
 
-	//注册用户
-	int RegUser(const std::string& name, const std::string& email, const std::string& pwd);
-	
-	//重置功能，检查是否可以重置
-	//如果其他email没有绑定这个用户名且该email已经注册
-	int CheckResetIsVaild(const std::string& name, const std::string& email);
-	//重置功能，重置用户名和密码
-	bool UpdateUserAndPswd(const std::string& name, const std::string& newpwd, const std::string& email);
-	
-	//登录功能，检查邮箱或用户名对应的密码是否正确
-	bool LoginCheckPswd(const std::string& name_or_email, const std::string& pswd, UserInfo& userInfo);
+	std::shared_ptr<UserInfo> GetUser(int uid);
+	std::shared_ptr<UserInfo> GetUser(std::string name);
 
 private:
 	std::unique_ptr<MysqlPool> sql_pool;

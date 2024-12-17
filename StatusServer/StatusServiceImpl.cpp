@@ -27,7 +27,7 @@ Status StatusServiceImpl::GetChatServer(ServerContext* context, const GetChatSer
 	reply->set_port(server.port);
 	reply->set_error(ErrorCodes::Success);
 	reply->set_token(generate_unique_string());
-	//关联用户uid和token
+	//关联用户uid和token，插入到Redis
 	insertToken(request->uid(), reply->token());
 
 	std::cout << "Select " << server.name << "(" << server.host << ":" << server.port << ")" << std::endl;

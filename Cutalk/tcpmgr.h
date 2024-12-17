@@ -25,8 +25,8 @@ private:
     QByteArray _buffer;
     //处理TCP粘包问题，表示是否还有未处理的接收
     bool _b_recv_pending;
-    //存储当前消息的id和长度
-    quint16 _message_id;
+    //存储当前消息的type id和长度
+    quint16 _message_type_id;
     quint16 _message_len;
     QMap<ReqId, std::function<void(ReqId id, int len, QByteArray data)>> _handlers;
 
