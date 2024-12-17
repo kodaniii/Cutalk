@@ -109,7 +109,9 @@ void CSession::AsyncReadHead(int total_len)
 		[self, this](const boost::system::error_code& ec, std::size_t bytes_transfered) {
 		try {
 			if (ec) {
-				std::cout << "handle read failed, error " << ec.what() << endl;
+				if (ec != boost::asio::error::eof) {
+					std::cout << "handle read failed, error " << ec.what() << endl;
+				}
 				Close();
 				_server->ClearSession(_session_id);
 				return;
@@ -171,7 +173,9 @@ void CSession::AsyncReadBody(int total_len)
 	asyncReadFull(total_len, [self, this, total_len](const boost::system::error_code& ec, std::size_t bytes_transfered) {
 		try {
 			if (ec) {
-				std::cout << "handle read failed, error " << ec.what() << endl;
+				if (ec != boost::asio::error::eof) {
+					std::cout << "handle read failed, error " << ec.what() << endl;
+				}
 				Close();
 				_server->ClearSession(_session_id);
 				return;
@@ -217,7 +221,9 @@ void CSession::HandleWrite(const boost::system::error_code& error, std::shared_p
 			}
 		}
 		else {
-			std::cout << "handle write failed, error is " << error.what() << endl;
+			if (error != boost::asio::error::eof) {
+				std::cout << "handle write failed, error is " << error.what() << endl;
+			}
 			Close();
 			_server->ClearSession(_session_id);
 		}
