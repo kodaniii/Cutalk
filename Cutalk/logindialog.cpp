@@ -23,8 +23,8 @@ LoginDialog::LoginDialog(QWidget *parent)
     ui->msg_output_label->setText("");
 
     //初始化
-    ui->passwd_visible->init("unvisible", "unvisible_hover", "",
-                             "visible", "visible_hover", "");
+    ui->passwd_visible->init("unvisible", "unvisible_hover", "unvisible_hover",
+                             "visible", "visible_hover", "visible_hover");
     ui->passwd_edit->setEchoMode(QLineEdit::Password);
 
     //根据visible_label的状态，设置密码是否可见

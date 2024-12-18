@@ -26,15 +26,15 @@ void ClickLabel::init(QString _unselected, QString _unselected_hover, QString _u
 void ClickLabel::mousePressEvent(QMouseEvent* event) {
     if (event->button() == Qt::LeftButton) {
         if(cur_state == LabelClickState::Unselected){
-            qDebug()<<"ClickLabel::mousePressEvent(), change to" << selected_hover;
+            qDebug()<<"ClickLabel::mousePressEvent(), change to" << selected_press;
             cur_state = LabelClickState::Selected;
-            setProperty("state", selected_hover);
+            setProperty("state", selected_press);
             repolish(this);
             update();
         }else{
-            qDebug()<<"ClickLabel::mousePressEvent(), change to" << unselected_hover;
+            qDebug()<<"ClickLabel::mousePressEvent(), change to" << unselected_press;
             cur_state = LabelClickState::Unselected;
-            setProperty("state", unselected_hover);
+            setProperty("state", unselected_press);
             repolish(this);
             update();
         }
@@ -42,6 +42,15 @@ void ClickLabel::mousePressEvent(QMouseEvent* event) {
     }
 
     QLabel::mousePressEvent(event);
+}
+
+//鼠标取消点击
+//取消press，返回对应的hover或normal
+void ClickLabel::mouseReleaseEvent(QMouseEvent *event) {
+    //qDebug() << "ClickLabel::mouseReleaseEvent()";
+    enterEvent(event);
+
+    QLabel::mouseReleaseEvent(event);
 }
 
 //将两种状态设置为悬停

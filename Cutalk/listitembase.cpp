@@ -2,7 +2,6 @@
 #include <QStyleOption>
 #include <QPainter>
 
-
 ListItemBase::ListItemBase(QWidget *parent): QWidget(parent)
 {
 
@@ -25,3 +24,4 @@ void ListItemBase::paintEvent(QPaintEvent *event)
     QPainter p(this);
     style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
 }
+

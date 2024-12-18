@@ -12,6 +12,8 @@ public:
 
     //鼠标点击事件
     virtual void mousePressEvent(QMouseEvent *ev) override;
+    //鼠标取消点击
+    virtual void mouseReleaseEvent(QMouseEvent *ev) override;
     //鼠标悬停进入事件
     virtual void enterEvent(QEvent* event) override;
     //鼠标悬停离开事件

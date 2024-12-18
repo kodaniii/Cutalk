@@ -3,6 +3,8 @@
 #include <QAction>
 #include <QRandomGenerator>
 #include "chatuserwid.h"
+#include <QTimer>
+#include <QMovie>
 
 ChatDialog::ChatDialog(QWidget *parent)
     : QDialog(parent)
@@ -13,7 +15,7 @@ ChatDialog::ChatDialog(QWidget *parent)
 {
     ui->setupUi(this);
 
-    ui->add_btn->SetState("normal", "hover", "press");
+    ui->add_btn->init("normal", "hover", "press");
     ui->search_edit->SetMaxLength(18);
 
     //用户名搜索位置添加搜索图标和搜索字样
@@ -47,6 +49,10 @@ ChatDialog::ChatDialog(QWidget *parent)
         ShowSearch(false);
     });
 
+    //加载更多联系人用户列表
+    connect(ui->chat_user_list, &ChatUserList::sig_loading_chat_user,
+            this, &ChatDialog::slot_loading_chat_user);
+
     ShowSearch(false);
     addChatUserList();
 }
@@ -59,6 +65,11 @@ ChatDialog::~ChatDialog()
 void ChatDialog::addChatUserList()
 {
     std::vector<QString> strs = {
+        "Hello, World!",
+        "C++ is the best",
+        "吃饭了吗？",
+        "作业借我抄抄",
+        "转让半盒热辣香骨鸡，肯德基疯狂星期四19.9入的，才吃了5块，里面还有10块，不舍得吃的时候就拿出来闻一闻，平常都是放在冰箱里，吃的时候就用公司的微波炉热一下，吃完都用钉书机钉起来，防止受潮。外表大概8成新吧。量很足，厚度约3cm，长度约6cm，包行货，不是外面的那种华莱士的，假一罚十，还有2盒甜辣酱一起送了，真的很好吃，平时小半块就可以回味半天了，价格私聊，非诚勿扰",
         "Welcome to the new era of communication!",
         "Let's embrace the challenges ahead.",
         "Together we can achieve great things.",
@@ -140,4 +151,39 @@ void ChatDialog::ShowSearch(bool b_search)
         ui->contact_list->show();
         _mode = ChatUIMode::ContactMode;
     }
+}
+
+void ChatDialog::slot_loading_chat_user()
+{
+    if(_b_loading){
+        return;
+    }
+
+    _b_loading = true;
+
+    QLabel *loading_item = new QLabel(this);
+    QMovie *movie=new QMovie(":/res/loading.gif");
+
+    loading_item->setMovie(movie);
+    loading_item->setFixedSize(250, 70);
+    loading_item->setAlignment(Qt::AlignCenter);
+    movie->setScaledSize(QSize(50, 50));
+
+
+    QListWidgetItem *item = new QListWidgetItem;
+    item->setSizeHint(QSize(250, 70));
+    ui->chat_user_list->addItem(item);
+    ui->chat_user_list->setItemWidget(item, loading_item);
+
+    movie->start();
+
+    QTimer::singleShot(550, this, [this, item](){
+        qDebug() << "ChatDialog::slot_loading_chat_user()";
+        addChatUserList();
+        ui->chat_user_list->takeItem(ui->chat_user_list->row(item));
+        ui->chat_user_list->update();
+
+        _b_loading = false;
+    });
+
 }

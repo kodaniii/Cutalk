@@ -17,7 +17,7 @@ public:
     explicit ChatDialog(QWidget *parent = nullptr);
     ~ChatDialog();
 
-    void addChatUserList();
+
 
 protected:
     void keyPressEvent(QKeyEvent *event) override {
@@ -33,11 +33,16 @@ protected:
 private:
     void ShowSearch(bool b_search = false);
 
+    void addChatUserList();
+
     Ui::ChatDialog *ui;
     ChatUIMode _mode;
     ChatUIMode _state;
 
     bool _b_loading;
+
+private slots:
+    void slot_loading_chat_user();
 };
 
 #endif // CHATDIALOG_H

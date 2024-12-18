@@ -15,7 +15,7 @@ ClickBtn::~ClickBtn(){
 }
 
 
-void ClickBtn::SetState(QString normal, QString hover, QString press)
+void ClickBtn::init(QString normal, QString hover, QString press)
 {
     _hover = hover;
     _normal = normal;

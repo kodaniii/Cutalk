@@ -17,7 +17,6 @@
         <file>res/filedir_press.png</file>
         <file>res/loading.gif</file>
         <file>res/search.png</file>
-        <file>res/smile.png</file>
         <file>res/smile_hover.png</file>
         <file>res/smile_press.png</file>
         <file>res/add_friend_press.png</file>
@@ -38,5 +37,7 @@
         <file>res/head/head_15.jpg</file>
         <file>res/head/head_16.jpg</file>
         <file>res/head/head_17.jpg</file>
+        <file>res/filedir_normal.png</file>
+        <file>res/smile_normal.png</file>
     </qresource>
 </RCC>
