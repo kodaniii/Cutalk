@@ -9,6 +9,8 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    //setWindowFlags(Qt::FramelessWindowHint);
+
     _login_dialog = new LoginDialog(this);
     //_register_dialog = new RegisterDialog(this);
 
@@ -44,6 +46,31 @@ MainWindow::~MainWindow()
         delete _register_dialog;
         _register_dialog = nullptr;
     }*/
+}
+
+void MainWindow::mousePressEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::LeftButton)
+    {
+        m_dragPosition = event->globalPos() - frameGeometry().topLeft();
+        m_isDragging = true;
+    }
+}
+
+void MainWindow::mouseMoveEvent(QMouseEvent *event)
+{
+    if (event->buttons() & Qt::LeftButton && m_isDragging)
+    {
+        move(event->globalPos() - m_dragPosition);
+    }
+}
+
+void MainWindow::mouseReleaseEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::LeftButton)
+    {
+        m_isDragging = false;
+    }
 }
 
 void MainWindow::slot_switch_register()
@@ -120,12 +147,14 @@ void MainWindow::slot_switch_login_from_forget()
 void MainWindow::slot_switch_chatdlg()
 {
     qDebug() << "MainWindow::slot_switch_chatdlg()";
+
     _chat_dialog = new ChatDialog();
     _chat_dialog->setWindowFlags(Qt::CustomizeWindowHint|Qt::FramelessWindowHint);
     setCentralWidget(_chat_dialog);
     _chat_dialog->show();
     _login_dialog->hide();
-    this->setMinimumSize(QSize(1050,900));
+
+    this->setMinimumSize(QSize(1050, 900));
     this->setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
 }
 

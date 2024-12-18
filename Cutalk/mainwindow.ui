@@ -25,7 +25,11 @@
   <property name="windowTitle">
    <string>Cutalk</string>
   </property>
-  <widget class="QWidget" name="centralwidget"/>
+  <widget class="QWidget" name="centralwidget">
+   <property name="contextMenuPolicy">
+    <enum>Qt::DefaultContextMenu</enum>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>

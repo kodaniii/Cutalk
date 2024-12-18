@@ -23,11 +23,26 @@ extern std::function<void(QWidget*)> repolish;
 
 extern std::function<QString(QString)> xorString;
 
+enum class ChatRole
+{
+    Self,
+    Other
+};
+
 //聊天界面模式
 enum ChatUIMode{
     SearchMode,     //搜索模式
     ChatMode,       //聊天模式
     ContactMode,    //联系人模式
+};
+
+struct MsgInfo{
+    //"text，image，file"
+    QString msgFlag;
+    //文本信息，表示文件和图像的url
+    QString content;
+    //文件和图片的缩略图
+    QPixmap pixmap;
 };
 
 //自定义QListWidgetItem的几种类型

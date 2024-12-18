@@ -15,6 +15,9 @@ ChatDialog::ChatDialog(QWidget *parent)
 {
     ui->setupUi(this);
 
+    //setWindowFlags(Qt::FramelessWindowHint | windowFlags()); // 设置无边框
+
+
     ui->add_btn->init("normal", "hover", "press");
     ui->search_edit->SetMaxLength(18);
 

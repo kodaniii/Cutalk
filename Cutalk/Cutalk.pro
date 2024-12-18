@@ -12,10 +12,13 @@ RC_ICONS = .\res\ico\logo.ico
 DESTDIR = .\bin
 
 SOURCES += \
+    bubbleframe.cpp \
     chatdialog.cpp \
+    chatitembase.cpp \
     chatpage.cpp \
     chatuserlist.cpp \
     chatuserwid.cpp \
+    chatview.cpp \
     clickbtn.cpp \
     clicklabel.cpp \
     customizeedit.cpp \
@@ -25,16 +28,22 @@ SOURCES += \
     logindialog.cpp \
     main.cpp \
     mainwindow.cpp \
+    messagetextedit.cpp \
+    picturebubble.cpp \
     registerdialog.cpp \
     resetdialog.cpp \
     tcpmgr.cpp \
+    textbubble.cpp \
     timerbtn.cpp
 
 HEADERS += \
+    bubbleframe.h \
     chatdialog.h \
+    chatitembase.h \
     chatpage.h \
     chatuserlist.h \
     chatuserwid.h \
+    chatview.h \
     clickbtn.h \
     clicklabel.h \
     customizeedit.h \
@@ -43,10 +52,13 @@ HEADERS += \
     listitembase.h \
     logindialog.h \
     mainwindow.h \
+    messagetextedit.h \
+    picturebubble.h \
     registerdialog.h \
     resetdialog.h \
     singleton.h \
     tcpmgr.h \
+    textbubble.h \
     timerbtn.h
 
 FORMS += \

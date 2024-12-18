@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>850</width>
-    <height>750</height>
+    <width>1050</width>
+    <height>900</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -249,6 +249,9 @@
    </item>
    <item>
     <widget class="QStackedWidget" name="stackedWidget">
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
      <widget class="ChatPage" name="chat_page"/>
      <widget class="QWidget" name="friend_apply_page"/>
     </widget>

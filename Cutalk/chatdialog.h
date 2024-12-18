@@ -1,6 +1,7 @@
 #ifndef CHATDIALOG_H
 #define CHATDIALOG_H
 
+
 #include <QDialog>
 #include "defs.h"
 #include <QKeyEvent>

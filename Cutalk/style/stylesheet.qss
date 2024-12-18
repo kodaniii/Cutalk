@@ -62,7 +62,7 @@ QDialog#LoginDialog, #RegisterDialog, #ResetDialog{
 
 
 #side_bar{
-  background-color:rgb(237,237,237);
+  background-color: rgb(243,243,243);
 }
 
 
@@ -80,6 +80,7 @@ QDialog#LoginDialog, #RegisterDialog, #ResetDialog{
 
 #search_wid{
     background-color: rgb(247,247,247);
+    border-bottom: 0.5px solid #ececec;   /* 设置下边框颜色和宽度 */
 }
 
 #search_edit{
@@ -159,10 +160,6 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
 
 
 
-LoadingDlg{
-    background: #f2eada;
-}
-
 #title_lb{
     font-family: "Microsoft YaHei";
     font-size: 18px;
@@ -170,7 +167,7 @@ LoadingDlg{
 }
 
 #chat_edit{
-    background: #ffffff;
+    background: #FDFDFD;
     border: none; /* 隐藏边框 */
     font-family: "Microsoft YaHei"; /* 设置字体 */
     font-size: 18px; /* 设置字体大小 */
@@ -178,7 +175,7 @@ LoadingDlg{
 }
 
 #send_wid{
-    background: #ffffff;
+    background: #FDFDFD;
     border: none; /* 隐藏边框 */
 }
 
@@ -231,8 +228,9 @@ LoadingDlg{
 }
 
 #tool_wid{
-    background: #ffffff;
-    border-bottom: 0.5px solid #ececec; /* 设置下边框颜色和宽度 */
+    background: #FDFDFD;
+    border-top: 0.5px solid #ececec;    /* 设置上边框颜色和宽度 */
+    border-bottom: 0px solid #ececec;   /* 设置下边框颜色和宽度 */
 }
 
 #emoji_lb[state='normal']{
@@ -257,4 +255,22 @@ LoadingDlg{
 
 #file_lb[state='press']{
     border-image: url(:/res/filedir_press.png);
+}
+
+
+#title_wid{
+    background: #FEFCFB;
+    border-bottom: 0.5px solid #ececec;   /* 设置下边框颜色和宽度 */
+}
+
+#chat_data_list{
+    background: #FEFCFB;
+}
+
+#chat_bg{
+    background: #FEFCFB;
+}
+
+#chat_area{
+    border: none;
 }
