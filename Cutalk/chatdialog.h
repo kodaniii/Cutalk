@@ -21,6 +21,8 @@ public:
 
 
 protected:
+    bool eventFilter(QObject *watched, QEvent *event) override;
+
     void keyPressEvent(QKeyEvent *event) override {
         if (event->key() == Qt::Key_Escape) {
             // 忽略ESC键事件，不调用QDialog::keyPressEvent(event)
@@ -38,6 +40,8 @@ private:
 
     void addSideGroup(StateWidget *sw);
     void clearSideState(StateWidget *sw);
+
+    void handleGlobalMousePress(QMouseEvent *event);
 
     QList<StateWidget*> _side_list;
 

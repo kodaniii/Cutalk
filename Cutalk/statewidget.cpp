@@ -127,6 +127,11 @@ LabelClickState StateWidget::GetCurState(){
     return _curstate;
 }
 
+void StateWidget::SetCurState(LabelClickState lcs)
+{
+    _curstate = lcs;
+}
+
 void StateWidget::ClearState()
 {
     _curstate = LabelClickState::Unselected;

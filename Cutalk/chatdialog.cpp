@@ -5,6 +5,7 @@
 #include "chatuserwid.h"
 #include <QTimer>
 #include <QMovie>
+#include <QMouseEvent>
 
 ChatDialog::ChatDialog(QWidget *parent)
     : QDialog(parent)
@@ -66,8 +67,11 @@ ChatDialog::ChatDialog(QWidget *parent)
 
     ui->side_chat_widget->init("normal","hover","pressed","selected_normal","selected_hover","selected_pressed");
 
-    //init会将state默认置为normal，手动改成pressed
-    ui->side_chat_widget->setProperty("state","pressed");
+    //init会将state默认置为normal
+    ui->side_chat_widget->setProperty("state","selected_pressed");
+    //一定要修改curstate，否则会被hover悬停操作直接还原成unselected
+    ui->side_chat_widget->SetCurState(LabelClickState::Selected);
+
     ui->side_contact_widget->init("normal","hover","pressed","selected_normal","selected_hover","selected_pressed");
 
 
@@ -81,11 +85,42 @@ ChatDialog::ChatDialog(QWidget *parent)
 
     ShowSearch(false);
     addChatUserList();
+
+    //安装事件过滤器
+    //检测鼠标点击位置判断是否需要清空搜索框
+    this->installEventFilter(this);
 }
 
 ChatDialog::~ChatDialog()
 {
     delete ui;
+}
+
+bool ChatDialog::eventFilter(QObject *watched, QEvent *event)
+{
+    if (event->type() == QEvent::MouseButtonPress) {
+        QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
+        handleGlobalMousePress(mouseEvent);
+    }
+    return QDialog::eventFilter(watched, event);
+}
+
+void ChatDialog::handleGlobalMousePress(QMouseEvent *event)
+{
+    // 实现点击位置的判断和处理逻辑
+    // 先判断是否处于搜索模式，如果不处于搜索模式则直接返回
+    if( _mode != ChatUIMode::SearchMode){
+        return;
+    }
+
+    // 将鼠标点击位置转换为搜索列表坐标系中的位置
+    QPoint posInSearchList = ui->search_list->mapFromGlobal(event->globalPos());
+    // 判断点击位置是否在聊天列表的范围内
+    if (!ui->search_list->rect().contains(posInSearchList)) {
+        // 如果不在聊天列表内，清空输入框
+        ui->search_edit->clear();
+        ShowSearch(false);
+    }
 }
 
 void ChatDialog::addChatUserList()

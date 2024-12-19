@@ -14,6 +14,7 @@ public:
               QString select="", QString select_hover="", QString select_press="");
 
     LabelClickState GetCurState();
+    void SetCurState(LabelClickState lcs);
     void ClearState();
 
     void SetSelected(bool bselected);
@@ -21,7 +22,7 @@ public:
     void ShowRedPoint(bool show=true);
 
 protected:
-    void paintEvent(QPaintEvent* event);
+    void paintEvent(QPaintEvent* event) override;
 
     virtual void mousePressEvent(QMouseEvent *ev) override;
     virtual void mouseReleaseEvent(QMouseEvent *ev) override;
