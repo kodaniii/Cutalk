@@ -41,13 +41,16 @@ void ChatPage::on_send_btn_clicked()
     QString userName = QStringLiteral("user");
     QString userIcon = ":/res/head/head_1.jpg";
 
-    const QVector<MsgInfo>& msgList = pTextEdit->getMsgList();
-    for(int i=0; i<msgList.size(); ++i)
+    //将发送的消息处理成文本非文本，实现文本+图片+文本等的分离
+    const QVector<MsgInfo> &msgList = pTextEdit->getMsgList();
+
+    for(int i = 0; i < msgList.size(); ++i)
     {
         QString type = msgList[i].msgFlag;
         ChatItemBase *pChatItem = new ChatItemBase(role);
         pChatItem->setUserName(userName);
         pChatItem->setUserIcon(QPixmap(userIcon));
+
         QWidget *pBubble = nullptr;
         if(type == "text")
         {
@@ -55,12 +58,14 @@ void ChatPage::on_send_btn_clicked()
         }
         else if(type == "image")
         {
-            pBubble = new PictureBubble(QPixmap(msgList[i].content) , role);
+            pBubble = new PictureBubble(QPixmap(msgList[i].content), role);
         }
         else if(type == "file")
         {
 
         }
+
+        //聊天气泡是否创建成功
         if(pBubble != nullptr)
         {
             pChatItem->setWidget(pBubble);

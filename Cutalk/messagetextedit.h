@@ -24,6 +24,7 @@ public:
 
     ~MessageTextEdit();
 
+    //从MessageTextEdit中提取消息，存储到QVector<MsgInfo> mGetMsgList
     QVector<MsgInfo> getMsgList();
 
     void insertFileFromUrl(const QStringList &urls);
@@ -62,6 +63,7 @@ private slots:
     void textEditChanged();
 
 private:
+    //原始数据
     QVector<MsgInfo> mMsgList;
     QVector<MsgInfo> mGetMsgList;
 };

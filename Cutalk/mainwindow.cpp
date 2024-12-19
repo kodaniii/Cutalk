@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "tcpmgr.h"
+#include <QScreen>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -48,6 +49,7 @@ MainWindow::~MainWindow()
     }*/
 }
 
+
 void MainWindow::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton)
@@ -59,10 +61,31 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
 
 void MainWindow::mouseMoveEvent(QMouseEvent *event)
 {
+    /*修复聊天窗口侧边栏移动过小导致窗口跳动的BUG
+    有效果，但还不是完全有效果，所以这里代码也没删，
+    在statewidget中将mousePressEvent和mouseMoveEvent做了忽略
+    */
+    if (event->buttons() & Qt::LeftButton && m_isDragging)
+    {
+        // 计算新的位置
+        QPoint newPos = event->globalPos() - m_dragPosition;
+
+        // 计算当前位置与新位置之间的距离
+        int distance = (newPos - this->pos()).manhattanLength();
+
+        // 设置一个阈值，只有当移动距离大于阈值时才移动窗口
+        const int threshold = 5;
+        if (distance > threshold)
+        {
+            move(newPos);
+            //qDebug() << "move to" << newPos;
+        }
+    }
+    /*
     if (event->buttons() & Qt::LeftButton && m_isDragging)
     {
         move(event->globalPos() - m_dragPosition);
-    }
+    }*/
 }
 
 void MainWindow::mouseReleaseEvent(QMouseEvent *event)
@@ -153,6 +176,11 @@ void MainWindow::slot_switch_chatdlg()
     setCentralWidget(_chat_dialog);
     _chat_dialog->show();
     _login_dialog->hide();
+
+    //QScreen *screen = QGuiApplication::primaryScreen();
+    //qreal dpiScale = screen->logicalDotsPerInchX() / 96.0;
+    //this->setMinimumSize(QSize(700 * dpiScale, 600 * dpiScale));
+    //qDebug() << "setMinimumSize" << 700 * dpiScale << 600 * dpiScale;
 
     this->setMinimumSize(QSize(1050, 900));
     this->setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);

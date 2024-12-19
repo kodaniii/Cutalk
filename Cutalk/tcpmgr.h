@@ -6,6 +6,7 @@
 #include "defs.h"
 #include <functional>
 #include <QObject>
+#include "userdata.h"
 
 class TcpMgr: public QObject, public Singleton<TcpMgr>, public std::enable_shared_from_this<TcpMgr>
 {
@@ -45,6 +46,10 @@ signals:
     void sig_switch_chatdlg();
     //登录失败
     void sig_login_failed(int);
+
+
+    //用户搜索
+    void sig_user_search(std::shared_ptr<SearchInfo>);
 };
 
 #endif // TCPMGR_H

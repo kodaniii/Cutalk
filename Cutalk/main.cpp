@@ -7,6 +7,7 @@
 
 int main(int argc, char *argv[])
 {
+    //QGuiApplication::setHighDpiScaleFactorRoundingPolicy(Qt::HighDpiScaleFactorRoundingPolicy::Round);
     QApplication a(argc, argv);
 
     QTranslator translator;

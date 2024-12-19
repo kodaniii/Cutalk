@@ -67,6 +67,8 @@ enum ReqId{
     //ChatServer
     REQ_CHAT_LOGIN = 0x05,      //登录聊天服务器
     REQ_CHAT_LOGIN_RSP = 0x06,  //登录聊天服务器回包
+
+    REQ_SEARCH_USER = 0x07,     //搜索用户
 };
 
 enum Modules{

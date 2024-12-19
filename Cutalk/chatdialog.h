@@ -5,6 +5,7 @@
 #include <QDialog>
 #include "defs.h"
 #include <QKeyEvent>
+#include "statewidget.h"
 
 namespace Ui {
 class ChatDialog;
@@ -17,7 +18,6 @@ class ChatDialog : public QDialog
 public:
     explicit ChatDialog(QWidget *parent = nullptr);
     ~ChatDialog();
-
 
 
 protected:
@@ -36,6 +36,11 @@ private:
 
     void addChatUserList();
 
+    void addSideGroup(StateWidget *sw);
+    void clearSideState(StateWidget *sw);
+
+    QList<StateWidget*> _side_list;
+
     Ui::ChatDialog *ui;
     ChatUIMode _mode;
     ChatUIMode _state;
@@ -44,6 +49,12 @@ private:
 
 private slots:
     void slot_loading_chat_user();
+
+    void slot_side_chat();
+    void slot_side_contact();
+
+    //search_edit更新，切换到搜索界面
+    void slot_search_change(const QString &str);
 };
 
 #endif // CHATDIALOG_H

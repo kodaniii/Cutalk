@@ -480,7 +480,7 @@
   <customwidget>
    <class>ClickLabel</class>
    <extends>QLabel</extends>
-   <header>clicklabel.h</header>
+   <header location="global">clicklabel.h</header>
   </customwidget>
  </customwidgets>
  <resources>

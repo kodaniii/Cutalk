@@ -39,5 +39,19 @@
         <file>res/head/head_17.jpg</file>
         <file>res/filedir_normal.png</file>
         <file>res/smile_normal.png</file>
+        <file>res/red_point.png</file>
+        <file>res/chat_icon.png</file>
+        <file>res/chat_icon_hover.png</file>
+        <file>res/chat_icon_press.png</file>
+        <file>res/chat_icon_select_hover.png</file>
+        <file>res/chat_icon_select_press.png</file>
+        <file>res/close_hover.png</file>
+        <file>res/close_normal.png</file>
+        <file>res/close_press.png</file>
+        <file>res/contact_list.png</file>
+        <file>res/contact_list_hover.png</file>
+        <file>res/contact_list_press.png</file>
+        <file>res/add_tip.png</file>
+        <file>res/right_tip.png</file>
     </qresource>
 </RCC>
