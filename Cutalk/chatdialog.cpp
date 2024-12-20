@@ -71,6 +71,8 @@ ChatDialog::ChatDialog(QWidget *parent)
     ui->side_chat_widget->setProperty("state","selected_pressed");
     //一定要修改curstate，否则会被hover悬停操作直接还原成unselected
     ui->side_chat_widget->SetCurState(LabelClickState::Selected);
+    //和上一行同功能，之前写的时候没发现
+    //ui->side_chat_widget->SetSelected(true);
 
     ui->side_contact_widget->init("normal","hover","pressed","selected_normal","selected_hover","selected_pressed");
 

@@ -48,7 +48,7 @@
    <item>
     <widget class="QLabel" name="message_tip">
      <property name="text">
-      <string>查找 uid/username</string>
+      <string>查找 uid/用户名</string>
      </property>
     </widget>
    </item>

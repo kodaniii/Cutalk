@@ -9,6 +9,7 @@
 //#include "loadingdlg.h"
 #include "userdata.h"
 #include <QJsonDocument>
+#include "findsuccessdlg.h"
 
 SearchList::SearchList(QWidget *parent)
     : QListWidget(parent)
@@ -21,7 +22,7 @@ SearchList::SearchList(QWidget *parent)
     this->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     // 安装事件过滤器
     this->viewport()->installEventFilter(this);
-    //连接点击的信号和槽
+    //每个条目被点击都会触发solt_item_clicked
     connect(this, &QListWidget::itemClicked, this, &SearchList::slot_item_clicked);
     //测试：模拟添加条目
     addTipItem();
@@ -80,13 +81,14 @@ void SearchList::addTipItem()
 
 void SearchList::slot_item_clicked(QListWidgetItem *item)
 {
+    qDebug() << "SearchList::slot_item_clicked()";
     QWidget *widget = this->itemWidget(item); // 获取自定义widget对象
     if(!widget){
         qDebug()<< "slot item clicked widget is nullptr";
         return;
     }
 
-    // 对自定义widget进行操作， 将item 转化为基类ListItemBase
+    // 对自定义widget进行操作， 将item转化为子类ListItemBase，为了调用GetItemType()
     ListItemBase *customItem = qobject_cast<ListItemBase*>(widget);
     if(!customItem){
         qDebug()<< "slot item clicked widget is nullptr";
@@ -100,7 +102,18 @@ void SearchList::slot_item_clicked(QListWidgetItem *item)
     }
 
     if(itemType == ListItemType::ADD_USER_TIP_ITEM){
+        qDebug() << "itemType == ListItemType::ADD_USER_TIP_ITEM";
+        //todo ...
+        _find_dlg = std::make_shared<FindSuccessDlg>(this);
+        /* 搜索到添加好友
+         * 用户信息用于测试
+        */
+        auto si = std::make_shared<SearchInfo>(0, "可爱大苹果", "大可爱苹果", "别加我，我只是个传说", 0, "none");
+        std::dynamic_pointer_cast<FindSuccessDlg>(_find_dlg)->SetSearchInfo(si);
+        _find_dlg->show();
+        return;
 
+        /*
         if (_send_pending) {
             return;
         }
@@ -120,7 +133,7 @@ void SearchList::slot_item_clicked(QListWidgetItem *item)
 
         //发送tcp请求给ChatServer
         emit TcpMgr::GetInstance()->sig_tcp_send_data(ReqId::REQ_SEARCH_USER, jsonData);
-        return;
+        return;*/
     }
 
     //清除弹出框
