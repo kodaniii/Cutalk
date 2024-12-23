@@ -38,18 +38,36 @@ void ClickLabel::mousePressEvent(QMouseEvent* event) {
             repolish(this);
             update();
         }
-        emit clicked();
+        //emit clicked(this->text(), cur_state);
+        //忽略事件，防止全局拖动功能重叠导致页面乱跳
+        event->ignore();
+        return;
     }
 
     QLabel::mousePressEvent(event);
 }
 
-//鼠标取消点击
+//鼠标点击释放
 //取消press，返回对应的hover或normal
 void ClickLabel::mouseReleaseEvent(QMouseEvent *event) {
-    //qDebug() << "ClickLabel::mouseReleaseEvent()";
-    enterEvent(event);
+    qDebug() << "ClickLabel::mouseReleaseEvent()";
+    //enterEvent(event);
+    if (event->button() == Qt::LeftButton) {
+        if(cur_state == LabelClickState::Unselected){
+            setProperty("state", unselected_hover);
+            repolish(this);
+            update();
 
+        }else{
+            setProperty("state", selected_hover);
+            repolish(this);
+            update();
+        }
+        emit clicked(this->text(), cur_state);
+        //忽略事件，防止全局拖动功能重叠导致页面乱跳
+        event->ignore();
+        return;
+    }
     QLabel::mouseReleaseEvent(event);
 }
 
@@ -89,4 +107,26 @@ void ClickLabel::leaveEvent(QEvent* event) {
 
 LabelClickState ClickLabel::GetCurState() {
     return this->cur_state;
+}
+
+bool ClickLabel::SetCurState(LabelClickState state)
+{
+    cur_state = state;
+    if (cur_state == LabelClickState::Unselected) {
+        setProperty("state", unselected);
+        repolish(this);
+    }
+    else if (cur_state == LabelClickState::Selected) {
+        setProperty("state", selected);
+        repolish(this);
+    }
+
+    return true;
+}
+
+void ClickLabel::ResetNormalState()
+{
+    cur_state = LabelClickState::Unselected;
+    setProperty("state", unselected);
+    repolish(this);
 }

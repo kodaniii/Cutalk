@@ -6,7 +6,9 @@
 ClickBtn::ClickBtn(QWidget *parent): QPushButton (parent) {
     //设置光标为手状
     setCursor(Qt::PointingHandCursor);
-    //阻止键盘将其设置为焦点，提升性能
+    //阻止键盘将其设置为焦点
+    //ApplyFriend中申请好友，在edit中添加信息后，处理用户敲入回车的操作
+    //这里阻止敲入回车是为了把回车截获取消掉，防止回车后ApplyFriend界面消失
     setFocusPolicy(Qt::NoFocus);
 }
 

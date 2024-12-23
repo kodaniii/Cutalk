@@ -40,6 +40,7 @@ void StateWidget::mousePressEvent(QMouseEvent* event)  {
             repolish(this);
             update();
         }
+        //忽略事件，防止全局拖动功能重叠导致页面乱跳
         event->ignore();
         return;
     }

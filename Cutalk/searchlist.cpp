@@ -109,6 +109,8 @@ void SearchList::slot_item_clicked(QListWidgetItem *item)
          * 用户信息用于测试
         */
         auto si = std::make_shared<SearchInfo>(0, "可爱大苹果", "大可爱苹果", "别加我，我只是个传说", 0, "none");
+
+        //存储
         std::dynamic_pointer_cast<FindSuccessDlg>(_find_dlg)->SetSearchInfo(si);
         _find_dlg->show();
         return;

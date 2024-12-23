@@ -1,6 +1,7 @@
 #include "tcpmgr.h"
 #include <QAbstractSocket>
 #include <QJsonDocument>
+#include "usermgr.h"
 
 TcpMgr::TcpMgr(): _host(""), _port(0), _b_recv_pending(false), _message_type_id(0), _message_len(0) {
 
@@ -123,8 +124,9 @@ void TcpMgr::initHandlers(){
     //auto self = shared_from_this();
     //登录聊天服务器回包
     _handlers.insert(REQ_CHAT_LOGIN_RSP, [this](ReqId req, int len, QByteArray data){
+        qDebug() << "TcpMgr::initHandlers() REQ_CHAT_LOGIN_RSP";
         Q_UNUSED(len);
-        qDebug()<< "TcpMgr handle"<< req ;
+        qDebug()<< "TcpMgr handle" << req;
         // 将QByteArray转换为QJsonDocument
         QJsonDocument jsonDoc = QJsonDocument::fromJson(data);
 
@@ -152,7 +154,30 @@ void TcpMgr::initHandlers(){
             return;
         }
 
-        //TODO USERMGR
+        /*TODO USERMGR*/
+        //data jsonobj QJsonObject({"error":0,"name":"1","token":"e37e82b8-d914-4cbf-820e-7a59847478f2","uid":0})
+        //目前只实现了发name、token、uid和error
+        auto uid = jsonObj["uid"].toInt();
+        auto name = jsonObj["name"].toString();
+        auto nick = jsonObj["nick"].toString();
+        auto icon = jsonObj["icon"].toString();
+        auto sex = jsonObj["sex"].toInt();
+
+        //登录用户的信息保存到UserMgr，绑定token
+        auto user_info = std::make_shared<UserInfo>(uid, name, nick, icon, sex);
+        UserMgr::GetInstance()->SetUserInfo(user_info);
+        UserMgr::GetInstance()->SetToken(jsonObj["token"].toString());
+
+        //好友申请列表，先加上，暂时没用到
+        if(jsonObj.contains("apply_list")){
+            UserMgr::GetInstance()->AppendApplyList(jsonObj["apply_list"].toArray());
+        }
+
+        //添加好友列表，同上
+        if (jsonObj.contains("friend_list")) {
+            UserMgr::GetInstance()->AppendFriendList(jsonObj["friend_list"].toArray());
+        }
+
 
         //切换聊天界面
         emit sig_switch_chatdlg();

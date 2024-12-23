@@ -13,6 +13,7 @@ DESTDIR = .\bin
 
 SOURCES += \
     adduseritem.cpp \
+    applyfriend.cpp \
     bubbleframe.cpp \
     chatdialog.cpp \
     chatitembase.cpp \
@@ -22,9 +23,11 @@ SOURCES += \
     chatview.cpp \
     clickbtn.cpp \
     clicklabel.cpp \
+    clickoncelabel.cpp \
     customizeedit.cpp \
     defs.cpp \
     findsuccessdlg.cpp \
+    friendlabel.cpp \
     httpmgr.cpp \
     listitembase.cpp \
     logindialog.cpp \
@@ -39,10 +42,12 @@ SOURCES += \
     tcpmgr.cpp \
     textbubble.cpp \
     timerbtn.cpp \
-    userdata.cpp
+    userdata.cpp \
+    usermgr.cpp
 
 HEADERS += \
     adduseritem.h \
+    applyfriend.h \
     bubbleframe.h \
     chatdialog.h \
     chatitembase.h \
@@ -52,9 +57,11 @@ HEADERS += \
     chatview.h \
     clickbtn.h \
     clicklabel.h \
+    clickoncelabel.h \
     customizeedit.h \
     defs.h \
     findsuccessdlg.h \
+    friendlabel.h \
     httpmgr.h \
     listitembase.h \
     logindialog.h \
@@ -69,14 +76,17 @@ HEADERS += \
     tcpmgr.h \
     textbubble.h \
     timerbtn.h \
-    userdata.h
+    userdata.h \
+    usermgr.h
 
 FORMS += \
     adduseritem.ui \
+    applyfriend.ui \
     chatdialog.ui \
     chatpage.ui \
     chatuserwid.ui \
     findsuccessdlg.ui \
+    friendlabel.ui \
     logindialog.ui \
     mainwindow.ui \
     registerdialog.ui \

@@ -3,6 +3,7 @@
 
 #include <QLabel>
 #include "defs.h"
+#include <QKeyEvent>
 
 class ClickLabel : public QLabel
 {
@@ -26,6 +27,9 @@ public:
               QString _selected="", QString _selected_hover="", QString _selected_press="");
 
     LabelClickState GetCurState();
+    bool SetCurState(LabelClickState state);
+    void ResetNormalState();
+
 
 private:
     //闭眼状态
@@ -41,7 +45,7 @@ private:
     LabelClickState cur_state;
 
 signals:
-    void clicked(void);
+    void clicked(QString, LabelClickState);
 };
 
 #endif // CLICKLABEL_H

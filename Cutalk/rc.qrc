@@ -53,5 +53,7 @@
         <file>res/contact_list_press.png</file>
         <file>res/add_tip.png</file>
         <file>res/right_tip.png</file>
+        <file>res/tip_close.png</file>
+        <file>res/more_down.png</file>
     </qresource>
 </RCC>
