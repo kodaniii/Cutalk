@@ -23,19 +23,23 @@ ApplyFriend::ApplyFriend(QWidget *parent)
     ui->lb_ed->setPlaceholderText("搜索/添加标签");
     ui->back_ed->setPlaceholderText("添加该好友的备注");
 
-    ui->lb_ed->SetMaxLength(21);
+
+
+    //ui->lb_ed->SetMaxLength(21);
     ui->lb_ed->move(2, 2);
-    ui->lb_ed->setFixedHeight(20);
-    ui->lb_ed->setMaxLength(10);
+    //ui->lb_ed->setFixedHeight(20);
+    ui->lb_ed->setMaxLength(16);
 
     //输入标签后，会有对应的提示框，先隐藏
     ui->input_tip_wid->hide();
 
     _tip_cur_point = QPoint(5, 5);
 
-    /*测试：模拟已经存在的标签*/
+    /*测试：模拟已经存在的标签*/    
     _tip_data = {"集合啦！动物森友会", "塞尔达传说：荒野之息", "超级马里奥奥德赛", "怪物猎人：世界",
                  "最终幻想14", "星之卡比：新星同盟", "任天堂明星大乱斗", "火焰纹章：风花雪月", "异度之刃2"};
+    //空标签测试
+    //_tip_data = {};
 
     connect(ui->more_lb, &ClickOnceLabel::clicked, this, &ApplyFriend::ShowMoreLabel);
     InitTipLbs();
@@ -53,12 +57,62 @@ ApplyFriend::ApplyFriend(QWidget *parent)
     //连接确认和取消按钮的槽函数
     connect(ui->cancel_btn, &QPushButton::clicked, this, &ApplyFriend::SlotApplyCancel);
     connect(ui->sure_btn, &QPushButton::clicked, this, &ApplyFriend::SlotApplySure);
+
+
+    //ui->lb_list->setFixedHeight(65);
 }
 
 ApplyFriend::~ApplyFriend()
 {
     qDebug() << "ApplyFriend::~ApplyFriend()";
     delete ui;
+}
+
+
+void ApplyFriend::mousePressEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::LeftButton)
+    {
+        m_dragPosition = event->globalPos() - frameGeometry().topLeft();
+        m_isDragging = true;
+    }
+}
+
+void ApplyFriend::mouseMoveEvent(QMouseEvent *event)
+{
+    /*修复聊天窗口侧边栏移动过小导致窗口跳动的BUG
+    有效果，但还不是完全有效果，所以这里代码也没删，
+    在statewidget中将mousePressEvent和mouseMoveEvent做了忽略
+    */
+    if (event->buttons() & Qt::LeftButton && m_isDragging)
+    {
+        // 计算新的位置
+        QPoint newPos = event->globalPos() - m_dragPosition;
+
+        // 计算当前位置与新位置之间的距离
+        int distance = (newPos - this->pos()).manhattanLength();
+
+        // 设置一个阈值，只有当移动距离大于阈值时才移动窗口
+        const int threshold = 5;
+        if (distance > threshold)
+        {
+            move(newPos);
+            //qDebug() << "move to" << newPos;
+        }
+    }
+    /*
+    if (event->buttons() & Qt::LeftButton && m_isDragging)
+    {
+        move(event->globalPos() - m_dragPosition);
+    }*/
+}
+
+void ApplyFriend::mouseReleaseEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::LeftButton)
+    {
+        m_isDragging = false;
+    }
 }
 
 void ApplyFriend::InitTipLbs()
@@ -106,6 +160,7 @@ void ApplyFriend::AddTipLbs(ClickLabel* lb, QPoint cur_point, QPoint& next_point
     lb->move(cur_point);
     lb->show();
     _add_labels.insert(lb->text(), lb);
+    qDebug() << lb->text() << "move to" << cur_point;
     _add_label_keys.push_back(lb->text());
     next_point.setX(lb->pos().x() + text_width + 15);
     next_point.setY(lb->pos().y());
@@ -146,7 +201,7 @@ void ApplyFriend::ShowMoreLabel()
     qDebug()<< "ApplyFriend::ShowMoreLabel()";
     ui->more_lb_wid->hide();
 
-    ui->lb_list->setFixedWidth(325);
+    ui->lb_list->setFixedWidth(420);
     _tip_cur_point = QPoint(5, 5);
     auto next_point = _tip_cur_point;
     int textWidth;
@@ -159,7 +214,7 @@ void ApplyFriend::ShowMoreLabel()
         textWidth = fontMetrics.width(added_lb->text()); // 获取文本的宽度
         textHeight = fontMetrics.height(); // 获取文本的高度
 
-        if(_tip_cur_point.x() +textWidth + tip_offset > ui->lb_list->width()){
+        if(_tip_cur_point.x() + textWidth + tip_offset > ui->lb_list->width()){
             _tip_cur_point.setX(tip_offset);
             _tip_cur_point.setY(_tip_cur_point.y()+textHeight+15);
         }
@@ -208,7 +263,7 @@ void ApplyFriend::ShowMoreLabel()
     int diff_height = next_point.y() + textHeight + tip_offset - ui->lb_list->height();
     ui->lb_list->setFixedHeight(next_point.y() + textHeight + tip_offset);
 
-    //qDebug()<<"after resize ui->lb_list size is " <<  ui->lb_list->size();
+    //qDebug()<<"after resize ui->lb_list size is" <<  ui->lb_list->size();
     ui->scrollcontent->setFixedHeight(ui->scrollcontent->height()+diff_height);
 }
 
@@ -216,6 +271,7 @@ void ApplyFriend::resetLabels()
 {
     qDebug() << "ApplyFriend::resetLabels()";
     auto max_width = ui->gridWidget->width();
+    qDebug() << "ui->gridWidget->width()" << ui->gridWidget->width();
     auto label_height = 0;
     for(auto iter = _friend_labels.begin(); iter != _friend_labels.end(); iter++){
         //todo... 添加宽度统计
@@ -336,13 +392,13 @@ void ApplyFriend::SlotLabelEnter()
     lb->setObjectName("tipslb");
     lb->setText(text);
     connect(lb, &ClickLabel::clicked, this, &ApplyFriend::SlotChangeFriendLabelByTip);
-    qDebug() << "ui->lb_list->width() is " << ui->lb_list->width();
-    qDebug() << "_tip_cur_point.x() is " << _tip_cur_point.x();
+    qDebug() << "ui->lb_list->width()" << ui->lb_list->width();
+    qDebug() << "_tip_cur_point.x()" << _tip_cur_point.x();
 
     QFontMetrics fontMetrics(lb->font()); // 获取QLabel控件的字体信息
     int textWidth = fontMetrics.width(lb->text()); // 获取文本的宽度
     int textHeight = fontMetrics.height(); // 获取文本的高度
-    qDebug() << "textWidth is " << textWidth;
+    qDebug() << "textWidth" << textWidth;
 
     if (_tip_cur_point.x() + textWidth + tip_offset + 3 > ui->lb_list->width()) {
 
@@ -378,8 +434,7 @@ void ApplyFriend::SlotRemoveFriendLabel(QString name)
     }
 
     auto find_key = _friend_label_keys.end();
-    for(auto iter = _friend_label_keys.begin(); iter != _friend_label_keys.end();
-         iter++){
+    for(auto iter = _friend_label_keys.begin(); iter != _friend_label_keys.end(); iter++){
         if(*iter == name){
             find_key = iter;
             break;
@@ -461,6 +516,11 @@ void ApplyFriend::SlotAddFirendLabelByClickTip(QString text)
     if (index != -1) {
         text = text.mid(index + add_prefix.length());
     }
+
+    //不知道为什么点到空的位置会返回空字符串，并创建空的标签，这里做过滤
+    if (text.isEmpty()){
+        return;
+    }
     addLabel(text);
 
     auto find_it = std::find(_tip_data.begin(), _tip_data.end(), text);
@@ -483,16 +543,15 @@ void ApplyFriend::SlotAddFirendLabelByClickTip(QString text)
     lb->setObjectName("tipslb");
     lb->setText(text);
     connect(lb, &ClickLabel::clicked, this, &ApplyFriend::SlotChangeFriendLabelByTip);
-    qDebug() << "ui->lb_list->width() is " << ui->lb_list->width();
-    qDebug() << "_tip_cur_point.x() is " << _tip_cur_point.x();
+    qDebug() << "ui->lb_list->width()" << ui->lb_list->width();
+    qDebug() << "_tip_cur_point.x()" << _tip_cur_point.x();
 
     QFontMetrics fontMetrics(lb->font()); // 获取QLabel控件的字体信息
     int textWidth = fontMetrics.width(lb->text()); // 获取文本的宽度
     int textHeight = fontMetrics.height(); // 获取文本的高度
-    qDebug() << "textWidth is " << textWidth;
+    qDebug() << "textWidth" << textWidth;
 
-    if (_tip_cur_point.x() + textWidth+ tip_offset+3 > ui->lb_list->width()) {
-
+    if (_tip_cur_point.x() + textWidth + tip_offset + 3 > ui->lb_list->width()) {
         _tip_cur_point.setX(5);
         _tip_cur_point.setY(_tip_cur_point.y() + textHeight + 15);
 
@@ -500,15 +559,19 @@ void ApplyFriend::SlotAddFirendLabelByClickTip(QString text)
 
     auto next_point = _tip_cur_point;
 
-    AddTipLbs(lb, _tip_cur_point, next_point, textWidth,textHeight);
+    AddTipLbs(lb, _tip_cur_point, next_point, textWidth, textHeight);
     _tip_cur_point = next_point;
 
     int diff_height = next_point.y() + textHeight + tip_offset - ui->lb_list->height();
-    ui->lb_list->setFixedHeight(next_point.y() + textHeight + tip_offset);
+
+    //加了之后标签栏输入多了后就不增加高度了
+    //qDebug() << "ui->lb_list height" << ui->lb_list->height();
+    //ui->lb_list->setFixedHeight(next_point.y() + textHeight + tip_offset);
+    //qDebug() << "ui->lb_list height goto" << ui->lb_list->height();
 
     lb->SetCurState(LabelClickState::Selected);
 
-    ui->scrollcontent->setFixedHeight(ui->scrollcontent->height()+ diff_height );
+    ui->scrollcontent->setFixedHeight(ui->scrollcontent->height()+ diff_height);
 }
 
 void ApplyFriend::SlotApplyCancel()
@@ -523,10 +586,5 @@ void ApplyFriend::SlotApplySure()
     qDebug() << "ApplyFriend::SlotApplySure()" ;
     this->hide();
     deleteLater();
+    //TODO 发送好友请求逻辑
 }
-
-void ApplyFriend::on_sure_btn_clicked()
-{
-    qDebug() << "ApplyFriend::on_sure_btn_clicked()";
-}
-

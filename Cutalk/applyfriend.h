@@ -26,6 +26,14 @@ public:
     /*将搜索的内容保存*/
     void SetSearchInfo(std::shared_ptr<SearchInfo> si);
 
+protected:
+    /*窗口拖动逻辑*/
+    void mousePressEvent(QMouseEvent *event) override; // 鼠标按下事件
+    void mouseMoveEvent(QMouseEvent *event) override;  // 鼠标移动事件
+    void mouseReleaseEvent(QMouseEvent *event) override; // 鼠标释放事件
+
+
+
 private:
     Ui::ApplyFriend *ui;
     /*重置标签位置，删除某个标签后，所有标签需要更新自己的位置*/
@@ -50,6 +58,9 @@ private:
     //提示位置记录
     QPoint _tip_cur_point;
     std::shared_ptr<SearchInfo> _si;
+
+    QPoint m_dragPosition; // 用于记录鼠标拖动时的位置
+    bool m_isDragging;     // 是否正在拖动窗口
 public slots:
     //显示更多label标签
     void ShowMoreLabel();
