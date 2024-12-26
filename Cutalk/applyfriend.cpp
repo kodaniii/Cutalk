@@ -347,6 +347,8 @@ void ApplyFriend::addLabel(QString name)
         ui->lb_ed->move(_label_point);
     }
 
+    qDebug() << _label_point;
+
     //清除编辑框
     ui->lb_ed->clear();
 
@@ -566,7 +568,7 @@ void ApplyFriend::SlotAddFirendLabelByClickTip(QString text)
 
     //加了之后标签栏输入多了后就不增加高度了
     //qDebug() << "ui->lb_list height" << ui->lb_list->height();
-    //ui->lb_list->setFixedHeight(next_point.y() + textHeight + tip_offset);
+    ui->lb_list->setFixedHeight(next_point.y() + textHeight + tip_offset);
     //qDebug() << "ui->lb_list height goto" << ui->lb_list->height();
 
     lb->SetCurState(LabelClickState::Selected);

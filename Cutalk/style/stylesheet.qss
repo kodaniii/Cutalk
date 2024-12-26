@@ -99,10 +99,28 @@ QDialog#LoginDialog, #RegisterDialog, #ResetDialog{
     outline: none;
 }
 
+#chat_user_list::item:selected {
+    background-color: #d3d7d4;
+    border: none;
+    outline: none;
+}
+
+#chat_user_list::item:hover {
+    background-color: rgb(206,207,208);
+    border: none;
+    outline: none;
+}
+
+#chat_user_list::focus {
+    border: none;
+    outline: none;
+}
+
+/* BUG FIX: 写死这个后，用户聊天项禁止选中
 #ChatUserWid {
     background-color: rgb(247,247,247);
     border: none;
-}
+}*/
 
 #user_chat_lb{
     color: rgb(153,153,153);
@@ -414,7 +432,7 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
 
 
 
-
+/*ApplyFriend UI*/
 
 #ApplyFriend{
     border: 2px solid #f1f1f1;

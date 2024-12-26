@@ -24,6 +24,7 @@ SOURCES += \
     clickbtn.cpp \
     clicklabel.cpp \
     clickoncelabel.cpp \
+    contactuserlist.cpp \
     customizeedit.cpp \
     defs.cpp \
     findsuccessdlg.cpp \
@@ -58,6 +59,7 @@ HEADERS += \
     clickbtn.h \
     clicklabel.h \
     clickoncelabel.h \
+    contactuserlist.h \
     customizeedit.h \
     defs.h \
     findsuccessdlg.h \
