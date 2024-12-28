@@ -25,10 +25,12 @@ SOURCES += \
     clicklabel.cpp \
     clickoncelabel.cpp \
     contactuserlist.cpp \
+    conuseritem.cpp \
     customizeedit.cpp \
     defs.cpp \
     findsuccessdlg.cpp \
     friendlabel.cpp \
+    grouptipitem.cpp \
     httpmgr.cpp \
     listitembase.cpp \
     logindialog.cpp \
@@ -60,10 +62,12 @@ HEADERS += \
     clicklabel.h \
     clickoncelabel.h \
     contactuserlist.h \
+    conuseritem.h \
     customizeedit.h \
     defs.h \
     findsuccessdlg.h \
     friendlabel.h \
+    grouptipitem.h \
     httpmgr.h \
     listitembase.h \
     logindialog.h \
@@ -87,8 +91,10 @@ FORMS += \
     chatdialog.ui \
     chatpage.ui \
     chatuserwid.ui \
+    conuseritem.ui \
     findsuccessdlg.ui \
     friendlabel.ui \
+    grouptipitem.ui \
     logindialog.ui \
     mainwindow.ui \
     registerdialog.ui \

@@ -47,14 +47,14 @@ struct MsgInfo{
 
 //自定义QListWidgetItem的几种类型
 enum ListItemType{
-    CHAT_USER_ITEM,         //聊天用户
-    CONTACT_USER_ITEM,      //联系人用户
+    CHAT_USER_ITEM,         //好友聊天项，聊天窗口->好友聊天列表
+    CONTACT_USER_ITEM,      //联系人用户项，联系人窗口->联系人
     SEARCH_USER_ITEM,       //搜索到的用户
     ADD_USER_TIP_ITEM,      //提示添加用户
     INVALID_ITEM,           //不可点击条目
-    GROUP_TIP_ITEM,         //分组提示条目
+    GROUP_TIP_ITEM,         //分组标题项，grouptipitem
     LINE_ITEM,              //分割线
-    APPLY_FRIEND_ITEM,      //好友申请
+    APPLY_FRIEND_ITEM,      //好友申请项，位于好友申请分组下的项
 };
 
 enum ReqId{
@@ -137,6 +137,11 @@ const int tip_offset = 5;
 const QString add_prefix = "添加标签 ";
 
 const int CHAT_COUNT_PER_PAGE = 13;
+
+extern const std::vector<QString> strs;
+extern const std::vector<QString> heads;
+extern const std::vector<QString> names;
+extern const std::vector<QString> apply_friend_strs;
 
 
 

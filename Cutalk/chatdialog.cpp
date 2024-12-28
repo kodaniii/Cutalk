@@ -91,6 +91,10 @@ ChatDialog::ChatDialog(QWidget *parent)
     //安装事件过滤器
     //检测鼠标点击位置判断是否需要清空搜索框
     this->installEventFilter(this);
+
+
+    connect(ui->contact_list, &ContactUserList::sig_loading_contact_user,
+            this, &ChatDialog::slot_loading_contact_user);
 }
 
 ChatDialog::~ChatDialog()
@@ -127,53 +131,6 @@ void ChatDialog::handleGlobalMousePress(QMouseEvent *event)
 
 void ChatDialog::addChatUserList()
 {
-    std::vector<QString> strs = {
-        "Hello, World!",
-        "C++ is the best",
-        "吃饭了吗？",
-        "作业借我抄抄",
-        "转让半盒热辣香骨鸡，肯德基疯狂星期四19.9入的，才吃了5块，里面还有10块，不舍得吃的时候就拿出来闻一闻，平常都是放在冰箱里，吃的时候就用公司的微波炉热一下，吃完都用钉书机钉起来，防止受潮。外表大概8成新吧。量很足，厚度约3cm，长度约6cm，包行货，不是外面的那种华莱士的，假一罚十，还有2盒甜辣酱一起送了，真的很好吃，平时小半块就可以回味半天了，价格私聊，非诚勿扰",
-        "Welcome to the new era of communication!",
-        "Let's embrace the challenges ahead.",
-        "Together we can achieve great things.",
-        "Stay focused on your goals, and you'll succeed.",
-        "Every line of code is a step towards mastery.",
-        "Innovation is the key to a brighter future.",
-        "Knowledge is power, and sharing it is a virtue.",
-        "The world is full of possibilities, just waiting to be discovered."
-    };
-
-    std::vector<QString> heads = {
-        ":/res/head/head_1.jpg",
-        ":/res/head/head_2.jpg",
-        ":/res/head/head_3.jpg",
-        ":/res/head/head_4.jpg",
-        ":/res/head/head_5.jpg",
-        ":/res/head/head_6.jpg",
-        ":/res/head/head_7.jpg",
-        ":/res/head/head_8.jpg",
-        ":/res/head/head_9.jpg",
-        ":/res/head/head_10.jpg",
-        ":/res/head/head_11.jpg",
-        ":/res/head/head_12.jpg",
-        ":/res/head/head_13.jpg",
-        ":/res/head/head_14.jpg",
-        ":/res/head/head_15.jpg",
-        ":/res/head/head_16.jpg",
-        ":/res/head/head_17.jpg"
-    };
-
-    std::vector<QString> names = {
-        "alice",
-        "bob",
-        "charlie",
-        "diana",
-        "eve",
-        "frank",
-        "grace",
-        "hank"
-    };
-
     // 创建QListWidgetItem，并设置自定义的widget
     for(int i = 0; i < 13; i++){
         int randomValue = QRandomGenerator::global()->bounded(100); // 生成0到99之间的随机整数
@@ -291,4 +248,40 @@ void ChatDialog::slot_search_change(const QString &str)
     if (!str.isEmpty()) {
         ShowSearch(true);
     }
+}
+
+void ChatDialog::slot_loading_contact_user()
+{
+
+    if(_b_loading){
+        return;
+    }
+
+    _b_loading = true;
+
+    /*loading gif显示*/
+    QLabel *loading_item = new QLabel(this);
+    QMovie *movie=new QMovie(":/res/loading.gif");
+
+    loading_item->setMovie(movie);
+    loading_item->setFixedSize(250, 70);
+    loading_item->setAlignment(Qt::AlignCenter);
+    movie->setScaledSize(QSize(50, 50));
+
+
+    QListWidgetItem *item = new QListWidgetItem;
+    item->setSizeHint(QSize(250, 70));
+    ui->contact_list->addItem(item);
+    ui->contact_list->setItemWidget(item, loading_item);
+
+    movie->start();
+
+    QTimer::singleShot(550, this, [this, item](){
+        qDebug() << "ChatDialog::slot_loading_contact_user()";
+        ui->contact_list->addContactUserList();
+        ui->contact_list->takeItem(ui->contact_list->row(item));
+        ui->contact_list->update();
+
+        _b_loading = false;
+    });
 }

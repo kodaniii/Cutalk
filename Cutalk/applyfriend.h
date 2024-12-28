@@ -80,8 +80,6 @@ public slots:
     void SlotApplySure();
     //处理取消回调
     void SlotApplyCancel();
-private slots:
-    void on_sure_btn_clicked();
 };
 
 #endif

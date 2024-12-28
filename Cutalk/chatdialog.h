@@ -59,6 +59,9 @@ private slots:
 
     //search_edit更新，切换到搜索界面
     void slot_search_change(const QString &str);
+
+    //加载更多联系人->联系人项
+    void slot_loading_contact_user();
 };
 
 #endif // CHATDIALOG_H
