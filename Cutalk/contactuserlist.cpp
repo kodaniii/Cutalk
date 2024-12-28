@@ -85,12 +85,11 @@ void ContactUserList::addContactUserList()
 {
     for(int i = 0; i < 13; i++){
         int randomValue = QRandomGenerator::global()->bounded(100); // 生成0到99之间的随机整数
-        int str_i = randomValue%apply_friend_strs.size();
         int head_i = randomValue%heads.size();
         int name_i = randomValue%names.size();
 
         auto *con_user_wid = new ConUserItem();
-        con_user_wid->SetInfo(str_i, names[name_i], heads[head_i]);
+        con_user_wid->SetInfo(0, names[name_i], heads[head_i]);
         QListWidgetItem *item = new QListWidgetItem;
         //qDebug()<<"chat_user_wid sizeHint" << chat_user_wid->sizeHint();
         item->setSizeHint(con_user_wid->sizeHint());

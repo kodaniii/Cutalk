@@ -3,7 +3,12 @@
 #include <QJsonDocument>
 #include "usermgr.h"
 
-TcpMgr::TcpMgr(): _host(""), _port(0), _b_recv_pending(false), _message_type_id(0), _message_len(0) {
+TcpMgr::TcpMgr():
+    _host(""),
+    _port(0),
+    _b_recv_pending(false),
+    _message_type_id(0),
+    _message_len(0) {
 
     //监听到来自_socket.connectToHost(_host, _port)的异步信号
     QObject::connect(&_socket, &QTcpSocket::connected, [&]() {

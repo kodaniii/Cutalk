@@ -40,7 +40,7 @@ const std::vector<QString> apply_friend_strs = {
     "买挖掘机吗？",
     "就你叫夏洛啊",
     "作业写完了吗？加我，借我抄抄",
-    "您的蜜雪冰城柠檬水分期支付即将逾期，请尽快同意！"
+    "您的蜜雪冰城柠檬水分期支付即将逾期，请尽快同意！",
     "李阿姨相亲介绍的，男，今年19岁，计算机科学与技术专业",
     "Zestful greetings! Let's connect.",
     "Yo, fellow adventurer, let's be friends!",

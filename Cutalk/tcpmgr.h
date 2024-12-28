@@ -50,6 +50,15 @@ signals:
 
     //用户搜索
     void sig_user_search(std::shared_ptr<SearchInfo>);
+    /*发出好友申请*/
+    void sig_friend_apply(std::shared_ptr<AddFriendApply>);
+    /*TCPMGR：接收到好友验证请求*/
+    void sig_add_auth_friend(std::shared_ptr<AuthInfo>);
+    /*TCPMGR：发送的好友验证请求收到对方回复*/
+    void sig_auth_rsp(std::shared_ptr<AuthRsp>);
+
+    /*有聊天内容更新*/
+    void sig_text_chat_msg(std::shared_ptr<TextChatMsg> msg);
 };
 
 #endif // TCPMGR_H

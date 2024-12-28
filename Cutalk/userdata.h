@@ -29,7 +29,10 @@ public:
     int     _sex;
 };
 
-
+/*
+ * status表示是否已经添加了好友，
+ * 从而决定好友申请页面显示添加按钮还是已添加
+ */
 struct ApplyInfo {
     ApplyInfo(int uid, QString name, QString desc,
         QString icon, QString nick, int sex, int status)

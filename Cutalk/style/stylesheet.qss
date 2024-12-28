@@ -347,7 +347,7 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
     border: 2px solid #f1f1f1;
 }
 
-/* 搜索框列表*/
+/* 搜索框列表 */
 #search_list{
     background-color: rgb(247,247,247);
     border: none;
@@ -649,7 +649,7 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
     border: none;
 }
 
-#GroupTipItem QLabel{
+#GroupTipItem #QLabel{
     color: #2e2f30;
     font-size: 13px; /* 设置字体大小 */
     font-family: "Microsoft YaHei"; /* 设置字体 */
@@ -657,11 +657,11 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
 }
 
 #new_friend_item {
-     border-bottom: 1px solid #eaeaea;
+    border-bottom: 0.5px solid #ececec;
 }
 
 #LineItem {
-    background-color:rgb(247,247,247);
+    background-color: #ececec;
     border: none;
 }
 
@@ -672,56 +672,56 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
 }
 
 #friend_apply_wid {
-    background-color: #f1f2f3;
+    background: #FEFCFB;
     border-bottom: 1px solid #ede9e7;
 }
 
 #apply_friend_list {
-    background-color: #f1f2f3;
-    border-left: 1px solid #ede9e7;
+    background: #FEFCFB;
+    border-bottom: 0.5px solid #ececec;
     border-top: none;
     border-right: none;
     border-bottom: none;
 }
 
-ApplyFriendItem {
-    background-color: #f1f2f3;
-    border-bottom: 2px solid #dbd9d9;
+#ApplyFriendItem {
+    background: #FEFCFB;
+    border-bottom: 0.8px solid #ececec;
 }
 
-ApplyFriendItem #user_chat_lb{
+#ApplyFriendItem #user_chat_lb{
     color: #a2a2a2;
     font-size: 14px; /* 设置字体大小 */
     font-family: "Microsoft YaHei"; /* 设置字体 */
 }
 
-ApplyFriendItem #addBtn[state='normal'] {
-    background-color: #d3d7d4;
+#ApplyFriendItem #addBtn[state='normal'] {
+    background-color: #f0f0f0;
     color: #2cb46e;
-    font-size: 16px; /* 设置字体大小 */
+    font-size: 14px; /* 设置字体大小 */
     font-family: "Microsoft YaHei"; /* 设置字体 */
     border-radius: 20px; /* 设置圆角 */
 }
 
-ApplyFriendItem #addBtn[state='hover'] {
-    background-color: #D3D3D3;
+#ApplyFriendItem #addBtn[state='hover'] {
+    background-color: #d2d2d2;
     color: #2cb46e;
-    font-size: 16px; /* 设置字体大小 */
+    font-size: 14px; /* 设置字体大小 */
     font-family: "Microsoft YaHei"; /* 设置字体 */
     border-radius: 20px; /* 设置圆角 */
 }
 
-ApplyFriendItem #addBtn[state='press'] {
-    background-color: #BEBEBE;
+#ApplyFriendItem #addBtn[state='press'] {
+    background-color: #c6c6c6;
     color: #2cb46e;
-    font-size: 16px; /* 设置字体大小 */
+    font-size: 14px; /* 设置字体大小 */
     font-family: "Microsoft YaHei"; /* 设置字体 */
     border-radius: 20px; /* 设置圆角 */
 }
 
 #already_add_lb{
     color:rgb(153,153,153);
-    font-size: 12px;
+    font-size: 14px;
     font-family: "Microsoft YaHei";
 }
 
