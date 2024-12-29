@@ -66,20 +66,11 @@ ChatServer StatusServiceImpl::GetServer() {
 	std::cout << "StatusServiceImpl::GetServer()" << std::endl;
 	std::lock_guard<std::mutex> lk(_server_mtx);
 
-	std::cout << "*********************" << std::endl;
-	std::cout << "ChatServers INFO:" << std::endl;
-	for (auto _server : _servers) {
-		std::cout << "[" << _server.first << "]" << std::endl;
-		std::cout << "conn = " << _server.second.conn_count << std::endl;
-		std::cout << "name = " << _server.second.name << std::endl;
-		std::cout << "host = " << _server.second.host << std::endl;
-		std::cout << "port = " << _server.second.port << std::endl;
-	}
-	std::cout << "*********************" << std::endl;
-
-	auto minServer = _servers.begin()->second;
+	/*这里一定要引用，否则更新的是临时变量的conn*/
+	auto& minServer = _servers.begin()->second;
 	auto count_str = RedisMgr::GetInstance()->HGet(LOGIN_COUNT, minServer.name);
 
+	std::cout << "[Redis] " << minServer.name << " login_count " << count_str << std::endl;
 	if (count_str.empty()) {
 		//不存在，说明对应ChatServer没有HSet(LOGIN_COUNT, xxx)
 		//默认设置连接数为最大
@@ -96,6 +87,7 @@ ChatServer StatusServiceImpl::GetServer() {
 		}
 
 		auto count_str = RedisMgr::GetInstance()->HGet(LOGIN_COUNT, server.second.name);
+		std::cout << "[Redis] " << server.second.name << " login_count " << count_str << std::endl;
 		if (count_str.empty()) {
 			server.second.conn_count = INT_MAX;
 		}
@@ -107,6 +99,17 @@ ChatServer StatusServiceImpl::GetServer() {
 			minServer = server.second;
 		}
 	}
+
+	std::cout << "*********************" << std::endl;
+	std::cout << "ChatServers INFO:" << std::endl;
+	for (auto& _server : _servers) {
+		std::cout << "[" << _server.first << "]" << std::endl;
+		std::cout << "conn = " << _server.second.conn_count << std::endl;
+		std::cout << "name = " << _server.second.name << std::endl;
+		std::cout << "host = " << _server.second.host << std::endl;
+		std::cout << "port = " << _server.second.port << std::endl;
+	}
+	std::cout << "*********************" << std::endl;
 
 	return minServer;
 }
