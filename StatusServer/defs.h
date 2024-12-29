@@ -53,6 +53,7 @@ enum ErrorCodes {
     GateFailed = 0x102,         //GateServer服务器连接错误
     VerifyFailed = 0x103,       //Verify服务器连接错误
     StatusFailed = 0x104,       //Status服务器连接错误
+    ChatFailed = 0x105,         //ChatServer连接错误
 
     VerifyExpired = 0x201,      //验证码过期
     VerifyCodeErr = 0x202,      //验证码错误
@@ -71,20 +72,42 @@ enum ErrorCodes {
     UidInvalid = 0x504, 			//uid无效
 };
 
+enum ReqId {
+    REQ_CHAT_LOGIN = 0x05,      //登录聊天服务器
+    REQ_CHAT_LOGIN_RSP = 0x06,  //登录聊天服务器回包
+};
+
 // Defer类
 class Defer {
 public:
-	// 接受一个lambda表达式或者函数指针
-	Defer(std::function<void()> func) : _func(func) {}
+    // 接受一个lambda表达式或者函数指针
+    Defer(std::function<void()> func) : _func(func) {}
 
-	// 析构函数中执行传入的函数
-	~Defer() {
-		_func();
-	}
+    // 析构函数中执行传入的函数
+    ~Defer() {
+        _func();
+    }
 
 private:
-	std::function<void()> _func;
+    std::function<void()> _func;
 };
 
-#define USER_TOKEN_PREFIX  "utoken_uid"
-#define LOGIN_COUNT  "logincount"
+//msg_type_id最大长度
+#define MAX_LENGTH ((1) << (11))
+
+//头部总长度
+#define HEAD_TOTAL_LEN 4
+//头部id长度
+#define HEAD_ID_LEN 2
+//头部数据长度
+#define HEAD_DATA_LEN 2
+
+#define MAX_RECVQUE  10000
+#define MAX_SENDQUE 1000
+
+
+#define USER_TOKEN_PREFIX  "u_token_uid"
+#define LOGIN_COUNT  "login_count"
+#define USER_IP_PREFIX  "u_ip"
+#define USER_BASE_INFO "u_base_info"
+#define NAME_INFO  "name_info_"

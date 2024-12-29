@@ -53,6 +53,7 @@ enum ErrorCodes {
     GateFailed = 0x102,         //GateServer服务器连接错误
     VerifyFailed = 0x103,       //Verify服务器连接错误
     StatusFailed = 0x104,       //Status服务器连接错误
+    ChatFailed = 0x105,         //ChatServer连接错误
 
     VerifyExpired = 0x201,      //验证码过期
     VerifyCodeErr = 0x202,      //验证码错误
@@ -105,5 +106,8 @@ private:
 #define MAX_SENDQUE 1000
 
 
-#define USER_TOKEN_PREFIX  "utoken_uid"
-#define LOGIN_COUNT  "logincount"
+#define USER_TOKEN_PREFIX  "u_token_uid"
+#define LOGIN_COUNT  "login_count"
+#define USER_IP_PREFIX  "u_ip"
+#define USER_BASE_INFO "u_base_info"
+#define NAME_INFO  "name_info_"

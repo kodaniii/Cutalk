@@ -95,6 +95,7 @@ enum StatusCodes{
     GateFailed = 0x102,         //GateServer服务器连接错误
     VerifyFailed = 0x103,       //Verify服务器连接错误
     StatusFailed = 0x104,       //Status服务器连接错误
+    ChatFailed = 0x105,         //ChatServer连接错误
 
     VerifyExpired = 0x201,      //验证码过期
     VerifyCodeErr = 0x202,      //验证码错误
