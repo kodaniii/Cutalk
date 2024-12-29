@@ -62,6 +62,9 @@ private slots:
 
     //加载更多联系人->联系人项
     void slot_loading_contact_user();
+
+    /*清空搜索框*/
+    void slot_show_search(bool);
 };
 
 #endif // CHATDIALOG_H

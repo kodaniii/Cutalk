@@ -95,6 +95,11 @@ ChatDialog::ChatDialog(QWidget *parent)
 
     connect(ui->contact_list, &ContactUserList::sig_loading_contact_user,
             this, &ChatDialog::slot_loading_contact_user);
+
+    /*点击好友申请列表后，搜索界面关闭，并清空搜索框*/
+    connect(ui->friend_apply_page, &ApplyFriendPage::sig_show_search,
+            this, &ChatDialog::slot_show_search);
+
 }
 
 ChatDialog::~ChatDialog()
@@ -141,7 +146,7 @@ void ChatDialog::addChatUserList()
         auto *chat_user_wid = new ChatUserWid();
         chat_user_wid->SetInfo(names[name_i], heads[head_i], strs[str_i]);
         QListWidgetItem *item = new QListWidgetItem;
-        //qDebug() << "chat_user_wid sizeHint is" << chat_user_wid->sizeHint();
+        //qDebug() << "chat_user_wid sizeHint" << chat_user_wid->sizeHint();
         item->setSizeHint(chat_user_wid->sizeHint());
         ui->chat_user_list->addItem(item);
         ui->chat_user_list->setItemWidget(item, chat_user_wid);
@@ -284,4 +289,10 @@ void ChatDialog::slot_loading_contact_user()
 
         _b_loading = false;
     });
+}
+
+void ChatDialog::slot_show_search(bool b_search)
+{
+    ui->search_edit->clear();
+    ShowSearch(b_search);
 }

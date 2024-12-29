@@ -1,6 +1,7 @@
 #include "applyfriendlist.h"
 #include <QWheelEvent>
 #include <QScrollBar>
+#include <QDebug>
 
 ApplyFriendList::ApplyFriendList(QWidget *parent)
 {
@@ -28,6 +29,7 @@ bool ApplyFriendList::eventFilter(QObject *watched, QEvent *event)
     if (watched == this->viewport()) {
         if (event->type() == QEvent::MouseButtonPress) {
             /*如果点击了任意区域，就会取消搜索栏的显示*/
+            qDebug() << "watched == this->viewport()";
             emit sig_show_search(false);
         }
     }
