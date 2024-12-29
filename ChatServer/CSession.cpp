@@ -6,6 +6,9 @@
 #include <json/value.h>
 #include <json/reader.h>
 #include "LogicSystem.h"
+#include <string>
+#include "RedisMgr.h"
+#include "ConfigMgr.h"
 
 using namespace std;
 
@@ -28,6 +31,19 @@ CSession::CSession(boost::asio::io_context& io_context, CServer* server)
 
 CSession::~CSession() {
 	std::cout << "~CSession destruct" << endl;
+
+	/*获取Redis的连接数，并-1*/
+	std::lock_guard<std::mutex> lk(_send_lock);
+	auto& gCfgMgr = ConfigMgr::init();
+	auto server_name = gCfgMgr["SelfServer"]["name"];
+	auto count_str = RedisMgr::GetInstance()->HGet(LOGIN_COUNT, server_name);
+
+	std::cout << "[Redis] " << server_name << " login_count " << count_str << std::endl;
+	if (!count_str.empty()) {
+		int up_count = std::stoi(count_str) - 1;
+		RedisMgr::GetInstance()->HSet(LOGIN_COUNT, server_name, std::to_string(up_count));
+		std::cout << "[Redis] " << server_name << " login_count update to " << up_count << std::endl;
+	}
 }
 
 tcp::socket& CSession::GetSocket() {

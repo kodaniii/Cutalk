@@ -52,3 +52,33 @@ ConfigMgr::ConfigMgr() {
         }
     }
 }
+
+/*
+[PeerServers]
+name = ChatServer2
+[Redis]
+host = 172.25.0.50
+port = 6380
+pswd = 123456
+[SelfServer]
+RPCPort = 50055
+host = 127.0.0.1
+name = ChatServer1
+port = 8090
+[StatusServer]
+host = 127.0.0.1
+port = 50052
+[VerifyServer]
+host = 127.0.0.1
+port = 50051
+
+if section VerifyServer, key = host, return 127.0.0.1
+*/
+
+std::string ConfigMgr::GetValue(const std::string& section, const std::string& key) {
+    if (_config_info.find(section) == _config_info.end()) {
+        return "";
+    }
+
+    return _config_info[section].GetValue(key);
+}

@@ -44,6 +44,14 @@ struct ConfigInfo {
 		return _config_data[key];
 	}
 
+	std::string GetValue(const std::string& key) {
+		if (_config_data.find(key) == _config_data.end()) {
+			return "";
+		}
+
+		return _config_data[key];
+	}
+
 };
 
 
@@ -77,6 +85,8 @@ public:
 		static ConfigMgr cfg_mgr;
 		return cfg_mgr;
 	}
+
+	std::string GetValue(const std::string& section, const std::string& key);
 
 private:
 	ConfigMgr();

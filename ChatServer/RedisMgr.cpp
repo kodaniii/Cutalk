@@ -298,12 +298,12 @@ bool RedisMgr::HSet(const std::string& key, const std::string& hkey, const std::
 	if (reply == nullptr || reply->type != REDIS_REPLY_INTEGER) {
 		freeReplyObject(reply);
 		this->redis_pool->PushConnection(conn);
-		std::cout << "[Redis] HSet " << key << "  " << hkey << "  " << value << " failed" << std::endl;
+		std::cout << "[Redis] HSet " << key << " " << hkey << " " << value << " failed" << std::endl;
 		return false;
 	}
 	freeReplyObject(reply);
 	this->redis_pool->PushConnection(conn);
-	std::cout << "[Redis] Succeed to execute command HSet " << key << "  " << hkey << "  " << value << std::endl;
+	std::cout << "[Redis] Succeed to execute command HSet " << key << " " << hkey << " " << value << std::endl;
 	return true;
 }
 
@@ -338,6 +338,34 @@ bool RedisMgr::HSet(const char* key, const char* hkey, const char* hvalue, size_
 	this->redis_pool->PushConnection(conn);
 	std::cout << "[Redis] Succeed to execute command HSet " << key << "  " << hkey << "  " << hvalue << std::endl;
 	return true;
+}
+
+bool RedisMgr::HDel(const std::string& key, const std::string& field)
+{
+	auto conn = redis_pool->GetConnection();
+	if (conn == nullptr) {
+		return false;
+	}
+
+	Defer defer([&conn, this]() {
+		redis_pool->PushConnection(conn);
+		});
+
+	redisReply* reply = (redisReply*)redisCommand(conn, "HDEL %s %s", key.c_str(), field.c_str());
+	if (reply == nullptr) {
+		std::cout << "[Redis] HDel " << key << " failed" << std::endl;
+		return false;
+	}
+
+	bool success = false;
+	if (reply->type == REDIS_REPLY_INTEGER) {
+		success = reply->integer > 0;
+	}
+
+	freeReplyObject(reply);
+
+	std::cout << "[Redis] Succeed to execute command HDel " << key << std::endl;
+	return success;
 }
 
 std::string RedisMgr::HGet(const std::string& key, const std::string& hkey){

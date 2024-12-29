@@ -1,5 +1,6 @@
 #include "CServer.h"
 #include "AsioIOServicePool.h"
+#include "usermgr.h"
 
 using namespace std;
 using boost::asio::ip::tcp;
@@ -40,9 +41,16 @@ void CServer::HandleAccept(shared_ptr<CSession> new_session, const boost::system
 	Start();
 }
 
-void CServer::ClearSession(std::string uuid) {
-	cout << "CServer::ClearSession() uuid = " << uuid << endl;
+void CServer::ClearSession(std::string session_id) {
+	cout << "CServer::ClearSession() session_id = " << session_id << endl;
 
-	lock_guard<mutex> lk(_mtx);
-	_sessions.erase(uuid);
+	if (_sessions.find(session_id) != _sessions.end()) {
+		//移除用户和session的关联
+		UserMgr::GetInstance()->RemoveUserSession(_sessions[session_id]->GetUserId());
+	}
+
+	{
+		lock_guard<mutex> lk(_mtx);
+		_sessions.erase(session_id);
+	}
 }
