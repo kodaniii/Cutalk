@@ -399,6 +399,39 @@ std::string RedisMgr::HGet(const std::string& key, const std::string& hkey){
 	return value;
 }
 
+bool RedisMgr::HDec(const std::string& key, const std::string& hkey) {
+	std::cout << "RedisMgr::HDec()" << std::endl;
+	std::lock_guard<std::mutex> lk(mtx);
+	auto count_str = RedisMgr::GetInstance()->HGet(key, hkey);
+
+	if (!count_str.empty()) {
+		int up_count = std::stoi(count_str) - 1;
+		RedisMgr::GetInstance()->HSet(key, hkey, std::to_string(up_count));
+	}
+	else {
+		return false;
+	}
+
+	return true;
+	
+}
+
+bool RedisMgr::HAdd(const std::string& key, const std::string& hkey) {
+	std::cout << "RedisMgr::HAdd()" << std::endl;
+	std::lock_guard<std::mutex> lk(mtx);
+	auto count_str = RedisMgr::GetInstance()->HGet(key, hkey);
+
+	if (!count_str.empty()) {
+		int up_count = std::stoi(count_str) + 1;
+		RedisMgr::GetInstance()->HSet(key, hkey, std::to_string(up_count));
+	}
+	else {
+		return false;
+	}
+
+	return true;
+}
+
 bool RedisMgr::Del(const std::string& key){
 	//redis pool
 	auto conn = redis_pool->GetConnection();

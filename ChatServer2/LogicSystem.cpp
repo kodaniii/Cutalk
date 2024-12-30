@@ -183,6 +183,7 @@ void LogicSystem::LoginHandler(shared_ptr<CSession> session, const short& msg_ty
 		rtvalue["error"] = ErrorCodes::UidInvalid;
 		return;
 	}
+
 	rtvalue["uid"] = uid;
 	rtvalue["pswd"] = user_info->pswd;
 	rtvalue["name"] = user_info->name;
@@ -201,6 +202,7 @@ void LogicSystem::LoginHandler(shared_ptr<CSession> session, const short& msg_ty
 	 */
 	auto server_name = ConfigMgr::init().GetValue("SelfServer", "name");
 
+	/*
 	auto rd_res = RedisMgr::GetInstance()->HGet(LOGIN_COUNT, server_name);
 	int login_cnt = 0;
 	if (!rd_res.empty()) {
@@ -208,7 +210,11 @@ void LogicSystem::LoginHandler(shared_ptr<CSession> session, const short& msg_ty
 	}
 	login_cnt++;
 	auto count_str = std::to_string(login_cnt);
-	RedisMgr::GetInstance()->HSet(LOGIN_COUNT, server_name, count_str);
+	RedisMgr::GetInstance()->HSet(LOGIN_COUNT, server_name, count_str);*/
+
+	bool isSucc = RedisMgr::GetInstance()->HAdd(LOGIN_COUNT, server_name);
+	std::cout << "RedisMgr::GetInstance()->HAdd() " << (isSucc ? "success" : "fail") << std::endl;
+
 
 	/*绑定当前TCP session的用户uid*/
 	session->SetUserId(uid);

@@ -32,18 +32,17 @@ CSession::CSession(boost::asio::io_context& io_context, CServer* server)
 CSession::~CSession() {
 	std::cout << "~CSession destruct" << endl;
 
-	/*获取Redis的连接数，并-1*/
-	std::lock_guard<std::mutex> lk(_send_lock);
+	/* 获取Redis的连接数，并-1 */
+	// 这里其实并不是原子性执行的，正常来说应该是HGet、-1、HSet写在同一个函数里，
+	// 然后在RedisMgr函数内部加锁
+	// TODO 看看后续改不改(已经改完了)
 	auto& gCfgMgr = ConfigMgr::init();
 	auto server_name = gCfgMgr["SelfServer"]["name"];
-	auto count_str = RedisMgr::GetInstance()->HGet(LOGIN_COUNT, server_name);
 
-	std::cout << "[Redis] " << server_name << " login_count " << count_str << std::endl;
-	if (!count_str.empty()) {
-		int up_count = std::stoi(count_str) - 1;
-		RedisMgr::GetInstance()->HSet(LOGIN_COUNT, server_name, std::to_string(up_count));
-		std::cout << "[Redis] " << server_name << " login_count update to " << up_count << std::endl;
-	}
+	bool isSucc = RedisMgr::GetInstance()->HDec(LOGIN_COUNT, server_name);
+	std::cout << "RedisMgr::GetInstance()->HDec() " << (isSucc? "success": "fail") << std::endl;
+
+	return;
 }
 
 tcp::socket& CSession::GetSocket() {
