@@ -66,22 +66,22 @@ ChatServer StatusServiceImpl::GetServer() {
 	std::cout << "StatusServiceImpl::GetServer()" << std::endl;
 	std::lock_guard<std::mutex> lk(_server_mtx);
 
-	/*这里一定要引用，否则更新的是临时变量的conn*/
-	auto& minServer = _servers.begin()->second;
+	auto minServer = _servers.begin()->second;
 	auto count_str = RedisMgr::GetInstance()->HGet(LOGIN_COUNT, minServer.name);
 
-	std::cout << "[Redis] " << minServer.name << " login_count " << count_str << std::endl;
+	std::cout << "[Redis] " << _servers.begin()->second.name << " login_count " << count_str << std::endl;
 	if (count_str.empty()) {
 		//不存在，说明对应ChatServer没有HSet(LOGIN_COUNT, xxx)
 		//默认设置连接数为最大
-		minServer.conn_count = INT_MAX;
+		_servers.begin()->second.conn_count = INT_MAX;
 	}
 	else {
-		minServer.conn_count = std::stoi(count_str);
+		_servers.begin()->second.conn_count = std::stoi(count_str);
 	}
 
 	//从第二个ChatServer开始遍历到最小连接数的主机
 	for (auto& server : _servers) {
+		std::cout << server.first << std::endl;
 		if (server.second.name == minServer.name) {
 			continue;
 		}
