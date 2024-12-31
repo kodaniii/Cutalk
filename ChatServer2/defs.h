@@ -73,23 +73,37 @@ enum ErrorCodes {
 };
 
 enum ReqId {
-    REQ_CHAT_LOGIN = 0x05,      //登录聊天服务器
-    REQ_CHAT_LOGIN_RSP = 0x06,  //登录聊天服务器回包
+	REQ_CHAT_LOGIN = 0x05,      //登录聊天服务器
+	REQ_CHAT_LOGIN_RSP = 0x06,  //登录聊天服务器回包
+
+    REQ_SEARCH_USER = 0x07,     //搜索用户
+    REQ_SEARCH_USER_RSP = 0x08, //搜索用户回包
+
+    REQ_ADD_FRIEND_REQ = 0x09,   //添加好友申请
+    REQ_ADD_FRIEND_RSP = 0x0a,   //申请添加好友回复
+    REQ_NOTIFY_ADD_FRIEND_REQ = 0x0b,  //通知用户添加好友申请
+    REQ_AUTH_FRIEND_REQ = 0x0c,  //认证好友请求
+    REQ_AUTH_FRIEND_RSP = 0x0d,  //认证好友回复
+    REQ_NOTIFY_AUTH_FRIEND_REQ = 0x0e, //通知用户认证好友申请
+
+    REQ_TEXT_CHAT_MSG_REQ = 0x0f,  //文本聊天信息请求
+    REQ_TEXT_CHAT_MSG_RSP = 0x10,  //文本聊天信息回复
+    REQ_NOTIFY_UPDATE_CHAT_MSG_REQ = 0x11, //通知用户更新聊天文本信息
 };
 
 // Defer类
 class Defer {
 public:
-    // 接受一个lambda表达式或者函数指针
-    Defer(std::function<void()> func) : _func(func) {}
+	// 接受一个lambda表达式或者函数指针
+	Defer(std::function<void()> func) : _func(func) {}
 
-    // 析构函数中执行传入的函数
-    ~Defer() {
-        _func();
-    }
+	// 析构函数中执行传入的函数
+	~Defer() {
+		_func();
+	}
 
 private:
-    std::function<void()> _func;
+	std::function<void()> _func;
 };
 
 //msg_type_id最大长度
@@ -106,8 +120,8 @@ private:
 #define MAX_SENDQUE 1000
 
 
-#define USER_TOKEN_PREFIX  "u_token_uid"
+#define USER_TOKEN_PREFIX  "u_token_uid_"
 #define LOGIN_COUNT  "login_count"
-#define USER_IP_PREFIX  "u_ip"
-#define USER_BASE_INFO "u_base_info"
-#define NAME_INFO  "name_info_"
+#define USER_IP_PREFIX  "u_ip_uid_"
+#define USER_BASE_INFO "u_base_info_uid_"
+#define NAME_INFO  "u_base_info_name_"

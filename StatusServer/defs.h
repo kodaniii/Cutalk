@@ -106,8 +106,8 @@ private:
 #define MAX_SENDQUE 1000
 
 
-#define USER_TOKEN_PREFIX  "u_token_uid"
+#define USER_TOKEN_PREFIX  "u_token_uid_"
 #define LOGIN_COUNT  "login_count"
-#define USER_IP_PREFIX  "u_ip"
-#define USER_BASE_INFO "u_base_info"
-#define NAME_INFO  "name_info_"
+#define USER_IP_PREFIX  "u_ip_uid_"
+#define USER_BASE_INFO "u_base_info_uid_"
+#define NAME_INFO  "u_base_info_name_"

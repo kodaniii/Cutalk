@@ -65,10 +65,24 @@ enum ReqId{
     REQ_USER_LOGIN = 0x04,      //用户登录
 
     //ChatServer
+    /*所有的REQ请求（有两个没写REQ，懒得改了）都是由TCPMgr sig_tcp_send_data信号发送的
+      所有的RSP请求都是由TCPMgr inithandlers()中注册的函数处理的*/
     REQ_CHAT_LOGIN = 0x05,      //登录聊天服务器
     REQ_CHAT_LOGIN_RSP = 0x06,  //登录聊天服务器回包
 
     REQ_SEARCH_USER = 0x07,     //搜索用户
+    REQ_SEARCH_USER_RSP = 0x08, //搜索用户回包
+
+    REQ_ADD_FRIEND_REQ = 0x09,   //添加好友申请
+    REQ_ADD_FRIEND_RSP = 0x0a,   //申请添加好友回复
+    REQ_NOTIFY_ADD_FRIEND_REQ = 0x0b,  //通知用户添加好友申请
+    REQ_AUTH_FRIEND_REQ = 0x0c,  //认证好友请求
+    REQ_AUTH_FRIEND_RSP = 0x0d,  //认证好友回复
+    REQ_NOTIFY_AUTH_FRIEND_REQ = 0x0e, //通知用户认证好友申请
+
+    REQ_TEXT_CHAT_MSG_REQ  = 0x0f,  //文本聊天信息请求
+    REQ_TEXT_CHAT_MSG_RSP  = 0x10,  //文本聊天信息回复
+    REQ_NOTIFY_UPDATE_CHAT_MSG_REQ = 0x11, //通知用户更新聊天文本信息
 };
 
 enum Modules{
