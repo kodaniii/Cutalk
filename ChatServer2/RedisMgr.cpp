@@ -106,6 +106,7 @@ void RedisMgr::Close() {
 }
 
 bool RedisMgr::Get(const std::string& key, std::string& value){
+	std::cout << "RedisMgr::Get()" << std::endl;
 	//redis pool
 	auto conn = redis_pool->GetConnection();
 	if (conn == nullptr) {
@@ -137,6 +138,7 @@ bool RedisMgr::Get(const std::string& key, std::string& value){
 }
 
 bool RedisMgr::Set(const std::string& key, const std::string& value) {
+	std::cout << "RedisMgr::Set()" << std::endl;
 	//redis pool
 	auto conn = redis_pool->GetConnection();
 	if (conn == nullptr) {

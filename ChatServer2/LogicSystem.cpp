@@ -73,7 +73,8 @@ void LogicSystem::DealMsg() {
 		auto call_back_iter = _func_callbacks.find(msg_node->_recvnode->_msg_type_id);
 
 		if (call_back_iter == _func_callbacks.end()) {
-			std::cout << "cannot found _func_callbacks[msg_type_id]" << std::endl;
+			std::cout << "cannot found _func_callbacks msg_type_id " 
+					<< msg_node->_recvnode->_msg_type_id << std::endl;
 			_msg_que.pop();
 			continue;
 		}
@@ -87,7 +88,8 @@ void LogicSystem::DealMsg() {
 void LogicSystem::RegisterCallBacks() {
 	_func_callbacks[REQ_CHAT_LOGIN] = std::bind(&LogicSystem::LoginHandler, this,
 		placeholders::_1, placeholders::_2, placeholders::_3);
-
+	_func_callbacks[REQ_SEARCH_USER] = std::bind(&LogicSystem::SearchInfo, this,
+		placeholders::_1, placeholders::_2, placeholders::_3);
 }
 
 /* 查询用户信息
@@ -153,8 +155,8 @@ void LogicSystem::LoginHandler(shared_ptr<CSession> session, const short& msg_ty
 
 	Json::Value rtvalue;
 	Defer defer([this, &rtvalue, session]() {
-		std::string return_str = rtvalue.toStyledString();
-		session->Send(return_str, REQ_CHAT_LOGIN_RSP);
+		std::string return_str = rtvalue.toStyledString();	//序列化
+		session->Send(return_str, REQ_CHAT_LOGIN_RSP);	//发到发送队列
 	});
 
 	//从redis获取用户token是否正确
@@ -275,3 +277,187 @@ void LogicSystem::LoginHandler(shared_ptr<CSession> session, const short& msg_ty
 	rtvalue["name"] = user_info->name;*/
 
 }
+
+bool LogicSystem::isPureDigit(const std::string& str) {
+	for (char c : str) {
+		if (!std::isdigit(c)) {
+			return false;
+		}
+	}
+	return true;
+}
+
+void LogicSystem::GetUserByUid(std::string uid_str, Json::Value& rtvalue) {
+	std::cout << "LogicSystem::GetUserByUid() uid " << uid_str << std::endl;
+
+	std::string base_key = USER_BASE_INFO + uid_str;
+
+	//优先从Redis中查询用户信息
+	std::string info_str = "";
+	bool b_base = RedisMgr::GetInstance()->Get(base_key, info_str);
+	if (b_base) {
+		Json::Reader reader;
+		Json::Value root;
+		reader.parse(info_str, root);
+
+		auto uid = root["uid"].asInt();
+		auto name = root["name"].asString();
+		auto pswd = root["pswd"].asString();
+		auto email = root["email"].asString();
+		auto nick = root["nick"].asString();
+		auto desc = root["desc"].asString();
+		auto sex = root["sex"].asInt();
+		auto icon = root["icon"].asString();
+
+		std::cout << "user uid " << uid << ", name "
+			<< name << ", pswd " << pswd << ", email "
+			<< email << std::endl; // ", icon " << icon << std::endl;
+
+		rtvalue["error"] = ErrorCodes::Success;
+		rtvalue["uid"] = uid;
+		rtvalue["pswd"] = pswd;
+		rtvalue["name"] = name;
+		rtvalue["email"] = email;
+		rtvalue["nick"] = nick;
+		rtvalue["desc"] = desc;
+		rtvalue["sex"] = sex;
+		rtvalue["icon"] = icon;
+		return;
+	}
+
+	auto uid = std::stoi(uid_str);
+	//redis中没有则查询mysql
+	//查询数据库
+	std::shared_ptr<UserInfo> user_info = nullptr;
+	user_info = MysqlMgr::GetInstance()->GetUser(uid);
+	if (user_info == nullptr) {
+		rtvalue["error"] = ErrorCodes::UidInvalid;
+		return;
+	}
+
+	//将数据库内容写入Redis缓存
+	Json::Value redis_root;
+	redis_root["uid"] = user_info->uid;
+	redis_root["pswd"] = user_info->pswd;
+	redis_root["name"] = user_info->name;
+	redis_root["email"] = user_info->email;
+	//redis_root["nick"] = user_info->nick;
+	//redis_root["desc"] = user_info->desc;
+	//redis_root["sex"] = user_info->sex;
+	//redis_root["icon"] = user_info->icon;
+
+	RedisMgr::GetInstance()->Set(base_key, redis_root.toStyledString());
+
+	//返回数据
+	rtvalue["error"] = ErrorCodes::Success;
+	rtvalue["uid"] = user_info->uid;
+	rtvalue["pswd"] = user_info->pswd;
+	rtvalue["name"] = user_info->name;
+	rtvalue["email"] = user_info->email;
+	//rtvalue["nick"] = user_info->nick;
+	//rtvalue["desc"] = user_info->desc;
+	//rtvalue["sex"] = user_info->sex;
+	//rtvalue["icon"] = user_info->icon;
+
+	return;
+}
+
+void LogicSystem::GetUserByName(std::string name, Json::Value& rtvalue) {
+	std::cout << "LogicSystem::GetUserByName() name " << name << std::endl;
+
+	std::string base_key = NAME_INFO + name;
+
+	//优先查redis中查询用户信息
+	std::string info_str = "";
+	bool b_base = RedisMgr::GetInstance()->Get(base_key, info_str);
+	if (b_base) {
+		Json::Reader reader;
+		Json::Value root;
+		reader.parse(info_str, root);
+		auto uid = root["uid"].asInt();
+		auto name = root["name"].asString();
+		auto pswd = root["pswd"].asString();
+		auto email = root["email"].asString();
+		//auto nick = root["nick"].asString();
+		//auto desc = root["desc"].asString();
+		//auto sex = root["sex"].asInt();
+		//auto icon = root["icon"].asString();
+
+		std::cout << "user uid " << uid << ", name "
+			<< name << ", pswd " << pswd << ", email "
+			<< email << std::endl;//", icon " << icon << std::endl;
+
+		rtvalue["error"] = ErrorCodes::Success;
+		rtvalue["uid"] = uid;
+		rtvalue["pswd"] = pswd;
+		rtvalue["name"] = name;
+		rtvalue["email"] = email;
+		//rtvalue["nick"] = nick;
+		//rtvalue["desc"] = desc;
+		//rtvalue["sex"] = sex;
+		//rtvalue["icon"] = icon;
+		return;
+	}
+
+	//redis中没有则查询mysql
+	//查询数据库
+	std::shared_ptr<UserInfo> user_info = nullptr;
+	user_info = MysqlMgr::GetInstance()->GetUser(name);
+	if (user_info == nullptr) {
+		rtvalue["error"] = ErrorCodes::UidInvalid;
+		return;
+	}
+
+	//将数据库内容写入redis缓存
+	Json::Value redis_root;
+	redis_root["uid"] = user_info->uid;
+	redis_root["pswd"] = user_info->pswd;
+	redis_root["name"] = user_info->name;
+	redis_root["email"] = user_info->email;
+	//redis_root["nick"] = user_info->nick;
+	//redis_root["desc"] = user_info->desc;
+	//redis_root["sex"] = user_info->sex;
+	//redis_root["icon"] = user_info->icon;
+
+	RedisMgr::GetInstance()->Set(base_key, redis_root.toStyledString());
+
+	//返回数据
+	rtvalue["error"] = ErrorCodes::Success;
+	rtvalue["uid"] = user_info->uid;
+	rtvalue["pswd"] = user_info->pswd;
+	rtvalue["name"] = user_info->name;
+	//rtvalue["email"] = user_info->email;
+	//rtvalue["nick"] = user_info->nick;
+	//rtvalue["desc"] = user_info->desc;
+	//rtvalue["sex"] = user_info->sex;
+
+	return;
+}
+
+void LogicSystem::SearchInfo(std::shared_ptr<CSession> session, 
+		const short& msg_type_id, const string& msg_data) {
+	std::cout << "LogicSystem::SearchInfo()" << std::endl;
+	Json::Reader reader;
+	Json::Value root;
+	reader.parse(msg_data, root);
+	auto uid_or_name_str = root["uid_or_name"].asString();
+	std::cout << "Get search_edit " << uid_or_name_str << endl;
+
+	Json::Value rtvalue;
+
+	Defer defer([this, &rtvalue, session]() {
+		std::string return_str = rtvalue.toStyledString();
+		session->Send(return_str, REQ_SEARCH_USER_RSP);
+	});
+
+	bool b_digit = isPureDigit(uid_or_name_str);
+	if (b_digit) {
+		GetUserByUid(uid_or_name_str, rtvalue);
+	}
+	else {
+		GetUserByName(uid_or_name_str, rtvalue);
+	}
+	return;
+}
+
+
