@@ -130,10 +130,11 @@ bool ResetDialog::checkUserValid()
 {
     auto user = ui->username_edit->text();
 
-    QRegularExpression regex(R"([@\.])");
+    //QRegularExpression regex(R"([@\.])");
+    QRegularExpression regex(R"(^[0-9]+$|.*[@\.].*$)");
     bool match = regex.match(ui->username_edit->text()).hasMatch();
     if(match){
-        AddTipErr(TipErr::TIP_USER_ERR, tr("用户名不能包含@和."));
+        AddTipErr(TipErr::TIP_USER_ERR, tr("用户名不能是纯数字，且不能包含@和."));
         return false;
     }
 
