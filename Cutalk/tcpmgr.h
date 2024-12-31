@@ -34,7 +34,7 @@ private:
 public slots:
     //http长连接请求
     void slot_tcp_connect(ServerInfo);
-    //连接后发数据
+    //TCP连接发数据，接收数据在initHandlers()里面处理
     void slot_tcp_send_data(ReqId reqId, QByteArray data);
 
 signals:
@@ -48,8 +48,8 @@ signals:
     void sig_login_failed(int);
 
 
-    //用户搜索
-    void sig_user_search(std::shared_ptr<SearchInfo>);
+    //用户搜索，已经搜索到用户，存储到SearchInfo对象中
+    void sig_user_search(bool, std::shared_ptr<SearchInfo>);
     /*发出好友申请*/
     void sig_friend_apply(std::shared_ptr<AddFriendApply>);
     /*TCPMGR：接收到好友验证请求*/

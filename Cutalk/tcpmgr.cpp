@@ -77,6 +77,7 @@ TcpMgr::TcpMgr():
                             break;
                         case QTcpSocket::RemoteHostClosedError:
                             qDebug() << "Remote Host Closed Connection!";
+                            emit sig_tcp_conn_fin(false);
                             break;
                         case QTcpSocket::HostNotFoundError:
                             qDebug() << "Host Not Found!";
@@ -187,6 +188,56 @@ void TcpMgr::initHandlers(){
         //切换聊天界面
         emit sig_switch_chatdlg();
         qDebug() << "emit sig_switch_chatdlg()";
+    });
+
+
+    //搜索用户回包处理
+    _handlers.insert(REQ_SEARCH_USER_RSP, [this](ReqId reqId, int len, QByteArray data) {
+        qDebug() << "TcpMgr::initHandlers() REQ_SEARCH_USER_RSP";
+        Q_UNUSED(len);
+        qDebug()<< "TcpMgr handle" << reqId;
+        // 将QByteArray转换为QJsonDocument
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(data);
+
+        // 检查转换是否成功
+        if(jsonDoc.isNull()){
+            qDebug() << "Failed to create QJsonDocument";
+            emit sig_user_search(false, nullptr);
+            return;
+        }
+
+        QJsonObject jsonObj = jsonDoc.object();
+        qDebug()<< "data jsonobj" << jsonObj ;
+
+        if(!jsonObj.contains("error")){
+            int err = StatusCodes::Error_Json;
+            qDebug() << "Json Parse Err" << err ;
+            emit sig_user_search(false, nullptr);
+            return;
+        }
+
+        int stat = jsonObj["error"].toInt();
+
+        if(stat == StatusCodes::UidInvalid){
+            qDebug() << "Search handle success, but Cannot search uid";
+            emit sig_user_search(true, nullptr);
+            return;
+        }
+        if(stat != StatusCodes::Success){
+            qDebug() << "Unknown Err" << stat ;
+            emit sig_user_search(false, nullptr);
+            return;
+        }
+
+        QJsonDocument doc(jsonObj);
+        QString jsonString = doc.toJson(QJsonDocument::Indented); // 格式化输出
+        qDebug() << "search_info" << jsonString;
+
+        auto search_info = std::make_shared<SearchInfo>(jsonObj["uid"].toInt(), jsonObj["name"].toString(),
+                                                        jsonObj["nick"].toString(), jsonObj["desc"].toString(),
+                                                        jsonObj["sex"].toInt(), jsonObj["icon"].toString());
+
+        emit sig_user_search(true, search_info);
     });
 }
 

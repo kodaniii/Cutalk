@@ -145,14 +145,14 @@ void StateWidget::SetSelected(bool bselected)
 {
     if(bselected){
         _curstate = LabelClickState::Selected;
-        setProperty("state",_selected);
+        setProperty("state", _selected);
         repolish(this);
         update();
         return;
     }
 
     _curstate = LabelClickState::Unselected;
-    setProperty("state",_normal);
+    setProperty("state", _normal);
     repolish(this);
     update();
     return;

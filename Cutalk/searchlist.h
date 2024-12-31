@@ -9,6 +9,8 @@
 #include <memory>
 #include "userdata.h"
 //#include "loadingdlg.h"
+#include "adduseritem.h"
+
 class SearchList: public QListWidget
 {
     Q_OBJECT
@@ -17,6 +19,7 @@ public:
     //关闭查找对话框
     void CloseFindDlg();
     void SetSearchEdit(QWidget* edit);
+
 protected:
     //鼠标进入显示滚动条，离开不显示滚动条
     bool eventFilter(QObject *watched, QEvent *event) override {
@@ -45,19 +48,25 @@ protected:
 
         return QListWidget::eventFilter(watched, event);
     }
+
 private:
     //显示loading
-    //后期可能去掉
+    //（后期可能去掉）不去掉了，重新写了逻辑
     void waitPending(bool pending = true);
     //是否有服务器回包，如果没有必须阻塞等待，禁止用户交互
     bool _send_pending;
-    void addTipItem();
+    void initTipItem();
     std::shared_ptr<QDialog> _find_dlg;
+    //Search_edit（位于chatdialog），方便获取search_edit的文本内容
     QWidget* _search_edit;
-    //LoadingDlg * _loadingDialog;
+    //LoadingDlg *_loadingDialog;
+
+    //维护查找uid/name的项，便于更改loading git图标
+    AddUserItem* _add_user_item;
+
 private slots:
     void slot_item_clicked(QListWidgetItem *item);
-    void slot_user_search(std::shared_ptr<SearchInfo> si);
+    void slot_user_search(bool, std::shared_ptr<SearchInfo>);
 signals:
 
 };

@@ -179,7 +179,7 @@ void LoginDialog::slot_tcp_conn_fin(bool b_success){
         QByteArray jsonData = doc.toJson(QJsonDocument::Indented);
 
         //发送tcp请求给ChatServer
-        //tcp内容是登录到聊天服务器
+        //tcp内容是登录到聊天服务器所需的uid和token
         emit TcpMgr::GetInstance()->sig_tcp_send_data(ReqId::REQ_CHAT_LOGIN, jsonData);
 
     }else{

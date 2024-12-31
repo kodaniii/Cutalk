@@ -381,9 +381,10 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
     border-image: url(:/res/add_tip.png);
 }
 
+/*
 #right_tip{
  border-image: url(:/res/right_tip.png);
-}
+}*/
 
 #message_tip{
   text-align: center;
@@ -732,3 +733,40 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
     font-family: "Microsoft YaHei";
 }
 
+
+
+
+
+
+#FindFailDlg{
+   background-color: #ffffff;
+}
+
+#fail_tip, #fail_tip_2 {
+    font-size: 16px;
+    font-family: "Microsoft YaHei";
+}
+
+#fail_sure_btn[state='normal']{
+    background: #07c160;
+    color: #ffffff;
+    font-size: 14px; /* 设置字体大小 */
+    font-family: "Microsoft YaHei"; /* 设置字体 */
+    border-radius: 20px; /* 设置圆角 */
+}
+
+#fail_sure_btn[state='hover']{
+    background: #3bbb4b;
+    color: #ffffff;
+    font-size: 14px; /* 设置字体大小 */
+    font-family: "Microsoft YaHei"; /* 设置字体 */
+    border-radius: 20px; /* 设置圆角 */
+}
+
+#fail_sure_btn[state='press']{
+   background: #07c160;
+   color: #ffffff;
+   font-size: 14px; /* 设置字体大小 */
+   font-family: "Microsoft YaHei"; /* 设置字体 */
+   border-radius: 20px; /* 设置圆角 */
+}

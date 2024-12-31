@@ -100,6 +100,8 @@ ChatDialog::ChatDialog(QWidget *parent)
     connect(ui->friend_apply_page, &ApplyFriendPage::sig_show_search,
             this, &ChatDialog::slot_show_search);
 
+    //将search_edit拷贝给search_list，方便search_list获取search_edit的文本内容
+    ui->search_list->SetSearchEdit(ui->search_edit);
 }
 
 ChatDialog::~ChatDialog()
@@ -110,6 +112,7 @@ ChatDialog::~ChatDialog()
 bool ChatDialog::eventFilter(QObject *watched, QEvent *event)
 {
     if (event->type() == QEvent::MouseButtonPress) {
+        qDebug() << "ChatDialog::eventFilter() QEvent MouseButtonPress";
         QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
         handleGlobalMousePress(mouseEvent);
     }
