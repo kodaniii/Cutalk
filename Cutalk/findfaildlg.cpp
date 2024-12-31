@@ -1,5 +1,6 @@
 #include "findfaildlg.h"
 #include "ui_findfaildlg.h"
+#include <QMouseEvent>
 
 FindFailDlg::FindFailDlg(QWidget *parent)
     : QDialog(parent)
@@ -19,6 +20,32 @@ FindFailDlg::FindFailDlg(QWidget *parent)
 FindFailDlg::~FindFailDlg()
 {
     delete ui;
+}
+
+
+void FindFailDlg::mousePressEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::LeftButton)
+    {
+        m_dragPosition = event->globalPos() - frameGeometry().topLeft();
+        m_isDragging = true;
+    }
+}
+
+void FindFailDlg::mouseMoveEvent(QMouseEvent *event)
+{
+    if (event->buttons() & Qt::LeftButton && m_isDragging)
+    {
+        move(event->globalPos() - m_dragPosition);
+    }
+}
+
+void FindFailDlg::mouseReleaseEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::LeftButton)
+    {
+        m_isDragging = false;
+    }
 }
 
 void FindFailDlg::on_fail_sure_btn_clicked()
