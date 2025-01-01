@@ -71,8 +71,8 @@ public:
 	//重置功能，检查是否可以重置
 	//如果其他email没有绑定这个用户名且该email已经注册
 	int CheckResetIsVaild(const std::string& name, const std::string& email);
-	//重置功能，重置用户名和密码
-	bool UpdateUserAndPswd(const std::string& name, const std::string& newpwd, const std::string& email);
+	//重置功能，重置用户名和密码，同时获取uid，为了后面可以更新Redis用户基本信息
+	bool UpdateUserAndPswd(const std::string& name, const std::string& newpwd, const std::string& email, int& uid);
 	
 	//登录功能，检查邮箱或用户名对应的密码是否正确
 	bool LoginCheckPswd(const std::string& name_or_email, const std::string& pswd, UserInfo& userInfo);

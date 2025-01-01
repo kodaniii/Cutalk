@@ -85,3 +85,5 @@ public:
 private:
 	std::function<void()> _func;
 };
+
+#define USER_BASE_INFO "u_base_info_uid_"

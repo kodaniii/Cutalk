@@ -19,9 +19,9 @@ int MysqlMgr::CheckResetIsVaild(const std::string& name, const std::string& emai
 	return dao.CheckResetIsVaild(name, email);
 }
 
-bool MysqlMgr::UpdateUserAndPswd(const std::string& name, const std::string& pswd, const std::string& email) {
+bool MysqlMgr::UpdateUserAndPswd(const std::string& name, const std::string& pswd, const std::string& email, int& uid) {
 	std::cout << "MysqlMgr::UpdateUserAndPswd()" << std::endl;
-	return dao.UpdateUserAndPswd(name, pswd, email);
+	return dao.UpdateUserAndPswd(name, pswd, email, uid);
 }
 
 bool MysqlMgr::LoginCheckPswd(const std::string& name_or_email, const std::string& pswd, UserInfo& userInfo) {

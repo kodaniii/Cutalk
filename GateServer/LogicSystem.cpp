@@ -4,6 +4,7 @@
 #include "RedisMgr.h"
 #include "MysqlMgr.h"
 #include "StatusGrpcClient.h"
+#include <string>
 
 LogicSystem::LogicSystem() {
 	//Get测试
@@ -20,7 +21,7 @@ LogicSystem::LogicSystem() {
 		}
 	});
 
-	//收取注册邮箱，grpc传给verifyserver，发送验证码
+	//收取注册邮箱，gRPC传给verifyserver，发送验证码
 	RegisterPost("/get_verifycode", [](std::shared_ptr<HttpConnection> conn) {
 		//从client得到post请求，获得email
 		std::cout << "/get_verifycode post handler" << std::endl;
@@ -187,6 +188,21 @@ LogicSystem::LogicSystem() {
 			"verifycode": "6f90"
 		}
 		*/
+
+		//将个人信息更新到Redis，注册和重置后触发
+		Json::Value redis_root;
+		redis_root["uid"] = uid;
+		redis_root["pswd"] = root["pswd"];
+		redis_root["name"] = root["user"];
+		redis_root["email"] = root["email"];
+		redis_root["nick"] = "nick_" + root["user"].asString();
+		redis_root["desc"] = "";
+		redis_root["sex"] = 0;
+		redis_root["icon"] = "";
+		std::string base_key = USER_BASE_INFO + std::to_string(uid);
+		RedisMgr::GetInstance()->Set(base_key, redis_root.toStyledString());
+		std::cout << "RedisMgr::GetInstance()->Set() success" << std::endl;
+
 		return true;
 		});
 
@@ -251,8 +267,11 @@ LogicSystem::LogicSystem() {
 			return true;
 		}
 
+		/*这里补充一个uid，为了最后更新个人信息到Redis*/
+		int uid = -1;
+
 		//更新密码为最新密码
-		bool b_up = MysqlMgr::GetInstance()->UpdateUserAndPswd(name, pswd, email);
+		bool b_up = MysqlMgr::GetInstance()->UpdateUserAndPswd(name, pswd, email, uid);
 		if (!b_up) {
 			std::cout << "Update username and passwd failed" << std::endl;
 			root["error"] = ErrorCodes::ResetUpdateFailed;
@@ -270,6 +289,22 @@ LogicSystem::LogicSystem() {
 		root["verifycode"] = src_root["verifycode"].asString();
 		std::string jsonstr = root.toStyledString();
 		beast::ostream(conn->_response.body()) << jsonstr;
+
+
+		//将个人信息更新到Redis，注册和重置后触发
+		Json::Value redis_root;
+		redis_root["uid"] = uid;
+		redis_root["pswd"] = root["pswd"];
+		redis_root["name"] = root["user"];
+		redis_root["email"] = root["email"];
+		redis_root["nick"] = "nick_" + root["user"].asString();
+		redis_root["desc"] = "";
+		redis_root["sex"] = 0;
+		redis_root["icon"] = "";
+		std::string base_key = USER_BASE_INFO + std::to_string(uid);
+		RedisMgr::GetInstance()->Set(base_key, redis_root.toStyledString());
+		std::cout << "RedisMgr::GetInstance()->Set() success" << std::endl;
+
 		return true;
 		});
 

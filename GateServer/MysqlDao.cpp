@@ -112,7 +112,7 @@ int MysqlDao::CheckResetIsVaild(const std::string& name, const std::string& emai
 	}
 }
 
-bool MysqlDao::UpdateUserAndPswd(const std::string& name, const std::string& pswd, const std::string& email) {
+bool MysqlDao::UpdateUserAndPswd(const std::string& name, const std::string& pswd, const std::string& email, int& uid) {
 	auto conn = sql_pool->GetConnection();
 
 	Defer defer([this, &conn]() {
@@ -136,7 +136,20 @@ bool MysqlDao::UpdateUserAndPswd(const std::string& name, const std::string& psw
 		int updateCount = pstmt->executeUpdate();
 
 		std::cout << "Reset rows: " << updateCount << std::endl;
-		return true;
+		if (updateCount == 1) {
+			std::unique_ptr<sql::PreparedStatement> stmt(conn->sql_conn->prepareStatement("SELECT uid FROM user WHERE email = ?"));
+			stmt->setString(1, email);
+			std::unique_ptr<sql::ResultSet> res(stmt->executeQuery()); 
+			if (res->next()) {
+				// »ñÈ¡uid
+				uid = res->getInt("uid");
+				std::cout << "Get user uid: " << uid << std::endl;
+			}
+
+			return true;
+		}
+
+		return false;
 	}
 	catch (sql::SQLException& e) {
 		std::cerr << "SQLException: " << e.what();
