@@ -45,7 +45,10 @@ message LoginRsp {
 }
 
 
-
+/* desc是申请好友的描述，
+ * 原本想做的是如果不填写默认调用用户的个人简介，在Mysql也是desc字段
+ * 但是懒得做，如果默认不填写直接置空string
+ */
 message AddFriendReq {
 	int32  applyuid = 1;
 	string name = 2;

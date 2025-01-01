@@ -4,6 +4,7 @@
 #include "defs.h"
 #include "StatusGrpcClient.h"
 #include "UserMgr.h"
+#include "ChatGrpcClient.h"
 
 #define forever for(;;)
 
@@ -89,6 +90,8 @@ void LogicSystem::RegisterCallBacks() {
 	_func_callbacks[REQ_CHAT_LOGIN] = std::bind(&LogicSystem::LoginHandler, this,
 		placeholders::_1, placeholders::_2, placeholders::_3);
 	_func_callbacks[REQ_SEARCH_USER] = std::bind(&LogicSystem::SearchInfo, this,
+		placeholders::_1, placeholders::_2, placeholders::_3);
+	_func_callbacks[REQ_ADD_FRIEND_REQ] = std::bind(&LogicSystem::AddFriendApply, this,
 		placeholders::_1, placeholders::_2, placeholders::_3);
 }
 
@@ -178,6 +181,8 @@ void LogicSystem::LoginHandler(shared_ptr<CSession> session, const short& msg_ty
 
 
 	/*获取用户个人信息*/
+	// TODO GateServer中register和reset后也要更新，因为GetBaseInfo在Redis存在时只读Redis，而reg和reset只更新了Mysql，
+	// 导致只有Mysql才是最新的，Redis不一定是最新的，还没做
 	std::string base_key = USER_BASE_INFO + uid_str;
 	auto user_info = std::make_shared<UserInfo>();
 	bool b_base = GetBaseInfo(base_key, uid, user_info);
@@ -194,6 +199,7 @@ void LogicSystem::LoginHandler(shared_ptr<CSession> session, const short& msg_ty
 	rtvalue["desc"] = user_info->desc;
 	rtvalue["sex"] = user_info->sex;
 	rtvalue["icon"] = user_info->icon;
+
 
 	//TODO 获取好友列表
 
@@ -461,3 +467,100 @@ void LogicSystem::SearchInfo(std::shared_ptr<CSession> session,
 }
 
 
+void LogicSystem::AddFriendApply(std::shared_ptr<CSession> session, const short& msg_type_id, const string& msg_data)
+{
+	std::cout << "LogicSystem::AddFriendApply()" << std::endl;
+	Json::Reader reader;
+	Json::Value root;
+	/*发送方信息*/
+	reader.parse(msg_data, root);
+	auto send_uid = root["send_uid"].asInt();
+	auto send_reason = root["send_reason"].asString();
+	auto send_backname = root["send_backname"].asString();
+	auto send_touid = root["send_touid"].asInt();
+	auto send_name = root["send_name"].asString();
+
+	std::cout << "Get User AddFriend Msg From uid " << send_uid << ", name " << send_name
+		<< ", reason " << send_reason << ", backname " << send_backname
+		<< ", add_uid " << send_touid << std::endl;
+
+	Json::Value rtvalue;
+	rtvalue["error"] = ErrorCodes::Success;
+	Defer defer([this, &rtvalue, session]() {
+		std::string return_str = rtvalue.toStyledString();
+		session->Send(return_str, REQ_ADD_FRIEND_RSP);
+	});
+
+	/*将好友添加信息更新到Mysql数据库*/
+	//记录发起者uid和接收者uid
+	bool isSucc = MysqlMgr::GetInstance()->AddFriendApply(send_uid, send_touid);
+
+	if (!isSucc) {
+		rtvalue["error"] = ErrorCodes::MysqlFailed;
+		std::cout << "MysqlMgr::GetInstance()->AddFriendApply() ret false" << std::endl;
+		return;
+	}
+
+	/* 找到接收者uid的ChatServer服务器
+	 * 根据服务器是SelfServer还是非SelfServer，决定消息发送到本地ChatServer还是其他Server
+	 */
+	//查找Redis中存储的touid对应的server ip
+	auto touid_str = std::to_string(send_touid);
+	auto to_ip_key = USER_IP_PREFIX + touid_str;
+	std::string to_ip_value = "";
+	bool b_ip = RedisMgr::GetInstance()->Get(to_ip_key, to_ip_value);
+	//对方不在线的情况，之前已经存储到Mysql，直接success不操作
+	if (!b_ip) {
+		rtvalue["error"] = ErrorCodes::Success;
+		return;
+	}
+
+	auto& cfg = ConfigMgr::init();
+	auto self_name = cfg["SelfServer"]["name"];
+
+	std::string base_key = USER_BASE_INFO + std::to_string(send_uid);
+	auto apply_info = std::make_shared<UserInfo>();
+
+	bool b_info = GetBaseInfo(base_key, send_uid, apply_info);
+
+	//如果对方Client所在ChatServer是本地
+	if (to_ip_value == self_name) {
+		auto session = UserMgr::GetInstance()->GetSession(send_touid);
+		//tcp连接不为空，说明对方在线，可以通过这个session直接通知对方Client
+		if (session) {
+			//在内存中则直接发送通知对方
+			Json::Value notify;
+			notify["error"] = ErrorCodes::Success;
+			notify["send_uid"] = send_uid;
+			notify["send_name"] = send_name;
+			notify["desc"] = send_reason;
+			if (b_info) {
+				//发送方信息
+				notify["icon"] = apply_info->icon;
+				notify["sex"] = apply_info->sex;
+				notify["nick"] = apply_info->nick;
+			}
+			std::string return_str = notify.toStyledString();
+			session->Send(return_str, REQ_NOTIFY_ADD_FRIEND_REQ);
+		}
+
+		return;
+	}
+
+	//如果对方Client所在ChatServer不在本地，通过gRPC通知对方的ChatServer
+	AddFriendReq add_req;
+	add_req.set_applyuid(send_uid);
+	add_req.set_touid(send_touid);
+	add_req.set_name(send_name);
+	add_req.set_desc(send_reason);
+	if (b_info) {
+		//发送方信息
+		add_req.set_icon(apply_info->icon);
+		add_req.set_sex(apply_info->sex);
+		add_req.set_nick(apply_info->nick);
+	}
+
+	//发送通知
+	ChatGrpcClient::GetInstance()->NotifyAddFriend(to_ip_value, add_req);
+
+}

@@ -117,7 +117,7 @@ bool RedisMgr::Get(const std::string& key, std::string& value){
 	//reply = (redisReply*)redisCommand(conn, "GET %s", key.c_str());
 	auto reply = (redisReply*)redisCommand(conn, "GET %s", key.c_str());
 	if (reply == NULL) {
-		freeReplyObject(reply);
+		//freeReplyObject(reply);
 		this->redis_pool->PushConnection(conn);
 		std::cout << "[Redis] GET " << key << " failed" << std::endl;
 		return false;

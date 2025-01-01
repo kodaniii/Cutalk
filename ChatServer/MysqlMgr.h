@@ -13,6 +13,8 @@ public:
 	std::shared_ptr<UserInfo> GetUser(int uid);
 	std::shared_ptr<UserInfo> GetUser(std::string name);
 
+	bool AddFriendApply(int& from_id, int& to_id);
+
 private:
 	MysqlMgr();
 	MysqlDao dao;

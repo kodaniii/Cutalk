@@ -37,10 +37,41 @@ ChatGrpcClient::~ChatGrpcClient()
 
 }
 
+/* 添加好友时，被添加方和添加方不在同一个ChatServer的情况，需要gRPC实现ChatServer之间的通信
+ * 这个函数是发送，发AddFriendReq，回AddFriendRsp
+ */
 AddFriendRsp ChatGrpcClient::NotifyAddFriend(std::string server_ip, const AddFriendReq& req)
 {
-	//TODO
-	return AddFriendRsp();
+	std::cout << "ChatGrpcClient::NotifyAddFriend() send and recv backpackage" << std::endl;
+	//TODO, is ok
+	AddFriendRsp rsp;
+	Defer defer([&rsp, &req]() {
+		rsp.set_error(ErrorCodes::Success);
+		rsp.set_applyuid(req.applyuid());
+		rsp.set_touid(req.touid());
+	});
+
+	auto find_iter = rpc_pool.find(server_ip);
+	if (find_iter == rpc_pool.end()) {
+		return rsp;
+	}
+
+	auto& pool = find_iter->second;
+	ClientContext context;
+	auto stub = pool->GetConnection();
+	Status status = stub->NotifyAddFriend(&context, req, &rsp);	//ChatServiceImpl::NotifyAddFriend()
+	Defer defercon([&stub, this, &pool]() {
+		pool->PushConnection(std::move(stub));
+	});
+
+	if (!status.ok()) {
+		rsp.set_error(ErrorCodes::ChatFailed);
+		return rsp;
+	}
+
+	return rsp;
+
+	//return AddFriendRsp();
 }
 
 

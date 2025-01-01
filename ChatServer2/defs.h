@@ -54,6 +54,8 @@ enum ErrorCodes {
     VerifyFailed = 0x103,       //Verify服务器连接错误
     StatusFailed = 0x104,       //Status服务器连接错误
     ChatFailed = 0x105,         //ChatServer连接错误
+    MysqlFailed = 0x106,
+    RedisFailed = 0x107,
 
     VerifyExpired = 0x201,      //验证码过期
     VerifyCodeErr = 0x202,      //验证码错误

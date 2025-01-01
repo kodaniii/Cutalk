@@ -41,10 +41,10 @@ std::shared_ptr<UserInfo> MysqlDao::GetUser(int uid)
 			user_ptr->pswd = res->getString("pswd");
 			user_ptr->email = res->getString("email");
 			user_ptr->name = res->getString("name");
-			//user_ptr->nick = res->getString("nick");
-			//user_ptr->desc = res->getString("desc");
-			//user_ptr->sex = res->getInt("sex");
-			//user_ptr->icon = res->getString("icon");
+			user_ptr->nick = res->getString("nick");
+			user_ptr->desc = res->getString("desc");
+			user_ptr->sex = res->getInt("sex");
+			user_ptr->icon = res->getString("icon");
 			user_ptr->uid = uid;
 			std::cout << "MysqlDao::GetUser uid " << uid << std::endl;
 			break;
@@ -85,10 +85,10 @@ std::shared_ptr<UserInfo> MysqlDao::GetUser(std::string name)
 			user_ptr->pswd = res->getString("pswd");
 			user_ptr->email = res->getString("email");
 			user_ptr->name = res->getString("name");
-			//user_ptr->nick = res->getString("nick");
-			//user_ptr->desc = res->getString("desc");
-			//user_ptr->sex = res->getInt("sex");
-			//user_ptr->icon = res->getString("icon");
+			user_ptr->nick = res->getString("nick");
+			user_ptr->desc = res->getString("desc");
+			user_ptr->sex = res->getInt("sex");
+			user_ptr->icon = res->getString("icon");
 			user_ptr->uid = res->getInt("uid");
 			break;
 		}
@@ -100,6 +100,43 @@ std::shared_ptr<UserInfo> MysqlDao::GetUser(std::string name)
 		std::cerr << ", SQLState: " << e.getSQLState() << " " << std::endl;
 		return nullptr;
 	}
+}
+
+bool MysqlDao::AddFriendApply(int& from_id, int& to_id) {
+	std::cout << "MysqlDao::AddFriendApply()" << std::endl;
+	auto conn = sql_pool->GetConnection();
+	if (conn == nullptr) {
+		return false;
+	}
+
+	Defer defer([this, &conn]() {
+		sql_pool->PushConnection(std::move(conn));
+	});
+
+	try {
+		std::unique_ptr<sql::PreparedStatement> pstmt(conn->sql_conn->prepareStatement(
+			"INSERT INTO friend_apply (from_uid, to_uid) values (?, ?) "
+			"ON DUPLICATE KEY UPDATE from_uid = from_uid, to_uid = to_uid"));
+		pstmt->setInt(1, from_id); // from id
+		pstmt->setInt(2, to_id);
+
+		int rowAffected = pstmt->executeUpdate();
+		//rowAffected = 0，表示这个条目被更新
+		//			  = 1，表示这个条目新添加
+		if (rowAffected < 0) {
+			return false;
+		}
+		return true;
+	}
+	catch (sql::SQLException& e) {
+		std::cerr << "SQLException: " << e.what();
+		std::cerr << ", MySQL error code: " << e.getErrorCode();
+		std::cerr << ", SQLState: " << e.getSQLState() << " " << std::endl;
+		return false;
+	}
+
+
+	return true;
 }
 
 MysqlPool::MysqlPool(const std::string& _url, const std::string& _user, const std::string& _pswd, const std::string& _schema, int _poolSize)

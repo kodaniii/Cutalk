@@ -39,8 +39,16 @@ CSession::~CSession() {
 	auto& gCfgMgr = ConfigMgr::init();
 	auto server_name = gCfgMgr["SelfServer"]["name"];
 
+	//StatusServer上查询的ChatServer用户登录数量-1
 	bool isSucc = RedisMgr::GetInstance()->HDec(LOGIN_COUNT, server_name);
-	std::cout << "RedisMgr::GetInstance()->HDec() " << (isSucc? "success": "fail") << std::endl;
+	std::cout << "RedisMgr::GetInstance()->HDec() login_count " << (isSucc? "success": "fail") << std::endl;
+
+	//对于离线账户，清除uid到ChatServer的映射，防止添加好友时误认为对方在线
+	auto touid_str = std::to_string(_user_uid);
+	auto to_ip_key = USER_IP_PREFIX + touid_str;
+	std::string to_ip_value = "";
+	bool b_ip = RedisMgr::GetInstance()->Del(to_ip_key);
+	std::cout << "RedisMgr::GetInstance()->Del() uid_to_chatServer_ip " << (b_ip ? "success" : "fail") << std::endl;
 
 	return;
 }
