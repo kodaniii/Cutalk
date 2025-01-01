@@ -50,8 +50,8 @@ signals:
 
     //用户搜索，已经搜索到用户，存储到SearchInfo对象中
     void sig_user_search(bool, std::shared_ptr<SearchInfo>);
-    /*发出好友申请*/
-    void sig_friend_apply(std::shared_ptr<AddFriendApply>);
+    /*对方发出好友申请信号，处理相关好友申请item显示*/
+    void sig_notify_friend_apply(std::shared_ptr<AddFriendApply>);
     /*TCPMGR：接收到好友验证请求*/
     void sig_add_auth_friend(std::shared_ptr<AuthInfo>);
     /*TCPMGR：发送的好友验证请求收到对方回复*/

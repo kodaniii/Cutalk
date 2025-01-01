@@ -55,7 +55,7 @@ TcpMgr::TcpMgr():
 
             // 读取消息体
             QByteArray messageBody = _buffer.mid(0, _message_len);
-            qDebug() << "QTcpSocket Receive body msg" << messageBody ;
+            qDebug() << "QTcpSocket Receive body msg" << messageBody;
 
             _buffer = _buffer.mid(_message_len);
 
@@ -69,7 +69,7 @@ TcpMgr::TcpMgr():
     //错误交给顶层处理
     QObject::connect(&_socket, static_cast<void (QTcpSocket::*)(QTcpSocket::SocketError)>(&QTcpSocket::error),
                     [&](QTcpSocket::SocketError socketError) {
-                        qDebug() << "Error:" << _socket.errorString() ;
+                        qDebug() << "Error:" << _socket.errorString();
                         switch (socketError) {
                         case QTcpSocket::ConnectionRefusedError:
                             qDebug() << "Connection Refused!";
@@ -119,7 +119,7 @@ void TcpMgr::handleMsg(ReqId req, int len, QByteArray data)
     if(find_iter == _handlers.end()){
         qDebug()<< "Not found Req" << req;
         emit sig_login_failed(StatusCodes::LoginHandlerFailed);
-        return ;
+        return;
     }
 
     find_iter.value()(req, len, data);
@@ -144,18 +144,18 @@ void TcpMgr::initHandlers(){
         }
 
         QJsonObject jsonObj = jsonDoc.object();
-        qDebug()<< "data jsonobj" << jsonObj ;
+        qDebug()<< "data jsonobj" << jsonObj;
 
         if(!jsonObj.contains("error")){
             int err = StatusCodes::Error_Json;
-            qDebug() << "Json Parse Err" << err ;
+            qDebug() << "Json Parse Err" << err;
             emit sig_login_failed(err);
             return;
         }
 
         int stat = jsonObj["error"].toInt();
         if(stat != StatusCodes::Success){
-            qDebug() << "Unknown Err" << stat ;
+            qDebug() << "Unknown Err" << stat;
             emit sig_login_failed(stat);
             return;
         }
@@ -207,11 +207,11 @@ void TcpMgr::initHandlers(){
         }
 
         QJsonObject jsonObj = jsonDoc.object();
-        qDebug()<< "data jsonobj" << jsonObj ;
+        qDebug()<< "data jsonobj" << jsonObj;
 
         if(!jsonObj.contains("error")){
             int err = StatusCodes::Error_Json;
-            qDebug() << "Json Parse Err" << err ;
+            qDebug() << "Json Parse Err" << err;
             emit sig_user_search(false, nullptr);
             return;
         }
@@ -224,7 +224,7 @@ void TcpMgr::initHandlers(){
             return;
         }
         if(stat != StatusCodes::Success){
-            qDebug() << "Unknown Err" << stat ;
+            qDebug() << "Unknown Err" << stat;
             emit sig_user_search(false, nullptr);
             return;
         }
@@ -233,12 +233,102 @@ void TcpMgr::initHandlers(){
         QString jsonString = doc.toJson(QJsonDocument::Indented); // 格式化输出
         qDebug() << "search_info" << jsonString;
 
+        /*这里的desc指的是搜索出来的个人信息的个人简介，但是这个功能没做显示*/
         auto search_info = std::make_shared<SearchInfo>(jsonObj["uid"].toInt(), jsonObj["name"].toString(),
                                                         jsonObj["nick"].toString(), jsonObj["desc"].toString(),
                                                         jsonObj["sex"].toInt(), jsonObj["icon"].toString());
 
         emit sig_user_search(true, search_info);
     });
+
+    //添加联系人回包处理
+    _handlers.insert(REQ_ADD_FRIEND_RSP, [this](ReqId reqId, int len, QByteArray data) {
+        qDebug() << "TcpMgr::initHandlers() REQ_ADD_FRIEND_RSP";
+        Q_UNUSED(len);
+        qDebug()<< "TcpMgr handle" << reqId;
+        // 将QByteArray转换为QJsonDocument
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(data);
+
+        // 检查转换是否成功
+        if(jsonDoc.isNull()){
+            qDebug() << "Failed to create QJsonDocument";
+            emit sig_user_search(false, nullptr);
+            return;
+        }
+
+        QJsonObject jsonObj = jsonDoc.object();
+        qDebug()<< "data jsonobj" << jsonObj;
+
+        if(!jsonObj.contains("error")){
+            int err = StatusCodes::Error_Json;
+            qDebug() << "Json Parse Err" << err;
+            emit sig_user_search(false, nullptr);
+            return;
+        }
+
+        int stat = jsonObj["error"].toInt();
+
+        if(stat != StatusCodes::Success){
+            qDebug() << "Unknown Err" << stat;
+            emit sig_user_search(false, nullptr);
+            return;
+        }
+
+        qDebug() << "add_friend handle success";
+
+    });
+
+    //通知用户添加好友申请
+    _handlers.insert(REQ_NOTIFY_ADD_FRIEND_REQ, [this](ReqId reqId, int len, QByteArray data) {
+        qDebug() << "TcpMgr::initHandlers() REQ_NOTIFY_ADD_FRIEND_REQ";
+        Q_UNUSED(len);
+        qDebug()<< "TcpMgr handle" << reqId;
+        // 将QByteArray转换为QJsonDocument
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(data);
+
+        // 检查转换是否成功
+        if(jsonDoc.isNull()){
+            qDebug() << "Failed to create QJsonDocument";
+            //直接借用用户搜索失败的界面
+            emit sig_user_search(false, nullptr);
+            return;
+        }
+
+        QJsonObject jsonObj = jsonDoc.object();
+        qDebug()<< "data jsonobj" << jsonObj;
+
+        if(!jsonObj.contains("error")){
+            int err = StatusCodes::Error_Json;
+            qDebug() << "Json Parse Err" << err;
+            emit sig_user_search(false, nullptr);
+            return;
+        }
+
+        int stat = jsonObj["error"].toInt();
+
+        if(stat != StatusCodes::Success){
+            qDebug() << "Unknown Err" << stat;
+            emit sig_user_search(false, nullptr);
+            return;
+        }
+
+
+        int from_uid = jsonObj["applyuid"].toInt();
+        QString name = jsonObj["name"].toString();
+        QString desc = jsonObj["desc"].toString();
+        QString icon = jsonObj["icon"].toString();
+        QString nick = jsonObj["nick"].toString();
+        int sex = jsonObj["sex"].toInt();
+
+        auto apply_info = std::make_shared<AddFriendApply>(
+            from_uid, name, desc,
+            icon, nick, sex);
+
+        emit sig_notify_friend_apply(apply_info);
+
+    });
+
+
 }
 
 void TcpMgr::slot_tcp_send_data(ReqId reqId, QByteArray dataBytes)

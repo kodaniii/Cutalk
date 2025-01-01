@@ -5,6 +5,7 @@
 #include <QScrollBar>
 #include "usermgr.h"
 #include "tcpmgr.h"
+#include <QJsonDocument>
 
 ApplyFriend::ApplyFriend(QWidget *parent)
     : QDialog(parent)
@@ -19,7 +20,7 @@ ApplyFriend::ApplyFriend(QWidget *parent)
     this->setModal(true);
 
     //未输入信息时的提示
-    ui->name_ed->setPlaceholderText(tr("在此处输入好友申请内容..."));
+    ui->reason_ed->setPlaceholderText(tr("在此处输入好友申请内容..."));
     ui->lb_ed->setPlaceholderText("搜索/添加标签");
     ui->back_ed->setPlaceholderText("添加该好友的备注");
 
@@ -190,9 +191,9 @@ void ApplyFriend::SetSearchInfo(std::shared_ptr<SearchInfo> si)
     /*
     auto applyname = UserMgr::GetInstance()->GetName();
     auto bakname = si->_name;
-    ui->name_ed->setText(applyname);
+    ui->reason_ed->setText(applyname);
     ui->back_ed->setText(bakname);*/
-    ui->name_ed->setText("");
+    ui->reason_ed->setText("");
     ui->back_ed->setText("");
 }
 
@@ -586,7 +587,46 @@ void ApplyFriend::SlotApplyCancel()
 void ApplyFriend::SlotApplySure()
 {
     qDebug() << "ApplyFriend::SlotApplySure()" ;
+
+    //TODO 发送好友请求逻辑，is ok
+    QJsonObject jsonObj;
+    /*发送方信息*/
+    auto uid = UserMgr::GetInstance()->GetUid();
+    jsonObj["send_uid"] = uid;
+    jsonObj["send_name"] = UserMgr::GetInstance()->GetName();
+    auto request_reason = ui->reason_ed->text();
+    if(request_reason.isEmpty()){
+        request_reason = "";
+    }
+    jsonObj["send_reason"] = request_reason;
+
+    auto back_name = ui->back_ed->text();
+    if(back_name.isEmpty()){
+        back_name = "";
+    }
+
+    jsonObj["send_backname"] = back_name;
+
+    jsonObj["send_touid"] = _si->_uid;
+
+    QJsonDocument send_apply(jsonObj);
+    QByteArray jsonData = send_apply.toJson(QJsonDocument::Compact);
+
+    /* 检查是不是搜索自身
+     * 如果是，即使点击添加好友也直接return
+     */
+    if(_si->_uid == uid){
+        //这里可以做消息提示
+        //TODO 消息提示
+        qDebug() << "Cannot Add self";
+        return;
+    }
+
+    emit TcpMgr::GetInstance()->sig_tcp_send_data(ReqId::REQ_ADD_FRIEND_REQ, jsonData);
+
+
     this->hide();
     deleteLater();
-    //TODO 发送好友请求逻辑
+
+    return;
 }

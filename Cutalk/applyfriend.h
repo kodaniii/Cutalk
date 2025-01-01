@@ -57,6 +57,8 @@ private:
     std::vector<QString> _tip_data;
     //提示位置记录
     QPoint _tip_cur_point;
+    //搜索好友时由FindSuccessdlg将搜索到的联系人信息添加到_si
+    //加好友时将联系人si信息发送出去
     std::shared_ptr<SearchInfo> _si;
 
     QPoint m_dragPosition; // 用于记录鼠标拖动时的位置

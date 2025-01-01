@@ -73,8 +73,10 @@ enum ReqId{
     REQ_SEARCH_USER = 0x07,     //搜索用户
     REQ_SEARCH_USER_RSP = 0x08, //搜索用户回包
 
+    //我方主动发好友请求
     REQ_ADD_FRIEND_REQ = 0x09,   //添加好友申请
-    REQ_ADD_FRIEND_RSP = 0x0a,   //申请添加好友回复
+    REQ_ADD_FRIEND_RSP = 0x0a,   //申请添加好友回复，接收是否成功发送到ChatServer的消息
+    //对方发好友请求
     REQ_NOTIFY_ADD_FRIEND_REQ = 0x0b,  //通知用户添加好友申请
     REQ_AUTH_FRIEND_REQ = 0x0c,  //认证好友请求
     REQ_AUTH_FRIEND_RSP = 0x0d,  //认证好友回复
@@ -110,6 +112,8 @@ enum StatusCodes{
     VerifyFailed = 0x103,       //Verify服务器连接错误
     StatusFailed = 0x104,       //Status服务器连接错误
     ChatFailed = 0x105,         //ChatServer连接错误
+    MysqlFailed = 0x106,
+    RedisFailed = 0x107,
 
     VerifyExpired = 0x201,      //验证码过期
     VerifyCodeErr = 0x202,      //验证码错误

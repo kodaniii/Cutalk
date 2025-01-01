@@ -150,7 +150,7 @@
            </widget>
           </item>
           <item>
-           <widget class="CustomizeEdit" name="name_ed">
+           <widget class="CustomizeEdit" name="reason_ed">
             <property name="minimumSize">
              <size>
               <width>460</width>
