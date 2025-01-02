@@ -22,7 +22,7 @@ public:
     /*添加标签到展示区*/
     void AddTipLbs(ClickLabel*, QPoint cur_point, QPoint &next_point, int text_width, int text_height);
     /*事件过滤器：隐藏或显示滚动条*/
-    bool eventFilter(QObject *obj, QEvent *event);
+    bool eventFilter(QObject *obj, QEvent *event) override;
     /*将搜索的内容保存*/
     void SetSearchInfo(std::shared_ptr<SearchInfo> si);
 

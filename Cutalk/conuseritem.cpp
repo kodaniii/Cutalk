@@ -10,7 +10,7 @@ ConUserItem::ConUserItem(QWidget *parent) :
     SetItemType(ListItemType::CONTACT_USER_ITEM);
     //小红点显示提升到顶部（Z轴）
     ui->red_point->raise();
-    ShowRedPoint(true);
+    ShowRedPoint(false);
 }
 
 ConUserItem::~ConUserItem()

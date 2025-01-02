@@ -8,7 +8,7 @@
 #include "applyfriend.h"
 #include "tcpmgr.h"
 #include "usermgr.h"
-
+#include "authenfriend.h"
 
 ApplyFriendPage::ApplyFriendPage(QWidget *parent)
     : QWidget(parent)
@@ -28,6 +28,7 @@ ApplyFriendPage::~ApplyFriendPage()
 
 void ApplyFriendPage::AddNewApply(std::shared_ptr<AddFriendApply> apply)
 {
+    qDebug() << "ApplyFriendPage::AddNewApply()";
     /*新的好友添加申请，添加一个*/
     int randomValue = QRandomGenerator::global()->bounded(100); // 生成0到99之间的随机整数
     int head_i = randomValue % heads.size();
@@ -49,10 +50,10 @@ void ApplyFriendPage::AddNewApply(std::shared_ptr<AddFriendApply> apply)
 
     /*点击item对应的同意好友申请按钮*/
     connect(apply_item, &ApplyFriendItem::sig_auth_friend, [this](std::shared_ptr<ApplyInfo> apply_info) {
-        // auto* authFriend = new AuthenFriend(this);
-        // authFriend->setModal(true);
-        // authFriend->SetApplyInfo(apply_info);
-        // authFriend->show();
+        auto* authFriend = new AuthenFriend(this);
+        authFriend->setModal(true);
+        authFriend->SetApplyInfo(apply_info);
+        authFriend->show();
     });
 }
 
@@ -68,7 +69,10 @@ void ApplyFriendPage::initApplyList()
 {
     //从UserMgr中找到好友申请列表，添加好友申请
     auto apply_list = UserMgr::GetInstance()->GetApplyList();
-    for(auto &apply: apply_list){
+    //由于ChatServer访问数据库里面是逆序添加，这里也逆序一下
+    for(auto iter = apply_list.rbegin(); iter != apply_list.rend(); ++iter){
+    //for(auto &apply: apply_list){
+        auto apply = *iter;
         int randomValue = QRandomGenerator::global()->bounded(100);
         //头像没做，随机生成
         int head_i = randomValue % heads.size();
@@ -100,10 +104,10 @@ void ApplyFriendPage::initApplyList()
 
         /*点击item对应的同意好友申请按钮*/
         connect(apply_item, &ApplyFriendItem::sig_auth_friend, [this](std::shared_ptr<ApplyInfo> apply_info) {
-            // auto* authFriend = new AuthenFriend(this);
-            // authFriend->setModal(true);
-            // authFriend->SetApplyInfo(apply_info);
-            // authFriend->show();
+            auto* authFriend = new AuthenFriend(this);
+            authFriend->setModal(true);
+            authFriend->SetApplyInfo(apply_info);
+            authFriend->show();
         });
     }
 
@@ -140,10 +144,11 @@ void ApplyFriendPage::initApplyList()
 
         /*点击item对应的同意好友申请按钮*/
         connect(apply_item, &ApplyFriendItem::sig_auth_friend, [this](std::shared_ptr<ApplyInfo> apply_info){
-            // auto *authFriend =  new AuthenFriend(this);
+            // auto *authFriend = new AuthenFriend(this);
             // authFriend->setModal(true);
             // authFriend->SetApplyInfo(apply_info);
             // authFriend->show();
+            qDebug() << "This item just for show, cannot clickable";
         });
     }
 }

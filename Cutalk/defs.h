@@ -76,8 +76,10 @@ enum ReqId{
     //我方主动发好友请求
     REQ_ADD_FRIEND_REQ = 0x09,   //添加好友申请
     REQ_ADD_FRIEND_RSP = 0x0a,   //申请添加好友回复，接收是否成功发送到ChatServer的消息
-    //对方发好友请求
+    //对方发好友请求的通知
     REQ_NOTIFY_ADD_FRIEND_REQ = 0x0b,  //通知用户添加好友申请
+
+    //我方同意对方的好友请求
     REQ_AUTH_FRIEND_REQ = 0x0c,  //认证好友请求
     REQ_AUTH_FRIEND_RSP = 0x0d,  //认证好友回复
     REQ_NOTIFY_AUTH_FRIEND_REQ = 0x0e, //通知用户认证好友申请

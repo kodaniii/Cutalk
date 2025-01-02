@@ -313,8 +313,8 @@ void TcpMgr::initHandlers(){
         }
 
 
-        int from_uid = jsonObj["applyuid"].toInt();
-        QString name = jsonObj["name"].toString();
+        int from_uid = jsonObj["send_uid"].toInt();
+        QString name = jsonObj["send_name"].toString();
         QString desc = jsonObj["desc"].toString();
         QString icon = jsonObj["icon"].toString();
         QString nick = jsonObj["nick"].toString();

@@ -6,6 +6,8 @@
 #include <QTimer>
 #include <QMovie>
 #include <QMouseEvent>
+#include "tcpmgr.h"
+#include "usermgr.h"
 
 ChatDialog::ChatDialog(QWidget *parent)
     : QDialog(parent)
@@ -102,6 +104,9 @@ ChatDialog::ChatDialog(QWidget *parent)
 
     //将search_edit拷贝给search_list，方便search_list获取search_edit的文本内容
     ui->search_list->SetSearchEdit(ui->search_edit);
+
+    connect(TcpMgr::GetInstance().get(), &TcpMgr::sig_notify_friend_apply, this, &ChatDialog::slot_notify_apply_friend);
+
 }
 
 ChatDialog::~ChatDialog()
@@ -298,4 +303,21 @@ void ChatDialog::slot_show_search(bool b_search)
 {
     ui->search_edit->clear();
     ShowSearch(b_search);
+}
+
+void ChatDialog::slot_notify_apply_friend(std::shared_ptr<AddFriendApply> apply)
+{
+    qDebug() << "ChatDialog::slot_notify_apply_friend()";
+
+    bool b_already = UserMgr::GetInstance()->AlreadyApply(apply->_from_uid);
+    /*如果已经发送过好友申请，不处理*/
+    if(b_already){
+        qDebug() << "UserMgr::GetInstance()->AlreadyApply() true, return...";
+        return;
+    }
+
+    UserMgr::GetInstance()->AddApplyList(std::make_shared<ApplyInfo>(apply));
+    ui->side_contact_widget->ShowRedPoint(true);
+    ui->contact_list->ShowRedPoint(true);
+    ui->friend_apply_page->AddNewApply(apply);
 }

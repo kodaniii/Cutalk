@@ -63,6 +63,7 @@ private:
     /*当前登录的用户信息(uid, name, nick, icon, sex)*/
     std::shared_ptr<UserInfo> _user_info;
     /*好友申请列表，vector*/
+    //TODO 这里将_apply_list改为map形式，value为bool AlreadyApply
     std::vector<std::shared_ptr<ApplyInfo>> _apply_list;
     /*好友列表*/
     std::vector<std::shared_ptr<FriendInfo>> _friend_list;

@@ -6,6 +6,7 @@
 #include "defs.h"
 #include <QKeyEvent>
 #include "statewidget.h"
+#include "userdata.h"
 
 namespace Ui {
 class ChatDialog;
@@ -65,6 +66,9 @@ private slots:
 
     /*清空搜索框*/
     void slot_show_search(bool);
+
+    /*通知添加好友，有来自其他Client的好友申请*/
+    void slot_notify_apply_friend(std::shared_ptr<AddFriendApply> apply);
 };
 
 #endif // CHATDIALOG_H
