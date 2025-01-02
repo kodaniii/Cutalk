@@ -8,11 +8,15 @@ UserMgr::~UserMgr() {
 
 std::shared_ptr<CSession> UserMgr::GetSession(int uid)
 {
+	std::cout << "UserMgr::GetSession()";
 	std::lock_guard<std::mutex> lk(_session_mtx);
 	auto iter = _uid_to_session.find(uid);
 	if (iter == _uid_to_session.end()) {
+		std::cout << " return nullptr" << endl;
 		return nullptr;
 	}
+
+	std::cout << endl;
 
 	return iter->second;
 }

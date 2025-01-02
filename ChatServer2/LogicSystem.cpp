@@ -511,6 +511,7 @@ void LogicSystem::AddFriendApply(std::shared_ptr<CSession> session, const short&
 	bool b_ip = RedisMgr::GetInstance()->Get(to_ip_key, to_ip_value);
 	//对方不在线的情况，之前已经存储到Mysql，直接success不操作
 	if (!b_ip) {
+		std::cout << "LogicSystem::AddFriendApply(): the other party is offline" << std::endl;
 		rtvalue["error"] = ErrorCodes::Success;
 		return;
 	}
@@ -525,6 +526,7 @@ void LogicSystem::AddFriendApply(std::shared_ptr<CSession> session, const short&
 
 	//如果对方Client所在ChatServer是本地
 	if (to_ip_value == self_name) {
+		std::cout << "LogicSystem::AddFriendApply(): Both parties are on the same ChatServer, using TCP" << std::endl;
 		auto session = UserMgr::GetInstance()->GetSession(send_touid);
 		//tcp连接不为空，说明对方在线，可以通过这个session直接通知对方Client
 		if (session) {
@@ -546,6 +548,8 @@ void LogicSystem::AddFriendApply(std::shared_ptr<CSession> session, const short&
 
 		return;
 	}
+
+	std::cout << "LogicSystem::AddFriendApply(): Both parties are not on the same ChatServer, using gRPC" << std::endl;
 
 	//如果对方Client所在ChatServer不在本地，通过gRPC通知对方的ChatServer
 	AddFriendReq add_req;

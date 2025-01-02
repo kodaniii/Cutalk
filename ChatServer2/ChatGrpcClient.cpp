@@ -8,7 +8,7 @@
 
 ChatGrpcClient::ChatGrpcClient()
 {
-	auto &gCfgMgr = ConfigMgr::init();
+	auto& gCfgMgr = ConfigMgr::init();
 	auto server_list = gCfgMgr["PeerServers"]["name"];	//ChatServer2, ChatServer3(FOR ChatServer1)
 
 	std::vector<std::string> words;
@@ -20,14 +20,14 @@ ChatGrpcClient::ChatGrpcClient()
 		words.push_back(word);
 	}
 
-	for (auto &word : words) {
+	for (auto& word : words) {
 		if (gCfgMgr[word]["name"].empty()) {
 			continue;
 		}
 
 		//rpc_pool["ChatServer2"] = 
-		rpc_pool[gCfgMgr[word]["name"]] = 
-			std::make_unique<ChatPool>(5, gCfgMgr[word]["host"], gCfgMgr[word]["port"]);
+		rpc_pool[gCfgMgr[word]["name"]] =
+			std::make_unique<ChatPool>(5, gCfgMgr[word]["host"], gCfgMgr[word]["RPCPort"]);
 	}
 
 }
@@ -49,10 +49,11 @@ AddFriendRsp ChatGrpcClient::NotifyAddFriend(std::string server_ip, const AddFri
 		rsp.set_error(ErrorCodes::Success);
 		rsp.set_applyuid(req.applyuid());
 		rsp.set_touid(req.touid());
-	});
+		});
 
 	auto find_iter = rpc_pool.find(server_ip);
 	if (find_iter == rpc_pool.end()) {
+		std::cout << "find_iter == rpc_pool.end(), return..." << std::endl;
 		return rsp;
 	}
 
@@ -62,7 +63,7 @@ AddFriendRsp ChatGrpcClient::NotifyAddFriend(std::string server_ip, const AddFri
 	Status status = stub->NotifyAddFriend(&context, req, &rsp);	//ChatServiceImpl::NotifyAddFriend()
 	Defer defercon([&stub, this, &pool]() {
 		pool->PushConnection(std::move(stub));
-	});
+		});
 
 	if (!status.ok()) {
 		rsp.set_error(ErrorCodes::ChatFailed);
