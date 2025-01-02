@@ -203,7 +203,24 @@ void LogicSystem::LoginHandler(shared_ptr<CSession> session, const short& msg_ty
 
 	//TODO 获取好友列表
 
-	//TODO 获取好友申请列表
+	//TODO 获取好友申请列表, is ok
+	//从Mysql获取
+	std::vector<std::shared_ptr<ApplyInfo>> apply_list;
+	auto b_apply = GetFriendApplyInfo(uid, apply_list);
+	if (b_apply) {
+		for (auto& apply : apply_list) {
+			Json::Value obj;
+			obj["name"] = apply->_name;
+			obj["uid"] = apply->_uid;
+			obj["icon"] = apply->_icon;
+			obj["nick"] = apply->_nick;
+			obj["sex"] = apply->_sex;
+			obj["desc"] = apply->_desc;
+			obj["status"] = apply->_status;
+			rtvalue["apply_list"].append(obj);
+		}
+	}
+
 
 	/* 更新服务器登录数量，供StatusServer负载均衡使用
 	 * 服务器数量在服务器启动的时候就初始化了
@@ -347,10 +364,10 @@ void LogicSystem::GetUserByUid(std::string uid_str, Json::Value& rtvalue) {
 	redis_root["pswd"] = user_info->pswd;
 	redis_root["name"] = user_info->name;
 	redis_root["email"] = user_info->email;
-	//redis_root["nick"] = user_info->nick;
-	//redis_root["desc"] = user_info->desc;
-	//redis_root["sex"] = user_info->sex;
-	//redis_root["icon"] = user_info->icon;
+	redis_root["nick"] = user_info->nick;
+	redis_root["desc"] = user_info->desc;
+	redis_root["sex"] = user_info->sex;
+	redis_root["icon"] = user_info->icon;
 
 	RedisMgr::GetInstance()->Set(base_key, redis_root.toStyledString());
 
@@ -360,10 +377,10 @@ void LogicSystem::GetUserByUid(std::string uid_str, Json::Value& rtvalue) {
 	rtvalue["pswd"] = user_info->pswd;
 	rtvalue["name"] = user_info->name;
 	rtvalue["email"] = user_info->email;
-	//rtvalue["nick"] = user_info->nick;
-	//rtvalue["desc"] = user_info->desc;
-	//rtvalue["sex"] = user_info->sex;
-	//rtvalue["icon"] = user_info->icon;
+	rtvalue["nick"] = user_info->nick;
+	rtvalue["desc"] = user_info->desc;
+	rtvalue["sex"] = user_info->sex;
+	rtvalue["icon"] = user_info->icon;
 
 	return;
 }
@@ -384,10 +401,10 @@ void LogicSystem::GetUserByName(std::string name, Json::Value& rtvalue) {
 		auto name = root["name"].asString();
 		auto pswd = root["pswd"].asString();
 		auto email = root["email"].asString();
-		//auto nick = root["nick"].asString();
-		//auto desc = root["desc"].asString();
-		//auto sex = root["sex"].asInt();
-		//auto icon = root["icon"].asString();
+		auto nick = root["nick"].asString();
+		auto desc = root["desc"].asString();
+		auto sex = root["sex"].asInt();
+		auto icon = root["icon"].asString();
 
 		std::cout << "user uid " << uid << ", name "
 			<< name << ", pswd " << pswd << ", email "
@@ -398,10 +415,10 @@ void LogicSystem::GetUserByName(std::string name, Json::Value& rtvalue) {
 		rtvalue["pswd"] = pswd;
 		rtvalue["name"] = name;
 		rtvalue["email"] = email;
-		//rtvalue["nick"] = nick;
-		//rtvalue["desc"] = desc;
-		//rtvalue["sex"] = sex;
-		//rtvalue["icon"] = icon;
+		rtvalue["nick"] = nick;
+		rtvalue["desc"] = desc;
+		rtvalue["sex"] = sex;
+		rtvalue["icon"] = icon;
 		return;
 	}
 
@@ -420,10 +437,10 @@ void LogicSystem::GetUserByName(std::string name, Json::Value& rtvalue) {
 	redis_root["pswd"] = user_info->pswd;
 	redis_root["name"] = user_info->name;
 	redis_root["email"] = user_info->email;
-	//redis_root["nick"] = user_info->nick;
-	//redis_root["desc"] = user_info->desc;
-	//redis_root["sex"] = user_info->sex;
-	//redis_root["icon"] = user_info->icon;
+	redis_root["nick"] = user_info->nick;
+	redis_root["desc"] = user_info->desc;
+	redis_root["sex"] = user_info->sex;
+	redis_root["icon"] = user_info->icon;
 
 	RedisMgr::GetInstance()->Set(base_key, redis_root.toStyledString());
 
@@ -432,10 +449,10 @@ void LogicSystem::GetUserByName(std::string name, Json::Value& rtvalue) {
 	rtvalue["uid"] = user_info->uid;
 	rtvalue["pswd"] = user_info->pswd;
 	rtvalue["name"] = user_info->name;
-	//rtvalue["email"] = user_info->email;
-	//rtvalue["nick"] = user_info->nick;
-	//rtvalue["desc"] = user_info->desc;
-	//rtvalue["sex"] = user_info->sex;
+	rtvalue["email"] = user_info->email;
+	rtvalue["nick"] = user_info->nick;
+	rtvalue["desc"] = user_info->desc;
+	rtvalue["sex"] = user_info->sex;
 
 	return;
 }
@@ -493,7 +510,7 @@ void LogicSystem::AddFriendApply(std::shared_ptr<CSession> session, const short&
 
 	/*将好友添加信息更新到Mysql数据库*/
 	//记录发起者uid和接收者uid
-	bool isSucc = MysqlMgr::GetInstance()->AddFriendApply(send_uid, send_touid);
+	bool isSucc = MysqlMgr::GetInstance()->AddFriendApply(send_uid, send_touid, send_reason);
 
 	if (!isSucc) {
 		rtvalue["error"] = ErrorCodes::MysqlFailed;
@@ -567,4 +584,10 @@ void LogicSystem::AddFriendApply(std::shared_ptr<CSession> session, const short&
 	//发送通知
 	ChatGrpcClient::GetInstance()->NotifyAddFriend(to_ip_value, add_req);
 
+}
+
+bool LogicSystem::GetFriendApplyInfo(int to_uid, std::vector<std::shared_ptr<ApplyInfo>> &list) {
+	std::cout << "LogicSystem::GetFriendApplyInfo()" << std::endl;
+	//从mysql获取好友申请列表
+	return MysqlMgr::GetInstance()->GetApplyList(to_uid, list, 0, 10);
 }

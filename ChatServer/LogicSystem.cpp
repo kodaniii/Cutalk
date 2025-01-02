@@ -10,7 +10,7 @@
 
 using namespace std;
 
-LogicSystem::LogicSystem() 
+LogicSystem::LogicSystem()
 	: _isStop(false) {
 	std::cout << "LogicSystem::LogicSystem()" << std::endl;
 	RegisterCallBacks();
@@ -27,7 +27,7 @@ void LogicSystem::PostMsgToQue(shared_ptr<LogicNode> msg) {
 	std::unique_lock<std::mutex> lk(_mtx);
 	//消息放到队列中
 	_msg_que.push(msg);
-	
+
 	//如果_msg_que原本是空的，现在放入了一个，说明线程被条件变量阻塞，唤醒线程处理
 	if (_msg_que.size() == 1) {
 		lk.unlock();
@@ -38,51 +38,51 @@ void LogicSystem::PostMsgToQue(shared_ptr<LogicNode> msg) {
 //处理队列中的消息
 void LogicSystem::DealMsg() {
 	std::cout << "LogicSystem::DealMsg()" << std::endl;
-	forever {
+	forever{
 		std::unique_lock<std::mutex> lk(_mtx);
-		//判断队列为空，条件变量阻塞等待，并释放锁
-		//直到析构时唤醒或队列被放入消息时唤醒
-		while (_msg_que.empty() && !_isStop) {
-			_cond.wait(lk);
-		}
+	//判断队列为空，条件变量阻塞等待，并释放锁
+	//直到析构时唤醒或队列被放入消息时唤醒
+	while (_msg_que.empty() && !_isStop) {
+		_cond.wait(lk);
+	}
 
-		//关闭状态，把剩余消息全部发送
-		if (_isStop) {
-			while (!_msg_que.empty()) {
-				auto msg_node = _msg_que.front();
-				cout << "_msg_que.front() msg_type_id = " << msg_node->_recvnode->_msg_type_id << endl;
-				auto call_back_iter = _func_callbacks.find(msg_node->_recvnode->_msg_type_id);
+	//关闭状态，把剩余消息全部发送
+	if (_isStop) {
+		while (!_msg_que.empty()) {
+			auto msg_node = _msg_que.front();
+			cout << "_msg_que.front() msg_type_id = " << msg_node->_recvnode->_msg_type_id << endl;
+			auto call_back_iter = _func_callbacks.find(msg_node->_recvnode->_msg_type_id);
 
-				//没找到对应的回调函数，直接queue.pop()
-				if (call_back_iter == _func_callbacks.end()) {
-					std::cout << "cannot found _func_callbacks[msg_type_id]" << std::endl;
-					_msg_que.pop();
-					continue;
-				}
-
-				//调用对应的回调函数
-				call_back_iter->second(msg_node->_session, msg_node->_recvnode->_msg_type_id,
-					std::string(msg_node->_recvnode->_data, msg_node->_recvnode->_cur_len));
+			//没找到对应的回调函数，直接queue.pop()
+			if (call_back_iter == _func_callbacks.end()) {
+				std::cout << "cannot found _func_callbacks[msg_type_id]" << std::endl;
 				_msg_que.pop();
+				continue;
 			}
-			break;
-		}
 
-		//队列中有数据
-		auto msg_node = _msg_que.front();
-		cout << "_msg_que.front() msg_type_id = " << msg_node->_recvnode->_msg_type_id << endl;
-		auto call_back_iter = _func_callbacks.find(msg_node->_recvnode->_msg_type_id);
-
-		if (call_back_iter == _func_callbacks.end()) {
-			std::cout << "cannot found _func_callbacks msg_type_id " 
-					<< msg_node->_recvnode->_msg_type_id << std::endl;
+			//调用对应的回调函数
+			call_back_iter->second(msg_node->_session, msg_node->_recvnode->_msg_type_id,
+				std::string(msg_node->_recvnode->_data, msg_node->_recvnode->_cur_len));
 			_msg_que.pop();
-			continue;
 		}
+		break;
+	}
 
-		call_back_iter->second(msg_node->_session, msg_node->_recvnode->_msg_type_id,
-			std::string(msg_node->_recvnode->_data, msg_node->_recvnode->_cur_len));
+	//队列中有数据
+	auto msg_node = _msg_que.front();
+	cout << "_msg_que.front() msg_type_id = " << msg_node->_recvnode->_msg_type_id << endl;
+	auto call_back_iter = _func_callbacks.find(msg_node->_recvnode->_msg_type_id);
+
+	if (call_back_iter == _func_callbacks.end()) {
+		std::cout << "cannot found _func_callbacks msg_type_id "
+				<< msg_node->_recvnode->_msg_type_id << std::endl;
 		_msg_que.pop();
+		continue;
+	}
+
+	call_back_iter->second(msg_node->_session, msg_node->_recvnode->_msg_type_id,
+		std::string(msg_node->_recvnode->_data, msg_node->_recvnode->_cur_len));
+	_msg_que.pop();
 	}
 }
 
@@ -160,7 +160,7 @@ void LogicSystem::LoginHandler(shared_ptr<CSession> session, const short& msg_ty
 	Defer defer([this, &rtvalue, session]() {
 		std::string return_str = rtvalue.toStyledString();	//序列化
 		session->Send(return_str, REQ_CHAT_LOGIN_RSP);	//发到发送队列
-	});
+		});
 
 	//从redis获取用户token是否正确
 	std::string uid_str = std::to_string(uid);
@@ -203,7 +203,24 @@ void LogicSystem::LoginHandler(shared_ptr<CSession> session, const short& msg_ty
 
 	//TODO 获取好友列表
 
-	//TODO 获取好友申请列表
+	//TODO 获取好友申请列表, is ok
+	//从Mysql获取
+	std::vector<std::shared_ptr<ApplyInfo>> apply_list;
+	auto b_apply = GetFriendApplyInfo(uid, apply_list);
+	if (b_apply) {
+		for (auto& apply : apply_list) {
+			Json::Value obj;
+			obj["name"] = apply->_name;
+			obj["uid"] = apply->_uid;
+			obj["icon"] = apply->_icon;
+			obj["nick"] = apply->_nick;
+			obj["sex"] = apply->_sex;
+			obj["desc"] = apply->_desc;
+			obj["status"] = apply->_status;
+			rtvalue["apply_list"].append(obj);
+		}
+	}
+
 
 	/* 更新服务器登录数量，供StatusServer负载均衡使用
 	 * 服务器数量在服务器启动的时候就初始化了
@@ -248,7 +265,7 @@ void LogicSystem::LoginHandler(shared_ptr<CSession> session, const short& msg_ty
 	//从状态服务器获取token匹配是否准确
 	//LoginReq(uid, token) -> LoginRsp(error, uid, token)
 	auto rsp = StatusGrpcClient::GetInstance()->Login(uid, root["token"].asString());
-	std::cout << "StatusGrpcClient Login rsp error " << rsp.error() 
+	std::cout << "StatusGrpcClient Login rsp error " << rsp.error()
 		<< ", uid " << rsp.uid() << ", token " << rsp.token() << std::endl;
 
 
@@ -347,10 +364,10 @@ void LogicSystem::GetUserByUid(std::string uid_str, Json::Value& rtvalue) {
 	redis_root["pswd"] = user_info->pswd;
 	redis_root["name"] = user_info->name;
 	redis_root["email"] = user_info->email;
-	//redis_root["nick"] = user_info->nick;
-	//redis_root["desc"] = user_info->desc;
-	//redis_root["sex"] = user_info->sex;
-	//redis_root["icon"] = user_info->icon;
+	redis_root["nick"] = user_info->nick;
+	redis_root["desc"] = user_info->desc;
+	redis_root["sex"] = user_info->sex;
+	redis_root["icon"] = user_info->icon;
 
 	RedisMgr::GetInstance()->Set(base_key, redis_root.toStyledString());
 
@@ -360,10 +377,10 @@ void LogicSystem::GetUserByUid(std::string uid_str, Json::Value& rtvalue) {
 	rtvalue["pswd"] = user_info->pswd;
 	rtvalue["name"] = user_info->name;
 	rtvalue["email"] = user_info->email;
-	//rtvalue["nick"] = user_info->nick;
-	//rtvalue["desc"] = user_info->desc;
-	//rtvalue["sex"] = user_info->sex;
-	//rtvalue["icon"] = user_info->icon;
+	rtvalue["nick"] = user_info->nick;
+	rtvalue["desc"] = user_info->desc;
+	rtvalue["sex"] = user_info->sex;
+	rtvalue["icon"] = user_info->icon;
 
 	return;
 }
@@ -384,10 +401,10 @@ void LogicSystem::GetUserByName(std::string name, Json::Value& rtvalue) {
 		auto name = root["name"].asString();
 		auto pswd = root["pswd"].asString();
 		auto email = root["email"].asString();
-		//auto nick = root["nick"].asString();
-		//auto desc = root["desc"].asString();
-		//auto sex = root["sex"].asInt();
-		//auto icon = root["icon"].asString();
+		auto nick = root["nick"].asString();
+		auto desc = root["desc"].asString();
+		auto sex = root["sex"].asInt();
+		auto icon = root["icon"].asString();
 
 		std::cout << "user uid " << uid << ", name "
 			<< name << ", pswd " << pswd << ", email "
@@ -398,10 +415,10 @@ void LogicSystem::GetUserByName(std::string name, Json::Value& rtvalue) {
 		rtvalue["pswd"] = pswd;
 		rtvalue["name"] = name;
 		rtvalue["email"] = email;
-		//rtvalue["nick"] = nick;
-		//rtvalue["desc"] = desc;
-		//rtvalue["sex"] = sex;
-		//rtvalue["icon"] = icon;
+		rtvalue["nick"] = nick;
+		rtvalue["desc"] = desc;
+		rtvalue["sex"] = sex;
+		rtvalue["icon"] = icon;
 		return;
 	}
 
@@ -420,10 +437,10 @@ void LogicSystem::GetUserByName(std::string name, Json::Value& rtvalue) {
 	redis_root["pswd"] = user_info->pswd;
 	redis_root["name"] = user_info->name;
 	redis_root["email"] = user_info->email;
-	//redis_root["nick"] = user_info->nick;
-	//redis_root["desc"] = user_info->desc;
-	//redis_root["sex"] = user_info->sex;
-	//redis_root["icon"] = user_info->icon;
+	redis_root["nick"] = user_info->nick;
+	redis_root["desc"] = user_info->desc;
+	redis_root["sex"] = user_info->sex;
+	redis_root["icon"] = user_info->icon;
 
 	RedisMgr::GetInstance()->Set(base_key, redis_root.toStyledString());
 
@@ -432,16 +449,16 @@ void LogicSystem::GetUserByName(std::string name, Json::Value& rtvalue) {
 	rtvalue["uid"] = user_info->uid;
 	rtvalue["pswd"] = user_info->pswd;
 	rtvalue["name"] = user_info->name;
-	//rtvalue["email"] = user_info->email;
-	//rtvalue["nick"] = user_info->nick;
-	//rtvalue["desc"] = user_info->desc;
-	//rtvalue["sex"] = user_info->sex;
+	rtvalue["email"] = user_info->email;
+	rtvalue["nick"] = user_info->nick;
+	rtvalue["desc"] = user_info->desc;
+	rtvalue["sex"] = user_info->sex;
 
 	return;
 }
 
-void LogicSystem::SearchInfo(std::shared_ptr<CSession> session, 
-		const short& msg_type_id, const string& msg_data) {
+void LogicSystem::SearchInfo(std::shared_ptr<CSession> session,
+	const short& msg_type_id, const string& msg_data) {
 	std::cout << "LogicSystem::SearchInfo()" << std::endl;
 	Json::Reader reader;
 	Json::Value root;
@@ -454,7 +471,7 @@ void LogicSystem::SearchInfo(std::shared_ptr<CSession> session,
 	Defer defer([this, &rtvalue, session]() {
 		std::string return_str = rtvalue.toStyledString();
 		session->Send(return_str, REQ_SEARCH_USER_RSP);
-	});
+		});
 
 	bool b_digit = isPureDigit(uid_or_name_str);
 	if (b_digit) {
@@ -489,11 +506,11 @@ void LogicSystem::AddFriendApply(std::shared_ptr<CSession> session, const short&
 	Defer defer([this, &rtvalue, session]() {
 		std::string return_str = rtvalue.toStyledString();
 		session->Send(return_str, REQ_ADD_FRIEND_RSP);
-	});
+		});
 
 	/*将好友添加信息更新到Mysql数据库*/
 	//记录发起者uid和接收者uid
-	bool isSucc = MysqlMgr::GetInstance()->AddFriendApply(send_uid, send_touid);
+	bool isSucc = MysqlMgr::GetInstance()->AddFriendApply(send_uid, send_touid, send_reason);
 
 	if (!isSucc) {
 		rtvalue["error"] = ErrorCodes::MysqlFailed;
@@ -504,7 +521,7 @@ void LogicSystem::AddFriendApply(std::shared_ptr<CSession> session, const short&
 	/* 找到接收者uid的ChatServer服务器
 	 * 根据服务器是SelfServer还是非SelfServer，决定消息发送到本地ChatServer还是其他Server
 	 */
-	//查找Redis中存储的touid对应的server ip
+	 //查找Redis中存储的touid对应的server ip
 	auto touid_str = std::to_string(send_touid);
 	auto to_ip_key = USER_IP_PREFIX + touid_str;
 	std::string to_ip_value = "";
@@ -567,4 +584,10 @@ void LogicSystem::AddFriendApply(std::shared_ptr<CSession> session, const short&
 	//发送通知
 	ChatGrpcClient::GetInstance()->NotifyAddFriend(to_ip_value, add_req);
 
+}
+
+bool LogicSystem::GetFriendApplyInfo(int to_uid, std::vector<std::shared_ptr<ApplyInfo>>& list) {
+	std::cout << "LogicSystem::GetFriendApplyInfo()" << std::endl;
+	//从mysql获取好友申请列表
+	return MysqlMgr::GetInstance()->GetApplyList(to_uid, list, 0, 10);
 }

@@ -102,7 +102,7 @@ std::shared_ptr<UserInfo> MysqlDao::GetUser(std::string name)
 	}
 }
 
-bool MysqlDao::AddFriendApply(int& from_id, int& to_id) {
+bool MysqlDao::AddFriendApply(int& from_id, int& to_id, std::string& reason) {
 	std::cout << "MysqlDao::AddFriendApply()" << std::endl;
 	auto conn = sql_pool->GetConnection();
 	if (conn == nullptr) {
@@ -115,10 +115,11 @@ bool MysqlDao::AddFriendApply(int& from_id, int& to_id) {
 
 	try {
 		std::unique_ptr<sql::PreparedStatement> pstmt(conn->sql_conn->prepareStatement(
-			"INSERT INTO friend_apply (from_uid, to_uid) values (?, ?) "
-			"ON DUPLICATE KEY UPDATE from_uid = from_uid, to_uid = to_uid"));
+			"INSERT INTO friend_apply (from_uid, to_uid, apply_desc) values (?, ?, ?) "
+			"ON DUPLICATE KEY UPDATE apply_desc = VALUES(apply_desc)"));
 		pstmt->setInt(1, from_id); // from id
 		pstmt->setInt(2, to_id);
+		pstmt->setString(3, reason);
 
 		int rowAffected = pstmt->executeUpdate();
 		//rowAffected = 0，表示这个条目被更新
@@ -134,10 +135,64 @@ bool MysqlDao::AddFriendApply(int& from_id, int& to_id) {
 		std::cerr << ", SQLState: " << e.getSQLState() << " " << std::endl;
 		return false;
 	}
-
-
-	return true;
 }
+
+bool MysqlDao::GetApplyList(int touid, std::vector<std::shared_ptr<ApplyInfo>>& applyList,
+	int begin, int limit) {
+
+	std::cout << "MysqlDao::GetApplyList()" << std::endl;
+
+	auto conn = sql_pool->GetConnection();
+	if (conn == nullptr) {
+		return false;
+	}
+
+	Defer defer([this, &conn]() {
+		sql_pool->PushConnection(std::move(conn));
+		});
+
+
+	try {
+		/* 用户登陆时获取好友申请者的相关信息
+		 * 获取的信息包括好友申请者的uid、用户名、昵称、性别、申请原因、我方是否已经同意该好友申请
+		 */
+		std::unique_ptr<sql::PreparedStatement> pstmt(conn->sql_conn->prepareStatement(
+			"select apply.from_uid, apply.status, apply.apply_desc, user.name, user.nick, user.sex "
+			"from friend_apply as apply join user on apply.from_uid = user.uid "
+			"where apply.to_uid = ? and apply.id > ? "
+			"order by apply.id DESC "	//这里用的是降序，获取最新的limit(=10)个申请，ASC升序
+			"LIMIT ? "));
+
+		pstmt->setInt(1, touid);
+		pstmt->setInt(2, begin);
+		pstmt->setInt(3, limit);
+
+		std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
+
+		while (res->next()) {
+			auto name = res->getString("name");
+			auto uid = res->getInt("from_uid");			
+			std::cout << "Found a friend request originating from uid " << uid
+				<< " in the MySQL database" << std::endl;
+			auto apply_reason = res->getString("apply_desc");
+			auto status = res->getInt("status");
+			auto nick = res->getString("nick");
+			auto sex = res->getInt("sex");
+			auto apply_ptr = std::make_shared<ApplyInfo>(uid, name, apply_reason, "", nick, sex, status);
+			// 最新的请求按照新旧排序存放到vector，新的在前，旧的在后，
+			// Client端因为是前插item，所以要在Client再做一次逆置
+			applyList.push_back(apply_ptr);
+		}
+		return true;
+	}
+	catch (sql::SQLException& e) {
+		std::cerr << "SQLException: " << e.what();
+		std::cerr << ", MySQL error code: " << e.getErrorCode();
+		std::cerr << ", SQLState: " << e.getSQLState() << " " << std::endl;
+		return false;
+	}
+}
+
 
 MysqlPool::MysqlPool(const std::string& _url, const std::string& _user, const std::string& _pswd, const std::string& _schema, int _poolSize)
 	: url(_url), user(_user), pswd(_pswd), schema(_schema), poolSize(_poolSize), isStop(false) {

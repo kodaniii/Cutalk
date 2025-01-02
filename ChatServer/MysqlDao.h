@@ -2,6 +2,7 @@
 #include "defs.h"
 #include <thread>
 #include "data.h"
+#include <string>
 
 /*
 	Î¬»¤sql_connºÍlast_op_time
@@ -63,7 +64,9 @@ public:
 	std::shared_ptr<UserInfo> GetUser(std::string name);
 
 
-	bool AddFriendApply(int& from_id, int& to_id);
+	bool AddFriendApply(int& from_id, int& to_id, std::string& reason);
+	bool GetApplyList(int touid, std::vector<std::shared_ptr<ApplyInfo>>& applyList, int begin, int limit);
+
 
 private:
 	std::unique_ptr<MysqlPool> sql_pool;

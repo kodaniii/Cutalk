@@ -33,8 +33,8 @@ Status ChatServiceImpl::NotifyAddFriend(ServerContext *context, const AddFriendR
 	//直接将相关信息通过TCP传输给对应Client，两个Client位于同一个ChatServer
 	Json::Value rtvalue;
 	rtvalue["error"] = ErrorCodes::Success;
-	rtvalue["applyuid"] = request->applyuid();
-	rtvalue["name"] = request->name();
+	rtvalue["send_uid"] = request->applyuid();
+	rtvalue["send_name"] = request->name();
 	rtvalue["desc"] = request->desc();
 	rtvalue["icon"] = request->icon();
 	rtvalue["sex"] = request->sex();
