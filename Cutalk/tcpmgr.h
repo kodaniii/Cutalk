@@ -53,7 +53,7 @@ signals:
     /*对方发出好友申请信号，处理相关好友申请item显示*/
     void sig_notify_friend_apply(std::shared_ptr<AddFriendApply>);
     /*TCPMGR：接收到好友验证请求*/
-    void sig_add_auth_friend(std::shared_ptr<AuthInfo>);
+    void sig_add_auth_friend(std::shared_ptr<FriendInfo>);
     /*TCPMGR：发送的好友验证请求收到对方回复*/
     void sig_auth_rsp(std::shared_ptr<AuthRsp>);
 

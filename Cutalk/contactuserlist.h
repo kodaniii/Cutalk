@@ -31,10 +31,10 @@ private:
 public slots:
     /*列表项点击事件：处理联系人项或新朋友请求项，显示相关信息*/
     void slot_item_clicked(QListWidgetItem *item);
-    // /*我方主动发送好友添加申请，对方同意*/
-    // void slot_add_auth_firend(std::shared_ptr<AuthInfo>);
-    // /*我方同意其他人的好友添加申请*/
-    // void slot_auth_rsp(std::shared_ptr<AuthRsp>);
+    /*我方主动发送好友添加申请，对方同意*/
+    void slot_add_auth_firend(std::shared_ptr<FriendInfo>);
+    /*我方同意其他人的好友添加申请*/
+    void slot_auth_rsp(std::shared_ptr<AuthRsp>);
 
 signals:
     /*加载更多联系人*/

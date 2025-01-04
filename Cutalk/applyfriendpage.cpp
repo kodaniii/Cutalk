@@ -26,11 +26,13 @@ ApplyFriendPage::~ApplyFriendPage()
     delete ui;
 }
 
+
 void ApplyFriendPage::AddNewApply(std::shared_ptr<AddFriendApply> apply)
 {
     qDebug() << "ApplyFriendPage::AddNewApply()";
     /*新的好友添加申请，添加一个*/
-    int randomValue = QRandomGenerator::global()->bounded(100); // 生成0到99之间的随机整数
+    //int randomValue = QRandomGenerator::global()->bounded(100);
+    int randomValue = apply->_from_uid;
     int head_i = randomValue % heads.size();
     auto* apply_item = new ApplyFriendItem();
     auto apply_info = std::make_shared<ApplyInfo>(apply->_from_uid,
@@ -73,7 +75,8 @@ void ApplyFriendPage::initApplyList()
     for(auto iter = apply_list.rbegin(); iter != apply_list.rend(); ++iter){
     //for(auto &apply: apply_list){
         auto apply = *iter;
-        int randomValue = QRandomGenerator::global()->bounded(100);
+        //int randomValue = QRandomGenerator::global()->bounded(100);
+        int randomValue = apply->_uid;
         //头像没做，随机生成
         int head_i = randomValue % heads.size();
 
@@ -154,6 +157,7 @@ void ApplyFriendPage::initApplyList()
 }
 
 void ApplyFriendPage::slot_auth_rsp(std::shared_ptr<AuthRsp> auth_rsp) {
+    qDebug() << "ApplyFriendPage::slot_auth_rsp()";
     auto uid = auth_rsp->_uid;
     auto find_iter = _unauth_items.find(uid);
     if (find_iter == _unauth_items.end()) {

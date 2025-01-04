@@ -73,16 +73,16 @@ enum ReqId{
     REQ_SEARCH_USER = 0x07,     //搜索用户
     REQ_SEARCH_USER_RSP = 0x08, //搜索用户回包
 
-    //我方主动发好友请求
-    REQ_ADD_FRIEND_REQ = 0x09,   //添加好友申请
-    REQ_ADD_FRIEND_RSP = 0x0a,   //申请添加好友回复，接收是否成功发送到ChatServer的消息
-    //对方发好友请求的通知
-    REQ_NOTIFY_ADD_FRIEND_REQ = 0x0b,  //通知用户添加好友申请
+    //添加好友方主动发好友请求
+    REQ_ADD_FRIEND_REQ = 0x09,   //TCP发送添加好友申请给ChatServer
+    REQ_ADD_FRIEND_RSP = 0x0a,   //ChatServer回包，是否成功发送到ChatServer
+    //向被添加方发好友请求通知
+    REQ_NOTIFY_ADD_FRIEND_REQ = 0x0b,  //如果ChatServer发现对方Client在线，还要通知被添加方，有好友申请
 
-    //我方同意对方的好友请求
-    REQ_AUTH_FRIEND_REQ = 0x0c,  //认证好友请求
-    REQ_AUTH_FRIEND_RSP = 0x0d,  //认证好友回复
-    REQ_NOTIFY_AUTH_FRIEND_REQ = 0x0e, //通知用户认证好友申请
+    //被添加方同意好友请求
+    REQ_AUTH_FRIEND_REQ = 0x0c,  //被添加方同意好友申请，发给ChatServer
+    REQ_AUTH_FRIEND_RSP = 0x0d,  //ChatServer回包给被添加方，回的是添加方信息，用于在被添加方新增联系人
+    REQ_NOTIFY_AUTH_FRIEND_REQ = 0x0e, //如果添加方在线，通知添加方，对方已经同意好友申请，并新增联系人
 
     REQ_TEXT_CHAT_MSG_REQ  = 0x0f,  //文本聊天信息请求
     REQ_TEXT_CHAT_MSG_RSP  = 0x10,  //文本聊天信息回复

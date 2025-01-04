@@ -565,7 +565,9 @@ void AuthenFriend::SlotApplySure()
     QJsonObject jsonObj;
     auto uid = UserMgr::GetInstance()->GetUid();
     /*接收好友请求的uid*/
+    //接收方（本客户端）
     jsonObj["recv_uid"] = uid;
+    //发出申请的一方
     jsonObj["send_uid"] = _apply_info->_uid;
     QString back_name = "";
     if(ui->back_ed->text().isEmpty()){
@@ -573,7 +575,12 @@ void AuthenFriend::SlotApplySure()
     }else{
         back_name = ui->back_ed->text();
     }
+    //接受方对发送申请方的备注
     jsonObj["recv_backname"] = back_name;
+
+    qDebug() << "REQ_AUTH_FRIEND_REQ send recv_uid" << uid
+             << ", send_uid" << _apply_info->_uid
+             << ", back_name" << back_name;
 
     QJsonDocument doc(jsonObj);
     QByteArray jsonData = doc.toJson(QJsonDocument::Compact);

@@ -19,6 +19,7 @@ public:
 
     /*返回默认尺寸*/
     QSize sizeHint() const override;
+    void SetInfo(std::shared_ptr<FriendInfo> friend_info);
     void SetInfo(std::shared_ptr<AuthInfo> auth_info);
     void SetInfo(std::shared_ptr<AuthRsp> auth_rsp);
     void SetInfo(int uid, QString name, QString icon);

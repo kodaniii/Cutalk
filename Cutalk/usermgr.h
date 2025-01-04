@@ -53,6 +53,7 @@ public:
 
     /*从_friend_map中检查是否存在指定uid的好友*/
     bool CheckFriendById(int uid);
+    void AddFriend(std::shared_ptr<FriendInfo> friend_info);
     void AddFriend(std::shared_ptr<AuthRsp> auth_rsp);
     void AddFriend(std::shared_ptr<AuthInfo> auth_info);
     /*根据uid获取好友信息*/

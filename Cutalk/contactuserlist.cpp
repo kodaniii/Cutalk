@@ -6,6 +6,7 @@
 #include <QRandomGenerator>
 #include "tcpmgr.h"
 #include "usermgr.h"
+#include "userdata.h"
 #include <QTimer>
 #include <QCoreApplication>
 
@@ -25,11 +26,11 @@ ContactUserList::ContactUserList(QWidget *parent)
     //点击分组下面的列表项，会根据列表项属于不同分组（好友申请列表、联系人列表）触发不同显示页面
     connect(this, &QListWidget::itemClicked, this, &ContactUserList::slot_item_clicked);
 
-    // //我方主动发送好友添加申请，对方同意
-    // connect(TcpMgr::GetInstance().get(), &TcpMgr::sig_add_auth_friend, this, &ContactUserList::slot_add_auth_firend);
+    //我方主动发送好友添加申请，对方同意后的回包处理，刷新联系人和聊天界面，这里处理联系人
+    connect(TcpMgr::GetInstance().get(), &TcpMgr::sig_add_auth_friend, this, &ContactUserList::slot_add_auth_firend);
 
-    // //我方同意其他人的好友添加申请
-    // connect(TcpMgr::GetInstance().get(), &TcpMgr::sig_auth_rsp, this, &ContactUserList::slot_auth_rsp);
+    //我方同意其他人的好友添加申请后，我方需要刷新联系人和聊天界面，这里处理联系人
+    connect(TcpMgr::GetInstance().get(), &TcpMgr::sig_auth_rsp, this, &ContactUserList::slot_auth_rsp);
 }
 
 void ContactUserList::ShowRedPoint(bool bshow /*= true*/)
@@ -182,3 +183,61 @@ void ContactUserList::slot_item_clicked(QListWidgetItem *item)
         return;
     }
 }
+
+void ContactUserList::slot_auth_rsp(std::shared_ptr<AuthRsp> auth_rsp)
+{
+    qDebug() << "ContactUserList::slot_auth_rsp()";
+
+    // bool isFriend = UserMgr::GetInstance()->CheckFriendById(auth_rsp->_uid);
+    // //如果已经是好友了，添加好友无效
+    // if(isFriend){
+    //     return;
+    // }
+
+    //在联系人分组gourpitem之后插入新项
+    //int randomValue = QRandomGenerator::global()->bounded(100);
+    int randomValue = auth_rsp->_uid;
+    int str_i = randomValue%strs.size();
+    int head_i = randomValue%heads.size();
+
+    auto *con_user_wid = new ConUserItem();
+    con_user_wid->SetInfo(auth_rsp->_uid, auth_rsp->_name, heads[head_i]);
+    QListWidgetItem *item = new QListWidgetItem;
+    //qDebug()<<"chat_user_wid sizeHint" << chat_user_wid->sizeHint();
+    item->setSizeHint(con_user_wid->sizeHint());
+
+    int index = this->row(_groupitem);
+    this->insertItem(index + 1, item);
+
+    this->setItemWidget(item, con_user_wid);
+}
+
+void ContactUserList::slot_add_auth_firend(std::shared_ptr<FriendInfo> auth_info)
+{
+    qDebug() << "ContactUserList::slot_add_auth_firend()";
+
+    // bool isFriend = UserMgr::GetInstance()->CheckFriendById(auth_info->_uid);
+    // //如果已经是好友了，添加好友无效
+    // if(isFriend){
+    //     return;
+    // }
+
+    //在联系人分组gourpitem之后插入新项
+    //int randomValue = QRandomGenerator::global()->bounded(100);
+    int randomValue = auth_info->_uid;
+    int str_i = randomValue%strs.size();
+    int head_i = randomValue%heads.size();
+
+    auto *con_user_wid = new ConUserItem();
+    con_user_wid->SetInfo(auth_info);
+    QListWidgetItem *item = new QListWidgetItem;
+    //qDebug()<<"chat_user_wid sizeHint" << chat_user_wid->sizeHint();
+    item->setSizeHint(con_user_wid->sizeHint());
+
+    int index = this->row(_groupitem);
+    this->insertItem(index + 1, item);
+
+    this->setItemWidget(item, con_user_wid);
+}
+
+
