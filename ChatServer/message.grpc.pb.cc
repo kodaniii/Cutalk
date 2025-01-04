@@ -187,7 +187,6 @@ StatusService::Service::~Service() {
 
 static const char* ChatService_method_names[] = {
   "/message.ChatService/NotifyAddFriend",
-  "/message.ChatService/RplyAddFriend",
   "/message.ChatService/SendChatMsg",
   "/message.ChatService/NotifyAuthFriend",
   "/message.ChatService/NotifyTextChatMsg",
@@ -201,10 +200,9 @@ std::unique_ptr< ChatService::Stub> ChatService::NewStub(const std::shared_ptr< 
 
 ChatService::Stub::Stub(const std::shared_ptr< ::grpc::ChannelInterface>& channel)
   : channel_(channel), rpcmethod_NotifyAddFriend_(ChatService_method_names[0], ::grpc::internal::RpcMethod::NORMAL_RPC, channel)
-  , rpcmethod_RplyAddFriend_(ChatService_method_names[1], ::grpc::internal::RpcMethod::NORMAL_RPC, channel)
-  , rpcmethod_SendChatMsg_(ChatService_method_names[2], ::grpc::internal::RpcMethod::NORMAL_RPC, channel)
-  , rpcmethod_NotifyAuthFriend_(ChatService_method_names[3], ::grpc::internal::RpcMethod::NORMAL_RPC, channel)
-  , rpcmethod_NotifyTextChatMsg_(ChatService_method_names[4], ::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_SendChatMsg_(ChatService_method_names[1], ::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_NotifyAuthFriend_(ChatService_method_names[2], ::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_NotifyTextChatMsg_(ChatService_method_names[3], ::grpc::internal::RpcMethod::NORMAL_RPC, channel)
   {}
 
 ::grpc::Status ChatService::Stub::NotifyAddFriend(::grpc::ClientContext* context, const ::message::AddFriendReq& request, ::message::AddFriendRsp* response) {
@@ -226,29 +224,6 @@ void ChatService::Stub::experimental_async::NotifyAddFriend(::grpc::ClientContex
 ::grpc::ClientAsyncResponseReader< ::message::AddFriendRsp>* ChatService::Stub::AsyncNotifyAddFriendRaw(::grpc::ClientContext* context, const ::message::AddFriendReq& request, ::grpc::CompletionQueue* cq) {
   auto* result =
     this->PrepareAsyncNotifyAddFriendRaw(context, request, cq);
-  result->StartCall();
-  return result;
-}
-
-::grpc::Status ChatService::Stub::RplyAddFriend(::grpc::ClientContext* context, const ::message::RplyFriendReq& request, ::message::RplyFriendRsp* response) {
-  return ::grpc::internal::BlockingUnaryCall< ::message::RplyFriendReq, ::message::RplyFriendRsp, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_RplyAddFriend_, context, request, response);
-}
-
-void ChatService::Stub::experimental_async::RplyAddFriend(::grpc::ClientContext* context, const ::message::RplyFriendReq* request, ::message::RplyFriendRsp* response, std::function<void(::grpc::Status)> f) {
-  ::grpc::internal::CallbackUnaryCall< ::message::RplyFriendReq, ::message::RplyFriendRsp, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_RplyAddFriend_, context, request, response, std::move(f));
-}
-
-void ChatService::Stub::experimental_async::RplyAddFriend(::grpc::ClientContext* context, const ::message::RplyFriendReq* request, ::message::RplyFriendRsp* response, ::grpc::experimental::ClientUnaryReactor* reactor) {
-  ::grpc::internal::ClientCallbackUnaryFactory::Create< ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_RplyAddFriend_, context, request, response, reactor);
-}
-
-::grpc::ClientAsyncResponseReader< ::message::RplyFriendRsp>* ChatService::Stub::PrepareAsyncRplyAddFriendRaw(::grpc::ClientContext* context, const ::message::RplyFriendReq& request, ::grpc::CompletionQueue* cq) {
-  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::message::RplyFriendRsp, ::message::RplyFriendReq, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_RplyAddFriend_, context, request);
-}
-
-::grpc::ClientAsyncResponseReader< ::message::RplyFriendRsp>* ChatService::Stub::AsyncRplyAddFriendRaw(::grpc::ClientContext* context, const ::message::RplyFriendReq& request, ::grpc::CompletionQueue* cq) {
-  auto* result =
-    this->PrepareAsyncRplyAddFriendRaw(context, request, cq);
   result->StartCall();
   return result;
 }
@@ -336,16 +311,6 @@ ChatService::Service::Service() {
   AddMethod(new ::grpc::internal::RpcServiceMethod(
       ChatService_method_names[1],
       ::grpc::internal::RpcMethod::NORMAL_RPC,
-      new ::grpc::internal::RpcMethodHandler< ChatService::Service, ::message::RplyFriendReq, ::message::RplyFriendRsp, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
-          [](ChatService::Service* service,
-             ::grpc::ServerContext* ctx,
-             const ::message::RplyFriendReq* req,
-             ::message::RplyFriendRsp* resp) {
-               return service->RplyAddFriend(ctx, req, resp);
-             }, this)));
-  AddMethod(new ::grpc::internal::RpcServiceMethod(
-      ChatService_method_names[2],
-      ::grpc::internal::RpcMethod::NORMAL_RPC,
       new ::grpc::internal::RpcMethodHandler< ChatService::Service, ::message::SendChatMsgReq, ::message::SendChatMsgRsp, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
           [](ChatService::Service* service,
              ::grpc::ServerContext* ctx,
@@ -354,7 +319,7 @@ ChatService::Service::Service() {
                return service->SendChatMsg(ctx, req, resp);
              }, this)));
   AddMethod(new ::grpc::internal::RpcServiceMethod(
-      ChatService_method_names[3],
+      ChatService_method_names[2],
       ::grpc::internal::RpcMethod::NORMAL_RPC,
       new ::grpc::internal::RpcMethodHandler< ChatService::Service, ::message::AuthFriendReq, ::message::AuthFriendRsp, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
           [](ChatService::Service* service,
@@ -364,7 +329,7 @@ ChatService::Service::Service() {
                return service->NotifyAuthFriend(ctx, req, resp);
              }, this)));
   AddMethod(new ::grpc::internal::RpcServiceMethod(
-      ChatService_method_names[4],
+      ChatService_method_names[3],
       ::grpc::internal::RpcMethod::NORMAL_RPC,
       new ::grpc::internal::RpcMethodHandler< ChatService::Service, ::message::TextChatMsgReq, ::message::TextChatMsgRsp, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
           [](ChatService::Service* service,
@@ -379,13 +344,6 @@ ChatService::Service::~Service() {
 }
 
 ::grpc::Status ChatService::Service::NotifyAddFriend(::grpc::ServerContext* context, const ::message::AddFriendReq* request, ::message::AddFriendRsp* response) {
-  (void) context;
-  (void) request;
-  (void) response;
-  return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-}
-
-::grpc::Status ChatService::Service::RplyAddFriend(::grpc::ServerContext* context, const ::message::RplyFriendReq* request, ::message::RplyFriendRsp* response) {
   (void) context;
   (void) request;
   (void) response;

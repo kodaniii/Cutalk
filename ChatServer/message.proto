@@ -65,18 +65,6 @@ message AddFriendRsp {
 	int32 touid = 3;
 }
 
-message RplyFriendReq {
-	int32 rplyuid = 1;
-	bool  agree = 2;
-	int32 touid = 3;
-}
-
-message RplyFriendRsp {
-	int32 error = 1;
-	int32 rplyuid = 2;
-	int32 touid = 3;
-}
-
 message SendChatMsgReq{
 	int32 fromuid = 1;
 	int32 touid = 2;
@@ -90,14 +78,18 @@ message SendChatMsgRsp{
 }
 
 message AuthFriendReq{
-	int32 fromuid = 1;
-	int32 touid = 2;
+	int32  send_uid = 1;
+	int32  recv_uid = 2;
+	string recv_name = 3;
+	string recv_icon = 4;
+	string recv_nick = 5;
+	int32  recv_sex = 6;
 }
 
 message AuthFriendRsp{
 	int32 error = 1;
-	int32 fromuid = 2;
-	int32 touid = 3;
+	int32 send_uid = 2;
+	int32 recv_uid = 3;
 }
 
 /* 保留msgid的功能：
@@ -124,7 +116,6 @@ message TextChatMsgRsp {
 
 service ChatService {
 	rpc NotifyAddFriend(AddFriendReq) returns (AddFriendRsp) {}
-	rpc RplyAddFriend(RplyFriendReq) returns (RplyFriendRsp) {}
 	rpc SendChatMsg(SendChatMsgReq) returns (SendChatMsgRsp) {}
 	rpc NotifyAuthFriend(AuthFriendReq) returns (AuthFriendRsp) {}
 	rpc NotifyTextChatMsg(TextChatMsgReq) returns (TextChatMsgRsp){}

@@ -46,8 +46,37 @@ Status ChatServiceImpl::NotifyAddFriend(ServerContext *context, const AddFriendR
 	return Status::OK;
 }
 
-Status ChatServiceImpl::NotifyAuthFriend(ServerContext* context, const AuthFriendReq* request,
-	AuthFriendRsp* reply) {
+Status ChatServiceImpl::NotifyAuthFriend(ServerContext* context,
+	const AuthFriendReq* request, AuthFriendRsp* reply) {
+
+	std::cout << "ChatServiceImpl::NotifyAuthFriend()" << std::endl;
+	//查找用户是否在本服务器，找的是send好友申请的发送方
+	auto send_uid = request->send_uid();
+	auto recv_uid = request->recv_uid();
+	auto session = UserMgr::GetInstance()->GetSession(send_uid);
+
+	Defer defer([request, reply]() {
+		reply->set_error(ErrorCodes::Success);
+		reply->set_send_uid(request->send_uid());
+		reply->set_recv_uid(request->recv_uid());
+		});
+
+	if (session == nullptr) {
+		return Status::OK;
+	}
+
+	Json::Value rtvalue;
+	rtvalue["error"] = ErrorCodes::Success;
+	rtvalue["send_uid"] = request->send_uid();
+	rtvalue["recv_uid"] = request->recv_uid();
+	rtvalue["recv_name"] = request->recv_name();
+	rtvalue["recv_nick"] = request->recv_nick();
+	rtvalue["recv_icon"] = request->recv_icon();
+	rtvalue["recv_sex"] = request->recv_sex();
+
+	std::string return_str = rtvalue.toStyledString();
+
+	session->Send(return_str, REQ_NOTIFY_AUTH_FRIEND_REQ);
 	return Status::OK;
 }
 

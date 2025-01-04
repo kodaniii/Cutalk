@@ -193,6 +193,87 @@ bool MysqlDao::GetApplyList(int touid, std::vector<std::shared_ptr<ApplyInfo>>& 
 	}
 }
 
+bool MysqlDao::AuthFriendApply(const int& send_uid, const int& recv_uid, std::string recv_backname) {
+	
+	std::cout << "MysqlDao::AuthFriendApply()" << std::endl;
+	
+	auto conn = sql_pool->GetConnection();
+	if (conn == nullptr) {
+		return false;
+	}
+
+	Defer defer([this, &conn]() {
+		sql_pool->PushConnection(std::move(conn));
+		});
+
+	try {
+		//开始事务
+		conn->sql_conn->setAutoCommit(false);
+
+		//先更新friend_apply表，将status置1
+		std::unique_ptr<sql::PreparedStatement> pstmt(conn->sql_conn->prepareStatement(
+			"UPDATE friend_apply SET status = 1 "
+			"WHERE from_uid = ? AND to_uid = ?"));
+		pstmt->setInt(1, send_uid);
+		pstmt->setInt(2, recv_uid);
+
+		int rowAffected = pstmt->executeUpdate();
+		std::cout << "rowAffected1 = " << rowAffected << std::endl;
+		if (rowAffected < 0) {
+			conn->sql_conn->rollback();
+			return false;
+		}
+
+		//插入被添加方好友数据
+		std::unique_ptr<sql::PreparedStatement> pstmt2(conn->sql_conn->prepareStatement(
+			"INSERT IGNORE INTO friend(self_id, friend_id, back) "
+			"VALUES (?, ?, ?) "
+		));
+
+		pstmt2->setInt(1, recv_uid);
+		pstmt2->setInt(2, send_uid);
+		pstmt2->setString(3, recv_backname);
+
+		rowAffected = pstmt2->executeUpdate();
+		std::cout << "rowAffected2 = " << rowAffected << std::endl;
+		if (rowAffected < 0) {
+			conn->sql_conn->rollback();
+			return false;
+		}
+
+		//插入申请方好友数据
+		std::unique_ptr<sql::PreparedStatement> pstmt3(conn->sql_conn->prepareStatement(
+			"INSERT IGNORE INTO friend(self_id, friend_id, back) "
+			"VALUES (?, ?, ?) "
+		));
+
+		pstmt3->setInt(1, send_uid);
+		pstmt3->setInt(2, recv_uid);
+		//TODO 从apply_friend表查询反向好友申请的备注名back，再保存到这里
+		//由于好友申请的mysql back添加没做，这里先略过
+		pstmt3->setString(3, "");
+
+		rowAffected = pstmt3->executeUpdate();
+		std::cout << "rowAffected3 = " << rowAffected << std::endl;
+		if (rowAffected < 0) {
+			conn->sql_conn->rollback();
+			return false;
+		}
+
+
+		conn->sql_conn->commit();
+		std::cout << "Operation completed successfully" << std::endl;
+		
+		return true;
+
+	}
+	catch (sql::SQLException& e) {
+		std::cerr << "SQLException: " << e.what();
+		std::cerr << ", MySQL error code: " << e.getErrorCode();
+		std::cerr << ", SQLState: " << e.getSQLState() << " " << std::endl;
+		return false;
+	}
+}
 
 MysqlPool::MysqlPool(const std::string& _url, const std::string& _user, const std::string& _pswd, const std::string& _schema, int _poolSize)
 	: url(_url), user(_user), pswd(_pswd), schema(_schema), poolSize(_poolSize), isStop(false) {

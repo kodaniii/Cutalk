@@ -93,6 +93,8 @@ void LogicSystem::RegisterCallBacks() {
 		placeholders::_1, placeholders::_2, placeholders::_3);
 	_func_callbacks[REQ_ADD_FRIEND_REQ] = std::bind(&LogicSystem::AddFriendApply, this,
 		placeholders::_1, placeholders::_2, placeholders::_3);
+	_func_callbacks[REQ_AUTH_FRIEND_REQ] = std::bind(&LogicSystem::AuthFriendApply, this,
+		placeholders::_1, placeholders::_2, placeholders::_3);
 }
 
 /* 查询用户信息
@@ -143,6 +145,12 @@ bool LogicSystem::GetBaseInfo(std::string base_key, int uid, std::shared_ptr<Use
 	}
 
 	return true;
+}
+
+bool LogicSystem::GetFriendApplyInfo(int to_uid, std::vector<std::shared_ptr<ApplyInfo>>& list) {
+	std::cout << "LogicSystem::GetFriendApplyInfo()" << std::endl;
+	//从mysql获取好友申请列表
+	return MysqlMgr::GetInstance()->GetApplyList(to_uid, list, 0, 10);
 }
 
 //用户登录处理，获取联系人、好友申请等各种信息
@@ -493,7 +501,7 @@ void LogicSystem::AddFriendApply(std::shared_ptr<CSession> session, const short&
 	reader.parse(msg_data, root);
 	auto send_uid = root["send_uid"].asInt();
 	auto send_reason = root["send_reason"].asString();
-	auto send_backname = root["send_backname"].asString();
+	auto send_backname = root["send_backname"].asString();	//申请方对被申请方的备注
 	auto send_touid = root["send_touid"].asInt();
 	auto send_name = root["send_name"].asString();
 
@@ -510,6 +518,7 @@ void LogicSystem::AddFriendApply(std::shared_ptr<CSession> session, const short&
 
 	/*将好友添加信息更新到Mysql数据库*/
 	//记录发起者uid和接收者uid
+	//TODO UPDATE Mysql对申请方对被申请方备注back的更新
 	bool isSucc = MysqlMgr::GetInstance()->AddFriendApply(send_uid, send_touid, send_reason);
 
 	if (!isSucc) {
@@ -518,27 +527,29 @@ void LogicSystem::AddFriendApply(std::shared_ptr<CSession> session, const short&
 		return;
 	}
 
+	/*执行Notify通知另一个客户端*/
+
 	/* 找到接收者uid的ChatServer服务器
 	 * 根据服务器是SelfServer还是非SelfServer，决定消息发送到本地ChatServer还是其他Server
 	 */
 	 //查找Redis中存储的touid对应的server ip
-	auto touid_str = std::to_string(send_touid);
+	auto touid_str = std::to_string(send_touid);	//send_touid 就是 recv_uid
 	auto to_ip_key = USER_IP_PREFIX + touid_str;
 	std::string to_ip_value = "";
 	bool b_ip = RedisMgr::GetInstance()->Get(to_ip_key, to_ip_value);
 	//对方不在线的情况，之前已经存储到Mysql，直接success不操作
 	if (!b_ip) {
 		std::cout << "LogicSystem::AddFriendApply(): the other party is offline" << std::endl;
-		rtvalue["error"] = ErrorCodes::Success;
+		//rtvalue["error"] = ErrorCodes::Success;
 		return;
 	}
 
-	auto& cfg = ConfigMgr::init();
-	auto self_name = cfg["SelfServer"]["name"];
+	auto& gCfgMgr = ConfigMgr::init();
+	auto self_name = gCfgMgr["SelfServer"]["name"];
 
 	std::string base_key = USER_BASE_INFO + std::to_string(send_uid);
+	
 	auto apply_info = std::make_shared<UserInfo>();
-
 	bool b_info = GetBaseInfo(base_key, send_uid, apply_info);
 
 	//如果对方Client所在ChatServer是本地
@@ -586,8 +597,124 @@ void LogicSystem::AddFriendApply(std::shared_ptr<CSession> session, const short&
 
 }
 
-bool LogicSystem::GetFriendApplyInfo(int to_uid, std::vector<std::shared_ptr<ApplyInfo>>& list) {
-	std::cout << "LogicSystem::GetFriendApplyInfo()" << std::endl;
-	//从mysql获取好友申请列表
-	return MysqlMgr::GetInstance()->GetApplyList(to_uid, list, 0, 10);
+//REQ_AUTH_FRIEND_REQ
+//被添加方recv_uid同意好友请求后，发送好友申请的相关信息json过来，包括被添加方对添加方send_uid的备注名back
+// 首先，Mysql更新friend_apply好友申请表和friend好友关系表，返回RSP给recv_uid
+// 然后，根据添加方（对方，因为这个是被添加方主动同意的请求）是否在线，做出不同处理
+//	如果不在线，不额外处理
+//  如果在线，需要发送相关的notify通知给添加方，告诉添加方，被添加方已经同意了好友申请
+void LogicSystem::AuthFriendApply(std::shared_ptr<CSession> session, const short& msg_type_id, const string& msg_data) {
+
+	std::cout << "LogicSystem::AuthFriendApply()" << std::endl;
+	Json::Reader reader;
+	Json::Value root;
+	reader.parse(msg_data, root);
+
+	auto send_uid = root["send_uid"].asInt();	//申请好友方
+	auto recv_uid = root["recv_uid"].asInt();	//被申请方
+	auto recv_backname = root["recv_backname"].asString();	//被申请方对申请方的备注
+	std::cout << "AuthFriendRspHandle friend_apply from " << send_uid << " to " << recv_uid << std::endl;
+
+	Json::Value rtvalue;
+	auto user_info = std::make_shared<UserInfo>();
+
+	std::string base_key = USER_BASE_INFO + std::to_string(send_uid);
+	bool b_info = GetBaseInfo(base_key, send_uid, user_info);
+	//这里是申请方的的信息，准备发回给被申请方，添加聊天项和通讯录
+	if (b_info) {
+		rtvalue["error"] = ErrorCodes::Success;
+		rtvalue["send_name"] = user_info->name;
+		rtvalue["nick"] = user_info->nick;
+		rtvalue["icon"] = user_info->icon;
+		rtvalue["sex"] = user_info->sex;
+		rtvalue["send_uid"] = send_uid;
+	}
+	else {
+		rtvalue["error"] = ErrorCodes::UidInvalid;
+	}
+
+
+	Defer defer([this, &rtvalue, session]() {
+		std::string return_str = rtvalue.toStyledString();
+		session->Send(return_str, REQ_AUTH_FRIEND_RSP);
+		});
+
+
+
+	//先更新数据库，把friend表的send_uid, recv_uid对应项的status置1，表示已经添加了好友
+	//然后添加到好友表，双向都要添加，同时添加备注（TODO 申请方对被申请方的备注还没做）
+	// 注意这里的uid是申请好友方，recv_uid才是同意对方好友申请的一方，recv_backname是recv_uid对send_uid的备注
+	// auth认证服务是recv_uid主动的
+	MysqlMgr::GetInstance()->AuthFriendApply(send_uid, recv_uid, recv_backname);
+
+
+	/*再执行Notify通知另一个客户端，通知好友申请方*/
+
+	//查找Redis中存储的send_uid对应的server ip，检查是否在线
+	auto to_str = std::to_string(send_uid);
+	auto to_ip_key = USER_IP_PREFIX + to_str;
+	std::string to_ip_value = "";
+	bool b_ip = RedisMgr::GetInstance()->Get(to_ip_key, to_ip_value);
+	/*
+	还是考虑三种情况
+	1、对方不在线：存储Mysql
+	2、对方在相同ChatServer上：通过TCP Session通信，发送notify
+	3、对方在不同ChatServer上：通过gRPC通信，发送notify
+	*/
+
+	//对方不在线
+	if (!b_ip) {
+		std::cout << "LogicSystem::AuthFriendApply(): the other party is offline" << std::endl;
+		//rtvalue["error"] = ErrorCodes::Success;
+		return;
+	}
+
+	//对方在线，通知添加方，被添加方的信息
+	base_key = USER_BASE_INFO + std::to_string(recv_uid);
+	user_info = std::make_shared<UserInfo>();
+	b_info = GetBaseInfo(base_key, recv_uid, user_info);
+
+
+	//对方在线，且Client的ChatServer相同
+	auto& gCfgMgr = ConfigMgr::init();
+	auto self_name = gCfgMgr["SelfServer"]["name"];
+
+	if (to_ip_value == self_name) {
+		auto session = UserMgr::GetInstance()->GetSession(send_uid);
+		if (session) {
+			//在内存中则直接发送通知对方
+			Json::Value notify;
+			notify["send_uid"] = send_uid;
+			notify["recv_uid"] = recv_uid;
+
+			if (b_info) {
+				notify["error"] = ErrorCodes::Success;
+				notify["recv_name"] = user_info->name;
+				notify["recv_nick"] = user_info->nick;
+				notify["recv_icon"] = user_info->icon;
+				notify["recv_sex"] = user_info->sex;
+			}
+			else {
+				notify["error"] = ErrorCodes::UidInvalid;
+			}
+
+
+			std::string return_str = notify.toStyledString();
+			session->Send(return_str, REQ_NOTIFY_AUTH_FRIEND_REQ);
+		}
+
+		return;
+	}
+
+
+	AuthFriendReq auth_req;
+	auth_req.set_send_uid(send_uid);
+	auth_req.set_recv_uid(recv_uid);
+	auth_req.set_recv_name(user_info->name);
+	auth_req.set_recv_icon(user_info->icon);
+	auth_req.set_recv_nick(user_info->nick);
+	auth_req.set_recv_sex(user_info->sex);
+
+	
+	ChatGrpcClient::GetInstance()->NotifyAuthFriend(to_ip_value, auth_req);
 }
