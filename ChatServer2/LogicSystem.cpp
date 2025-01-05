@@ -209,7 +209,21 @@ void LogicSystem::LoginHandler(shared_ptr<CSession> session, const short& msg_ty
 	rtvalue["icon"] = user_info->icon;
 
 
-	//TODO 获取好友列表
+	//TODO 获取好友列表, is ok
+	std::vector<std::shared_ptr<UserInfo>> friend_list;
+	bool b_friend_list = GetFriendList(uid, friend_list);
+	for (auto& friend_ele : friend_list) {
+		Json::Value obj;
+		obj["name"] = friend_ele->name;
+		obj["uid"] = friend_ele->uid;
+		obj["icon"] = friend_ele->icon;
+		obj["nick"] = friend_ele->nick;
+		obj["sex"] = friend_ele->sex;
+		obj["desc"] = friend_ele->desc;
+		obj["back"] = friend_ele->back;
+		rtvalue["friend_list"].append(obj);
+	}
+
 
 	//TODO 获取好友申请列表, is ok
 	//从Mysql获取
@@ -717,4 +731,9 @@ void LogicSystem::AuthFriendApply(std::shared_ptr<CSession> session, const short
 
 	
 	ChatGrpcClient::GetInstance()->NotifyAuthFriend(to_ip_value, auth_req);
+}
+
+bool LogicSystem::GetFriendList(int self_id, std::vector<std::shared_ptr<UserInfo>>& user_list) {
+	std::cout << "LogicSystem::GetFriendList()" << std::endl;
+	return MysqlMgr::GetInstance()->GetFriendList(self_id, user_list);
 }

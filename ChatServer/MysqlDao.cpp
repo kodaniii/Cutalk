@@ -224,15 +224,11 @@ bool MysqlDao::AuthFriendApply(const int& send_uid, const int& recv_uid, std::st
 			return false;
 		}
 
-		//插入被添加方好友数据
 		std::unique_ptr<sql::PreparedStatement> pstmt2(conn->sql_conn->prepareStatement(
-			"INSERT IGNORE INTO friend(self_id, friend_id, back) "
-			"VALUES (?, ?, ?) "
-		));
-
+			"UPDATE friend_apply SET status = 1 "
+			"WHERE from_uid = ? AND to_uid = ?"));
 		pstmt2->setInt(1, recv_uid);
 		pstmt2->setInt(2, send_uid);
-		pstmt2->setString(3, recv_backname);
 
 		rowAffected = pstmt2->executeUpdate();
 		std::cout << "rowAffected2 = " << rowAffected << std::endl;
@@ -241,20 +237,37 @@ bool MysqlDao::AuthFriendApply(const int& send_uid, const int& recv_uid, std::st
 			return false;
 		}
 
-		//插入申请方好友数据
+		//插入被添加方好友数据
 		std::unique_ptr<sql::PreparedStatement> pstmt3(conn->sql_conn->prepareStatement(
 			"INSERT IGNORE INTO friend(self_id, friend_id, back) "
 			"VALUES (?, ?, ?) "
 		));
 
-		pstmt3->setInt(1, send_uid);
-		pstmt3->setInt(2, recv_uid);
-		//TODO 从apply_friend表查询反向好友申请的备注名back，再保存到这里
-		//由于好友申请的mysql back添加没做，这里先略过
-		pstmt3->setString(3, "");
+		pstmt3->setInt(1, recv_uid);
+		pstmt3->setInt(2, send_uid);
+		pstmt3->setString(3, recv_backname);
 
 		rowAffected = pstmt3->executeUpdate();
 		std::cout << "rowAffected3 = " << rowAffected << std::endl;
+		if (rowAffected < 0) {
+			conn->sql_conn->rollback();
+			return false;
+		}
+
+		//插入申请方好友数据
+		std::unique_ptr<sql::PreparedStatement> pstmt4(conn->sql_conn->prepareStatement(
+			"INSERT IGNORE INTO friend(self_id, friend_id, back) "
+			"VALUES (?, ?, ?) "
+		));
+
+		pstmt4->setInt(1, send_uid);
+		pstmt4->setInt(2, recv_uid);
+		//TODO 从apply_friend表查询反向好友申请的备注名back，再保存到这里
+		//由于好友申请的mysql back添加没做，这里先略过
+		pstmt4->setString(3, "");
+
+		rowAffected = pstmt4->executeUpdate();
+		std::cout << "rowAffected4 = " << rowAffected << std::endl;
 		if (rowAffected < 0) {
 			conn->sql_conn->rollback();
 			return false;
@@ -267,6 +280,54 @@ bool MysqlDao::AuthFriendApply(const int& send_uid, const int& recv_uid, std::st
 		return true;
 
 	}
+	catch (sql::SQLException& e) {
+		std::cerr << "SQLException: " << e.what();
+		std::cerr << ", MySQL error code: " << e.getErrorCode();
+		std::cerr << ", SQLState: " << e.getSQLState() << " " << std::endl;
+		return false;
+	}
+}
+
+bool MysqlDao::GetFriendList(int self_id, std::vector<std::shared_ptr<UserInfo>>& user_info_list) {
+	std::cout << "MysqlDao::GetFriendList()" << std::endl;
+
+	auto conn = sql_pool->GetConnection();
+	if (conn == nullptr) {
+		return false;
+	}
+
+	Defer defer([this, &conn]() {
+		sql_pool->PushConnection(std::move(conn));
+		});
+
+
+	try {
+		// 准备SQL语句, 根据起始id和限制条数返回列表
+		std::unique_ptr<sql::PreparedStatement> pstmt(conn->sql_conn->prepareStatement(
+			"select * from friend where self_id = ? "));
+
+		pstmt->setInt(1, self_id); // 将uid替换为你要查询的uid
+
+		// 执行查询
+		std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
+		// 遍历结果集
+		while (res->next()) {
+			auto friend_id = res->getInt("friend_id");
+			auto back = res->getString("back");
+			//msyql查询friend_id对应的信息
+			auto user_info = GetUser(friend_id);
+			if (user_info == nullptr) {
+				continue;
+			}
+
+			//备注替代name
+			//user_info->back = user_info->name;
+			user_info->back = back;
+			user_info_list.push_back(user_info);
+		}
+		return true;
+	}
+
 	catch (sql::SQLException& e) {
 		std::cerr << "SQLException: " << e.what();
 		std::cerr << ", MySQL error code: " << e.getErrorCode();
