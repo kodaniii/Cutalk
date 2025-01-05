@@ -174,12 +174,12 @@ void TcpMgr::initHandlers(){
         UserMgr::GetInstance()->SetUserInfo(user_info);
         UserMgr::GetInstance()->SetToken(jsonObj["token"].toString());
 
-        //好友申请列表，先加上，暂时没用到
+        //好友申请列表
         if(jsonObj.contains("apply_list")){
             UserMgr::GetInstance()->AppendApplyList(jsonObj["apply_list"].toArray());
         }
 
-        //添加好友列表，同上
+        //添加好友列表
         if (jsonObj.contains("friend_list")) {
             UserMgr::GetInstance()->AppendFriendList(jsonObj["friend_list"].toArray());
         }
@@ -460,14 +460,17 @@ void TcpMgr::initHandlers(){
                                                       sex, "", back, "");
 
         bool isFriend = UserMgr::GetInstance()->CheckFriendById(auth_info->_uid);
+        qDebug() << "isFriend ret" << (isFriend? "true": "false");
         //如果已经是好友了，添加好友无效
         if(isFriend){
             qDebug() << "isFriend ret true, return...";
+            emit sig_auth_rsp_set_btn_false(auth_info);
             return;
         }
 
         //添加联系人项和聊天项
         emit sig_add_auth_friend(auth_info);
+        emit sig_auth_rsp_set_btn_false(auth_info);
 
     });
 

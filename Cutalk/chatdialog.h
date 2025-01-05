@@ -45,6 +45,10 @@ private:
 
     void handleGlobalMousePress(QMouseEvent *event);
 
+    //选中其中一个聊天项
+    void SetSelectChatItem(int uid = 0);
+    void SetSelectChatPage(int uid = 0);
+
     QList<StateWidget*> _side_list;
 
     Ui::ChatDialog *ui;
@@ -55,6 +59,14 @@ private:
 
     //保存uid的已添加聊天项
     QMap<int, QListWidgetItem*> _chat_items_added;
+
+    //当前正在聊天的uid
+    int _cur_chat_uid;
+
+    /*加载下一页聊天列表*/
+    void loadMoreChatUser();
+    void loadMoreConUser();
+
 
 private slots:
     void slot_loading_chat_user();
@@ -79,6 +91,9 @@ private slots:
 
     //我方同意其他人的好友添加申请后，我方需要刷新联系人和聊天界面，这里处理聊天
     void slot_auth_rsp(std::shared_ptr<AuthRsp> auth_rsp);
+
+    //搜索用户，如果搜索的用户是自己的好友，触发slot，跳转到该用户的聊天item
+    void slot_jump_chat_item(std::shared_ptr<SearchInfo> si);
 };
 
 #endif // CHATDIALOG_H

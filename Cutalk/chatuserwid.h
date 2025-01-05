@@ -22,6 +22,8 @@ public:
     void SetInfo(std::shared_ptr<UserInfo> user_info);
     void SetInfo(std::shared_ptr<FriendInfo> friend_info);
 
+    std::shared_ptr<UserInfo> GetUserInfo();
+
 private:
     Ui::ChatUserWid *ui;
 

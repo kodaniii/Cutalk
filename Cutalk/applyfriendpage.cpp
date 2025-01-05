@@ -19,6 +19,12 @@ ApplyFriendPage::ApplyFriendPage(QWidget *parent)
     initApplyList();
     //接受tcp传递的authrsp信号处理
     connect(TcpMgr::GetInstance().get(), &TcpMgr::sig_auth_rsp, this, &ApplyFriendPage::slot_auth_rsp);
+
+    //接受tcp传递的authrsp信号处理，对于双方已经是好友的情况，只需要将同意添加好友按钮置为已同意
+    //发生的情况是：双方相互发好友申请，然后有一方接受了好友申请，对方没接受的情况
+    //这里先这么做，后面直接修改Mysql，把双方的申请都置1，做双重判断
+    connect(TcpMgr::GetInstance().get(), &TcpMgr::sig_auth_rsp_set_btn_false, this, &ApplyFriendPage::slot_auth_rsp_set_btn_false);
+
 }
 
 ApplyFriendPage::~ApplyFriendPage()
@@ -167,5 +173,14 @@ void ApplyFriendPage::slot_auth_rsp(std::shared_ptr<AuthRsp> auth_rsp) {
     find_iter->second->ShowAddBtn(false);
 }
 
+void ApplyFriendPage::slot_auth_rsp_set_btn_false(std::shared_ptr<FriendInfo> info) {
+    qDebug() << "ApplyFriendPage::slot_auth_rsp_set_btn_false()";
+    auto uid = info->_uid;
+    auto find_iter = _unauth_items.find(uid);
+    if (find_iter == _unauth_items.end()) {
+        return;
+    }
 
+    find_iter->second->ShowAddBtn(false);
+}
 

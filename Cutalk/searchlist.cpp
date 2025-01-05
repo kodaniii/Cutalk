@@ -13,6 +13,7 @@
 #include <QLabel>
 #include <QMovie>
 #include <QTimer>
+#include "usermgr.h"
 
 SearchList::SearchList(QWidget *parent)
     : QListWidget(parent)
@@ -194,7 +195,22 @@ void SearchList::slot_user_search(bool stat, std::shared_ptr<SearchInfo> si)
         //1、该用户已经是自己的好友
         //2、该用户不是自己的好友
 
+        //如果是自己，直接返回，不允许搜索
+        auto self_uid = UserMgr::GetInstance()->GetUid();
+        if (si->_uid == self_uid) {
+            qDebug() << "find_info->_uid == self_uid, return...";
+            return;
+        }
+
         //TODO 判断是不是好友
+        bool bExist = UserMgr::GetInstance()->CheckFriendById(si->_uid);
+        if(bExist){
+            //此处处理已经添加的好友，实现页面跳转
+            //跳转到聊天界面指定的item中
+            emit sig_jump_chat_item(si);
+            return;
+        }
+
 
         _find_dlg = std::make_shared<FindSuccessDlg>(this);
         std::dynamic_pointer_cast<FindSuccessDlg>(_find_dlg)->SetSearchInfo(si);

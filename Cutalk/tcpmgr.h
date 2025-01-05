@@ -56,6 +56,11 @@ signals:
     void sig_add_auth_friend(std::shared_ptr<FriendInfo>);
     /*TCPMGR：发送的好友验证请求收到对方回复*/
     void sig_auth_rsp(std::shared_ptr<AuthRsp>);
+    /*接受tcp传递的authrsp信号处理，对于双方已经是好友的情况，只需要将同意添加好友按钮置为已同意
+    //发生的情况是：双方相互发好友申请，然后有一方接受了好友申请，对方没接受的情况
+    //这里先这么做，后面直接修改Mysql，把双方的申请都置1，做双重判断*/
+    //置添加好友btn为false
+    void sig_auth_rsp_set_btn_false(std::shared_ptr<FriendInfo>);
 
     /*有聊天内容更新*/
     void sig_text_chat_msg(std::shared_ptr<TextChatMsg> msg);

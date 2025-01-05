@@ -67,8 +67,9 @@ private:
 private slots:
     void slot_item_clicked(QListWidgetItem *item);
     void slot_user_search(bool, std::shared_ptr<SearchInfo>);
-signals:
 
+signals:
+    void sig_jump_chat_item(std::shared_ptr<SearchInfo> si);
 };
 
 #endif

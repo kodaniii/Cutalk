@@ -16,6 +16,9 @@ protected:
     //鼠标滑动到列表上才显示滚轮
     bool eventFilter(QObject *watched, QEvent *event) override;
 
+private:
+    bool _load_pending;
+
 signals:
     void sig_loading_chat_user();
 };

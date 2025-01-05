@@ -40,7 +40,7 @@ public:
     /*获取一页聊天列表，返回列表的每一个项，如果空，返回空vector*/
     //通过_chat_loaded返回本次加载的条目，但不对_chat_loaded更新
     std::vector<std::shared_ptr<FriendInfo>> GetChatListPerPage();
-    /*是否已经加载完所有聊天页表*/
+    /*是否已经加载完所有聊天项*/
     bool IsLoadChatFin();
     /*更新已加载的聊天条目计数_chat_loaded*/
     //更新_chat_loaded

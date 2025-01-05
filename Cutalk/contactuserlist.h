@@ -46,7 +46,7 @@ signals:
 
 private:
     /*标记正在加载联系人数据，不允许其他操作*/
-    //bool _load_pending;
+    bool _load_pending;
     /*好友申请分组下的好友申请项，只有这一个固定项，属于好友申请分组，当有好友申请时，显示红点*/
     ConUserItem *_add_friend_item;
     /*Widget对象，"联系人"分组，用于确定位置，后面的新朋友可能会插入到联系人分组后面*/

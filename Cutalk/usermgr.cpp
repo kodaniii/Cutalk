@@ -49,6 +49,7 @@ std::shared_ptr<UserInfo> UserMgr::GetUserInfo()
 
 void UserMgr::AppendApplyList(QJsonArray array)
 {
+    qDebug() << "UserMgr::AppendApplyList()";
     //遍历QJsonArray
     for (const QJsonValue &value : array) {
         auto name = value["name"].toString();
@@ -60,12 +61,20 @@ void UserMgr::AppendApplyList(QJsonArray array)
         auto status = value["status"].toInt();
         auto info = std::make_shared<ApplyInfo>(uid, name,
                                                 desc, icon, nick, sex, status);
+        qDebug() << " -> append uid" << uid
+                 << "name" << name
+                 << "desc" << desc
+                 << "nick" << nick
+                 << "sex" << sex
+                 << "icon" << icon
+                 << "status" << status;
         _apply_list.push_back(info);
     }
 }
 
 void UserMgr::AppendFriendList(QJsonArray array)
 {
+    qDebug() << "UserMgr::AppendFriendList()";
     for (const QJsonValue& value : array) {
         auto name = value["name"].toString();
         auto desc = value["desc"].toString();
@@ -77,6 +86,15 @@ void UserMgr::AppendFriendList(QJsonArray array)
 
         auto info = std::make_shared<FriendInfo>(uid, name,
                                                  nick, icon, sex, desc, back);
+
+        qDebug() << " -> append uid" << uid
+                 << "name" << name
+                 << "desc" << desc
+                 << "nick" << nick
+                 << "sex" << sex
+                 << "icon" << icon
+                 << "back" << back;
+
         _friend_list.push_back(info);
         _friend_map.insert(uid, info);
     }
@@ -104,7 +122,7 @@ bool UserMgr::AlreadyApply(int uid)
 }
 
 std::vector<std::shared_ptr<FriendInfo>> UserMgr::GetChatListPerPage() {
-
+    /*暂时以好友替代，因为没做聊天的mysql表*/
     std::vector<std::shared_ptr<FriendInfo>> friend_list;
     size_t begin = _chat_loaded;
     size_t end = begin + CHAT_COUNT_PER_PAGE;
@@ -119,7 +137,7 @@ std::vector<std::shared_ptr<FriendInfo>> UserMgr::GetChatListPerPage() {
     if (end > _friend_list.size()) {
         //返回begin的位置到最后一个好友条目项
         //friend_list是存储了FriendInfo指针的vector，元素是_friend_list.begin()+begin到end()（不含end()）
-        //相当于返回符合要求的所有条目项，而不是两个收尾指针
+        //相当于返回符合要求的所有条目项，而不是两个首尾指针
         friend_list = std::vector<std::shared_ptr<FriendInfo>>(_friend_list.begin() + begin, _friend_list.end());
         return friend_list;
     }
@@ -208,6 +226,7 @@ bool UserMgr::IsLoadConFin()
 
 bool UserMgr::CheckFriendById(int uid)
 {
+    qDebug() << "UserMgr::CheckFriendById()";
     auto iter = _friend_map.find(uid);
     if (iter == _friend_map.end()){
         return false;

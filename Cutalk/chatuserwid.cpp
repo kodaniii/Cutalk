@@ -72,3 +72,8 @@ void ChatUserWid::SetInfo(std::shared_ptr<FriendInfo> friend_info)
     ui->user_name_lb->setText(_user_info->_name);
     ui->user_chat_lb->setText(_user_info->_last_msg);
 }
+
+std::shared_ptr<UserInfo> ChatUserWid::GetUserInfo()
+{
+   return _user_info;
+}

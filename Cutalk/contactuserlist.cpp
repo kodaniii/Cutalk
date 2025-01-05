@@ -11,7 +11,9 @@
 #include <QCoreApplication>
 
 
-ContactUserList::ContactUserList(QWidget *parent)
+ContactUserList::ContactUserList(QWidget *parent):
+    _load_pending(false),
+    _add_friend_item(nullptr)
 {
     Q_UNUSED(parent);
     //默认隐藏水平和垂直滚动条
@@ -77,6 +79,20 @@ void ContactUserList::initContactUserList()
     //不可选中
     _groupitem->setFlags(_groupitem->flags() & ~Qt::ItemIsSelectable);
 
+    //加载后端发送过来的好友列表
+    auto con_list = UserMgr::GetInstance()->GetConListPerPage();
+    for(auto& con_ele : con_list){
+        auto *con_user_wid = new ConUserItem();
+        con_user_wid->SetInfo(con_ele->_uid, con_ele->_name, con_ele->_icon);
+        QListWidgetItem *item = new QListWidgetItem;
+        //qDebug() << "chat_user_wid sizeHint" << chat_user_wid->sizeHint();
+        item->setSizeHint(con_user_wid->sizeHint());
+        this->addItem(item);
+        this->setItemWidget(item, con_user_wid);
+    }
+    //更新已加载条目
+    UserMgr::GetInstance()->UpdateContactLoadedCount();
+
     /*测试：模拟生成联系人项*/
     addContactUserList();
 }
@@ -128,9 +144,22 @@ bool ContactUserList::eventFilter(QObject *watched, QEvent *event)
         //int pageSize = 10; // 每页加载的联系人数量
 
         if (maxScrollValue - currentValue <= 0) {
-            // 滚动到底部，加载新的联系人
+            // 滚动到底部，加载新的聯係人
             //qDebug() << "currentValue <= maxScrollValue, load more content";
 
+            auto b_loaded = UserMgr::GetInstance()->IsLoadConFin();
+            //已经加载完所有好友项，return
+            if(b_loaded){
+                qDebug() << "b_loaded" << (b_loaded? "true": "false");
+                return true;
+            }
+
+            //正在加载，防止重复加载，return
+            if(_load_pending){
+                return true;
+            }
+
+            _load_pending = true;
             //发送信号通知聊天界面加载更多聊天内容
             emit sig_loading_contact_user();
         }
