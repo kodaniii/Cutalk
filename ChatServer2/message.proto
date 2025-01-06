@@ -97,20 +97,20 @@ message AuthFriendRsp{
  * 实现已读未读消息识别动能
  */
 message TextChatData{
-	string msgid = 1;
-	string msgcontent = 2;
+	string msg_id = 1;
+	string msg_content = 2;
 }
 
 message TextChatMsgReq {
-	int32 fromuid = 1;
-    int32 touid = 2;
+	int32 send_uid = 1;
+    int32 recv_uid = 2;
 	repeated TextChatData textmsgs = 3;
 }
 
 message TextChatMsgRsp {
 	int32 error = 1;
-	int32 fromuid = 2;
-	int32 touid = 3; 
+	int32 send_uid = 2;
+	int32 recv_uid = 3; 
 	repeated TextChatData textmsgs = 4;
 }
 

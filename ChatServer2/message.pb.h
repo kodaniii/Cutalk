@@ -2288,39 +2288,39 @@ class TextChatData PROTOBUF_FINAL :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kMsgidFieldNumber = 1,
-    kMsgcontentFieldNumber = 2,
+    kMsgIdFieldNumber = 1,
+    kMsgContentFieldNumber = 2,
   };
-  // string msgid = 1;
-  void clear_msgid();
-  const std::string& msgid() const;
-  void set_msgid(const std::string& value);
-  void set_msgid(std::string&& value);
-  void set_msgid(const char* value);
-  void set_msgid(const char* value, size_t size);
-  std::string* mutable_msgid();
-  std::string* release_msgid();
-  void set_allocated_msgid(std::string* msgid);
+  // string msg_id = 1;
+  void clear_msg_id();
+  const std::string& msg_id() const;
+  void set_msg_id(const std::string& value);
+  void set_msg_id(std::string&& value);
+  void set_msg_id(const char* value);
+  void set_msg_id(const char* value, size_t size);
+  std::string* mutable_msg_id();
+  std::string* release_msg_id();
+  void set_allocated_msg_id(std::string* msg_id);
   private:
-  const std::string& _internal_msgid() const;
-  void _internal_set_msgid(const std::string& value);
-  std::string* _internal_mutable_msgid();
+  const std::string& _internal_msg_id() const;
+  void _internal_set_msg_id(const std::string& value);
+  std::string* _internal_mutable_msg_id();
   public:
 
-  // string msgcontent = 2;
-  void clear_msgcontent();
-  const std::string& msgcontent() const;
-  void set_msgcontent(const std::string& value);
-  void set_msgcontent(std::string&& value);
-  void set_msgcontent(const char* value);
-  void set_msgcontent(const char* value, size_t size);
-  std::string* mutable_msgcontent();
-  std::string* release_msgcontent();
-  void set_allocated_msgcontent(std::string* msgcontent);
+  // string msg_content = 2;
+  void clear_msg_content();
+  const std::string& msg_content() const;
+  void set_msg_content(const std::string& value);
+  void set_msg_content(std::string&& value);
+  void set_msg_content(const char* value);
+  void set_msg_content(const char* value, size_t size);
+  std::string* mutable_msg_content();
+  std::string* release_msg_content();
+  void set_allocated_msg_content(std::string* msg_content);
   private:
-  const std::string& _internal_msgcontent() const;
-  void _internal_set_msgcontent(const std::string& value);
-  std::string* _internal_mutable_msgcontent();
+  const std::string& _internal_msg_content() const;
+  void _internal_set_msg_content(const std::string& value);
+  std::string* _internal_mutable_msg_content();
   public:
 
   // @@protoc_insertion_point(class_scope:message.TextChatData)
@@ -2330,8 +2330,8 @@ class TextChatData PROTOBUF_FINAL :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr msgid_;
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr msgcontent_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr msg_id_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr msg_content_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_message_2eproto;
 };
@@ -2451,8 +2451,8 @@ class TextChatMsgReq PROTOBUF_FINAL :
 
   enum : int {
     kTextmsgsFieldNumber = 3,
-    kFromuidFieldNumber = 1,
-    kTouidFieldNumber = 2,
+    kSendUidFieldNumber = 1,
+    kRecvUidFieldNumber = 2,
   };
   // repeated .message.TextChatData textmsgs = 3;
   int textmsgs_size() const;
@@ -2472,22 +2472,22 @@ class TextChatMsgReq PROTOBUF_FINAL :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::message::TextChatData >&
       textmsgs() const;
 
-  // int32 fromuid = 1;
-  void clear_fromuid();
-  ::PROTOBUF_NAMESPACE_ID::int32 fromuid() const;
-  void set_fromuid(::PROTOBUF_NAMESPACE_ID::int32 value);
+  // int32 send_uid = 1;
+  void clear_send_uid();
+  ::PROTOBUF_NAMESPACE_ID::int32 send_uid() const;
+  void set_send_uid(::PROTOBUF_NAMESPACE_ID::int32 value);
   private:
-  ::PROTOBUF_NAMESPACE_ID::int32 _internal_fromuid() const;
-  void _internal_set_fromuid(::PROTOBUF_NAMESPACE_ID::int32 value);
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_send_uid() const;
+  void _internal_set_send_uid(::PROTOBUF_NAMESPACE_ID::int32 value);
   public:
 
-  // int32 touid = 2;
-  void clear_touid();
-  ::PROTOBUF_NAMESPACE_ID::int32 touid() const;
-  void set_touid(::PROTOBUF_NAMESPACE_ID::int32 value);
+  // int32 recv_uid = 2;
+  void clear_recv_uid();
+  ::PROTOBUF_NAMESPACE_ID::int32 recv_uid() const;
+  void set_recv_uid(::PROTOBUF_NAMESPACE_ID::int32 value);
   private:
-  ::PROTOBUF_NAMESPACE_ID::int32 _internal_touid() const;
-  void _internal_set_touid(::PROTOBUF_NAMESPACE_ID::int32 value);
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_recv_uid() const;
+  void _internal_set_recv_uid(::PROTOBUF_NAMESPACE_ID::int32 value);
   public:
 
   // @@protoc_insertion_point(class_scope:message.TextChatMsgReq)
@@ -2498,8 +2498,8 @@ class TextChatMsgReq PROTOBUF_FINAL :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::message::TextChatData > textmsgs_;
-  ::PROTOBUF_NAMESPACE_ID::int32 fromuid_;
-  ::PROTOBUF_NAMESPACE_ID::int32 touid_;
+  ::PROTOBUF_NAMESPACE_ID::int32 send_uid_;
+  ::PROTOBUF_NAMESPACE_ID::int32 recv_uid_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_message_2eproto;
 };
@@ -2620,8 +2620,8 @@ class TextChatMsgRsp PROTOBUF_FINAL :
   enum : int {
     kTextmsgsFieldNumber = 4,
     kErrorFieldNumber = 1,
-    kFromuidFieldNumber = 2,
-    kTouidFieldNumber = 3,
+    kSendUidFieldNumber = 2,
+    kRecvUidFieldNumber = 3,
   };
   // repeated .message.TextChatData textmsgs = 4;
   int textmsgs_size() const;
@@ -2650,22 +2650,22 @@ class TextChatMsgRsp PROTOBUF_FINAL :
   void _internal_set_error(::PROTOBUF_NAMESPACE_ID::int32 value);
   public:
 
-  // int32 fromuid = 2;
-  void clear_fromuid();
-  ::PROTOBUF_NAMESPACE_ID::int32 fromuid() const;
-  void set_fromuid(::PROTOBUF_NAMESPACE_ID::int32 value);
+  // int32 send_uid = 2;
+  void clear_send_uid();
+  ::PROTOBUF_NAMESPACE_ID::int32 send_uid() const;
+  void set_send_uid(::PROTOBUF_NAMESPACE_ID::int32 value);
   private:
-  ::PROTOBUF_NAMESPACE_ID::int32 _internal_fromuid() const;
-  void _internal_set_fromuid(::PROTOBUF_NAMESPACE_ID::int32 value);
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_send_uid() const;
+  void _internal_set_send_uid(::PROTOBUF_NAMESPACE_ID::int32 value);
   public:
 
-  // int32 touid = 3;
-  void clear_touid();
-  ::PROTOBUF_NAMESPACE_ID::int32 touid() const;
-  void set_touid(::PROTOBUF_NAMESPACE_ID::int32 value);
+  // int32 recv_uid = 3;
+  void clear_recv_uid();
+  ::PROTOBUF_NAMESPACE_ID::int32 recv_uid() const;
+  void set_recv_uid(::PROTOBUF_NAMESPACE_ID::int32 value);
   private:
-  ::PROTOBUF_NAMESPACE_ID::int32 _internal_touid() const;
-  void _internal_set_touid(::PROTOBUF_NAMESPACE_ID::int32 value);
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_recv_uid() const;
+  void _internal_set_recv_uid(::PROTOBUF_NAMESPACE_ID::int32 value);
   public:
 
   // @@protoc_insertion_point(class_scope:message.TextChatMsgRsp)
@@ -2677,8 +2677,8 @@ class TextChatMsgRsp PROTOBUF_FINAL :
   typedef void DestructorSkippable_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::message::TextChatData > textmsgs_;
   ::PROTOBUF_NAMESPACE_ID::int32 error_;
-  ::PROTOBUF_NAMESPACE_ID::int32 fromuid_;
-  ::PROTOBUF_NAMESPACE_ID::int32 touid_;
+  ::PROTOBUF_NAMESPACE_ID::int32 send_uid_;
+  ::PROTOBUF_NAMESPACE_ID::int32 recv_uid_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_message_2eproto;
 };
@@ -4193,172 +4193,172 @@ inline void AuthFriendRsp::set_recv_uid(::PROTOBUF_NAMESPACE_ID::int32 value) {
 
 // TextChatData
 
-// string msgid = 1;
-inline void TextChatData::clear_msgid() {
-  msgid_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+// string msg_id = 1;
+inline void TextChatData::clear_msg_id() {
+  msg_id_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
 }
-inline const std::string& TextChatData::msgid() const {
-  // @@protoc_insertion_point(field_get:message.TextChatData.msgid)
-  return _internal_msgid();
+inline const std::string& TextChatData::msg_id() const {
+  // @@protoc_insertion_point(field_get:message.TextChatData.msg_id)
+  return _internal_msg_id();
 }
-inline void TextChatData::set_msgid(const std::string& value) {
-  _internal_set_msgid(value);
-  // @@protoc_insertion_point(field_set:message.TextChatData.msgid)
+inline void TextChatData::set_msg_id(const std::string& value) {
+  _internal_set_msg_id(value);
+  // @@protoc_insertion_point(field_set:message.TextChatData.msg_id)
 }
-inline std::string* TextChatData::mutable_msgid() {
-  // @@protoc_insertion_point(field_mutable:message.TextChatData.msgid)
-  return _internal_mutable_msgid();
+inline std::string* TextChatData::mutable_msg_id() {
+  // @@protoc_insertion_point(field_mutable:message.TextChatData.msg_id)
+  return _internal_mutable_msg_id();
 }
-inline const std::string& TextChatData::_internal_msgid() const {
-  return msgid_.Get();
+inline const std::string& TextChatData::_internal_msg_id() const {
+  return msg_id_.Get();
 }
-inline void TextChatData::_internal_set_msgid(const std::string& value) {
+inline void TextChatData::_internal_set_msg_id(const std::string& value) {
   
-  msgid_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value, GetArena());
+  msg_id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value, GetArena());
 }
-inline void TextChatData::set_msgid(std::string&& value) {
+inline void TextChatData::set_msg_id(std::string&& value) {
   
-  msgid_.Set(
+  msg_id_.Set(
     &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value), GetArena());
-  // @@protoc_insertion_point(field_set_rvalue:message.TextChatData.msgid)
+  // @@protoc_insertion_point(field_set_rvalue:message.TextChatData.msg_id)
 }
-inline void TextChatData::set_msgid(const char* value) {
+inline void TextChatData::set_msg_id(const char* value) {
   GOOGLE_DCHECK(value != nullptr);
   
-  msgid_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value),
+  msg_id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value),
               GetArena());
-  // @@protoc_insertion_point(field_set_char:message.TextChatData.msgid)
+  // @@protoc_insertion_point(field_set_char:message.TextChatData.msg_id)
 }
-inline void TextChatData::set_msgid(const char* value,
+inline void TextChatData::set_msg_id(const char* value,
     size_t size) {
   
-  msgid_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(
+  msg_id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(
       reinterpret_cast<const char*>(value), size), GetArena());
-  // @@protoc_insertion_point(field_set_pointer:message.TextChatData.msgid)
+  // @@protoc_insertion_point(field_set_pointer:message.TextChatData.msg_id)
 }
-inline std::string* TextChatData::_internal_mutable_msgid() {
+inline std::string* TextChatData::_internal_mutable_msg_id() {
   
-  return msgid_.Mutable(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+  return msg_id_.Mutable(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
 }
-inline std::string* TextChatData::release_msgid() {
-  // @@protoc_insertion_point(field_release:message.TextChatData.msgid)
-  return msgid_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+inline std::string* TextChatData::release_msg_id() {
+  // @@protoc_insertion_point(field_release:message.TextChatData.msg_id)
+  return msg_id_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
 }
-inline void TextChatData::set_allocated_msgid(std::string* msgid) {
-  if (msgid != nullptr) {
+inline void TextChatData::set_allocated_msg_id(std::string* msg_id) {
+  if (msg_id != nullptr) {
     
   } else {
     
   }
-  msgid_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), msgid,
+  msg_id_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), msg_id,
       GetArena());
-  // @@protoc_insertion_point(field_set_allocated:message.TextChatData.msgid)
+  // @@protoc_insertion_point(field_set_allocated:message.TextChatData.msg_id)
 }
 
-// string msgcontent = 2;
-inline void TextChatData::clear_msgcontent() {
-  msgcontent_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+// string msg_content = 2;
+inline void TextChatData::clear_msg_content() {
+  msg_content_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
 }
-inline const std::string& TextChatData::msgcontent() const {
-  // @@protoc_insertion_point(field_get:message.TextChatData.msgcontent)
-  return _internal_msgcontent();
+inline const std::string& TextChatData::msg_content() const {
+  // @@protoc_insertion_point(field_get:message.TextChatData.msg_content)
+  return _internal_msg_content();
 }
-inline void TextChatData::set_msgcontent(const std::string& value) {
-  _internal_set_msgcontent(value);
-  // @@protoc_insertion_point(field_set:message.TextChatData.msgcontent)
+inline void TextChatData::set_msg_content(const std::string& value) {
+  _internal_set_msg_content(value);
+  // @@protoc_insertion_point(field_set:message.TextChatData.msg_content)
 }
-inline std::string* TextChatData::mutable_msgcontent() {
-  // @@protoc_insertion_point(field_mutable:message.TextChatData.msgcontent)
-  return _internal_mutable_msgcontent();
+inline std::string* TextChatData::mutable_msg_content() {
+  // @@protoc_insertion_point(field_mutable:message.TextChatData.msg_content)
+  return _internal_mutable_msg_content();
 }
-inline const std::string& TextChatData::_internal_msgcontent() const {
-  return msgcontent_.Get();
+inline const std::string& TextChatData::_internal_msg_content() const {
+  return msg_content_.Get();
 }
-inline void TextChatData::_internal_set_msgcontent(const std::string& value) {
+inline void TextChatData::_internal_set_msg_content(const std::string& value) {
   
-  msgcontent_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value, GetArena());
+  msg_content_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value, GetArena());
 }
-inline void TextChatData::set_msgcontent(std::string&& value) {
+inline void TextChatData::set_msg_content(std::string&& value) {
   
-  msgcontent_.Set(
+  msg_content_.Set(
     &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value), GetArena());
-  // @@protoc_insertion_point(field_set_rvalue:message.TextChatData.msgcontent)
+  // @@protoc_insertion_point(field_set_rvalue:message.TextChatData.msg_content)
 }
-inline void TextChatData::set_msgcontent(const char* value) {
+inline void TextChatData::set_msg_content(const char* value) {
   GOOGLE_DCHECK(value != nullptr);
   
-  msgcontent_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value),
+  msg_content_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value),
               GetArena());
-  // @@protoc_insertion_point(field_set_char:message.TextChatData.msgcontent)
+  // @@protoc_insertion_point(field_set_char:message.TextChatData.msg_content)
 }
-inline void TextChatData::set_msgcontent(const char* value,
+inline void TextChatData::set_msg_content(const char* value,
     size_t size) {
   
-  msgcontent_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(
+  msg_content_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(
       reinterpret_cast<const char*>(value), size), GetArena());
-  // @@protoc_insertion_point(field_set_pointer:message.TextChatData.msgcontent)
+  // @@protoc_insertion_point(field_set_pointer:message.TextChatData.msg_content)
 }
-inline std::string* TextChatData::_internal_mutable_msgcontent() {
+inline std::string* TextChatData::_internal_mutable_msg_content() {
   
-  return msgcontent_.Mutable(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+  return msg_content_.Mutable(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
 }
-inline std::string* TextChatData::release_msgcontent() {
-  // @@protoc_insertion_point(field_release:message.TextChatData.msgcontent)
-  return msgcontent_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+inline std::string* TextChatData::release_msg_content() {
+  // @@protoc_insertion_point(field_release:message.TextChatData.msg_content)
+  return msg_content_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
 }
-inline void TextChatData::set_allocated_msgcontent(std::string* msgcontent) {
-  if (msgcontent != nullptr) {
+inline void TextChatData::set_allocated_msg_content(std::string* msg_content) {
+  if (msg_content != nullptr) {
     
   } else {
     
   }
-  msgcontent_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), msgcontent,
+  msg_content_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), msg_content,
       GetArena());
-  // @@protoc_insertion_point(field_set_allocated:message.TextChatData.msgcontent)
+  // @@protoc_insertion_point(field_set_allocated:message.TextChatData.msg_content)
 }
 
 // -------------------------------------------------------------------
 
 // TextChatMsgReq
 
-// int32 fromuid = 1;
-inline void TextChatMsgReq::clear_fromuid() {
-  fromuid_ = 0;
+// int32 send_uid = 1;
+inline void TextChatMsgReq::clear_send_uid() {
+  send_uid_ = 0;
 }
-inline ::PROTOBUF_NAMESPACE_ID::int32 TextChatMsgReq::_internal_fromuid() const {
-  return fromuid_;
+inline ::PROTOBUF_NAMESPACE_ID::int32 TextChatMsgReq::_internal_send_uid() const {
+  return send_uid_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::int32 TextChatMsgReq::fromuid() const {
-  // @@protoc_insertion_point(field_get:message.TextChatMsgReq.fromuid)
-  return _internal_fromuid();
+inline ::PROTOBUF_NAMESPACE_ID::int32 TextChatMsgReq::send_uid() const {
+  // @@protoc_insertion_point(field_get:message.TextChatMsgReq.send_uid)
+  return _internal_send_uid();
 }
-inline void TextChatMsgReq::_internal_set_fromuid(::PROTOBUF_NAMESPACE_ID::int32 value) {
+inline void TextChatMsgReq::_internal_set_send_uid(::PROTOBUF_NAMESPACE_ID::int32 value) {
   
-  fromuid_ = value;
+  send_uid_ = value;
 }
-inline void TextChatMsgReq::set_fromuid(::PROTOBUF_NAMESPACE_ID::int32 value) {
-  _internal_set_fromuid(value);
-  // @@protoc_insertion_point(field_set:message.TextChatMsgReq.fromuid)
+inline void TextChatMsgReq::set_send_uid(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_send_uid(value);
+  // @@protoc_insertion_point(field_set:message.TextChatMsgReq.send_uid)
 }
 
-// int32 touid = 2;
-inline void TextChatMsgReq::clear_touid() {
-  touid_ = 0;
+// int32 recv_uid = 2;
+inline void TextChatMsgReq::clear_recv_uid() {
+  recv_uid_ = 0;
 }
-inline ::PROTOBUF_NAMESPACE_ID::int32 TextChatMsgReq::_internal_touid() const {
-  return touid_;
+inline ::PROTOBUF_NAMESPACE_ID::int32 TextChatMsgReq::_internal_recv_uid() const {
+  return recv_uid_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::int32 TextChatMsgReq::touid() const {
-  // @@protoc_insertion_point(field_get:message.TextChatMsgReq.touid)
-  return _internal_touid();
+inline ::PROTOBUF_NAMESPACE_ID::int32 TextChatMsgReq::recv_uid() const {
+  // @@protoc_insertion_point(field_get:message.TextChatMsgReq.recv_uid)
+  return _internal_recv_uid();
 }
-inline void TextChatMsgReq::_internal_set_touid(::PROTOBUF_NAMESPACE_ID::int32 value) {
+inline void TextChatMsgReq::_internal_set_recv_uid(::PROTOBUF_NAMESPACE_ID::int32 value) {
   
-  touid_ = value;
+  recv_uid_ = value;
 }
-inline void TextChatMsgReq::set_touid(::PROTOBUF_NAMESPACE_ID::int32 value) {
-  _internal_set_touid(value);
-  // @@protoc_insertion_point(field_set:message.TextChatMsgReq.touid)
+inline void TextChatMsgReq::set_recv_uid(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_recv_uid(value);
+  // @@protoc_insertion_point(field_set:message.TextChatMsgReq.recv_uid)
 }
 
 // repeated .message.TextChatData textmsgs = 3;
@@ -4424,44 +4424,44 @@ inline void TextChatMsgRsp::set_error(::PROTOBUF_NAMESPACE_ID::int32 value) {
   // @@protoc_insertion_point(field_set:message.TextChatMsgRsp.error)
 }
 
-// int32 fromuid = 2;
-inline void TextChatMsgRsp::clear_fromuid() {
-  fromuid_ = 0;
+// int32 send_uid = 2;
+inline void TextChatMsgRsp::clear_send_uid() {
+  send_uid_ = 0;
 }
-inline ::PROTOBUF_NAMESPACE_ID::int32 TextChatMsgRsp::_internal_fromuid() const {
-  return fromuid_;
+inline ::PROTOBUF_NAMESPACE_ID::int32 TextChatMsgRsp::_internal_send_uid() const {
+  return send_uid_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::int32 TextChatMsgRsp::fromuid() const {
-  // @@protoc_insertion_point(field_get:message.TextChatMsgRsp.fromuid)
-  return _internal_fromuid();
+inline ::PROTOBUF_NAMESPACE_ID::int32 TextChatMsgRsp::send_uid() const {
+  // @@protoc_insertion_point(field_get:message.TextChatMsgRsp.send_uid)
+  return _internal_send_uid();
 }
-inline void TextChatMsgRsp::_internal_set_fromuid(::PROTOBUF_NAMESPACE_ID::int32 value) {
+inline void TextChatMsgRsp::_internal_set_send_uid(::PROTOBUF_NAMESPACE_ID::int32 value) {
   
-  fromuid_ = value;
+  send_uid_ = value;
 }
-inline void TextChatMsgRsp::set_fromuid(::PROTOBUF_NAMESPACE_ID::int32 value) {
-  _internal_set_fromuid(value);
-  // @@protoc_insertion_point(field_set:message.TextChatMsgRsp.fromuid)
+inline void TextChatMsgRsp::set_send_uid(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_send_uid(value);
+  // @@protoc_insertion_point(field_set:message.TextChatMsgRsp.send_uid)
 }
 
-// int32 touid = 3;
-inline void TextChatMsgRsp::clear_touid() {
-  touid_ = 0;
+// int32 recv_uid = 3;
+inline void TextChatMsgRsp::clear_recv_uid() {
+  recv_uid_ = 0;
 }
-inline ::PROTOBUF_NAMESPACE_ID::int32 TextChatMsgRsp::_internal_touid() const {
-  return touid_;
+inline ::PROTOBUF_NAMESPACE_ID::int32 TextChatMsgRsp::_internal_recv_uid() const {
+  return recv_uid_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::int32 TextChatMsgRsp::touid() const {
-  // @@protoc_insertion_point(field_get:message.TextChatMsgRsp.touid)
-  return _internal_touid();
+inline ::PROTOBUF_NAMESPACE_ID::int32 TextChatMsgRsp::recv_uid() const {
+  // @@protoc_insertion_point(field_get:message.TextChatMsgRsp.recv_uid)
+  return _internal_recv_uid();
 }
-inline void TextChatMsgRsp::_internal_set_touid(::PROTOBUF_NAMESPACE_ID::int32 value) {
+inline void TextChatMsgRsp::_internal_set_recv_uid(::PROTOBUF_NAMESPACE_ID::int32 value) {
   
-  touid_ = value;
+  recv_uid_ = value;
 }
-inline void TextChatMsgRsp::set_touid(::PROTOBUF_NAMESPACE_ID::int32 value) {
-  _internal_set_touid(value);
-  // @@protoc_insertion_point(field_set:message.TextChatMsgRsp.touid)
+inline void TextChatMsgRsp::set_recv_uid(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_recv_uid(value);
+  // @@protoc_insertion_point(field_set:message.TextChatMsgRsp.recv_uid)
 }
 
 // repeated .message.TextChatData textmsgs = 4;

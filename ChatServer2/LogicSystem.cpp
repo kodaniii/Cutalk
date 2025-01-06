@@ -95,6 +95,8 @@ void LogicSystem::RegisterCallBacks() {
 		placeholders::_1, placeholders::_2, placeholders::_3);
 	_func_callbacks[REQ_AUTH_FRIEND_REQ] = std::bind(&LogicSystem::AuthFriendApply, this,
 		placeholders::_1, placeholders::_2, placeholders::_3);
+	_func_callbacks[REQ_TEXT_CHAT_MSG_REQ] = std::bind(&LogicSystem::DealChatTextMsg, this,
+		placeholders::_1, placeholders::_2, placeholders::_3);
 }
 
 /* 查询用户信息
@@ -736,4 +738,80 @@ void LogicSystem::AuthFriendApply(std::shared_ptr<CSession> session, const short
 bool LogicSystem::GetFriendList(int self_id, std::vector<std::shared_ptr<UserInfo>>& user_list) {
 	std::cout << "LogicSystem::GetFriendList()" << std::endl;
 	return MysqlMgr::GetInstance()->GetFriendList(self_id, user_list);
+}
+
+void LogicSystem::DealChatTextMsg(std::shared_ptr<CSession> session,
+	const short& msg_type_id, const string& msg_data) {
+	Json::Reader reader;
+	Json::Value root;
+	reader.parse(msg_data, root);
+
+	auto send_uid = root["send_uid"].asInt();
+	auto send_name = root["send_name"].asString();
+	auto recv_uid = root["recv_uid"].asInt();
+	auto recv_name = root["recv_name"].asString();
+
+	const Json::Value arrays = root["text_array"];
+
+	Json::Value rtvalue;
+	rtvalue["error"] = ErrorCodes::Success;
+	rtvalue["text_array"] = arrays;
+	rtvalue["send_uid"] = send_uid;
+	rtvalue["send_name"] = send_name;
+	rtvalue["recv_uid"] = recv_uid;
+	rtvalue["recv_name"] = recv_name;
+
+	//发回发送方send_uid的rsp包
+	Defer defer([this, &rtvalue, session]() {
+		std::string return_str = rtvalue.toStyledString();
+		session->Send(return_str, REQ_TEXT_CHAT_MSG_RSP);
+		});
+
+	/*发给recv_uid的通知消息notify*/
+
+	//没做离线的mysql存储，目前仅支持在线
+	//(应该也不打算做离线存储了，太麻烦)
+
+	//查找recv_uid对应的server ip
+	auto to_str = std::to_string(recv_uid);
+	auto to_ip_key = USER_IP_PREFIX + to_str;
+	std::string to_ip_value = "";
+	bool b_ip = RedisMgr::GetInstance()->Get(to_ip_key, to_ip_value);
+	if (!b_ip) {
+		std::cout << "LogicSystem::DealChatTextMsg(): the other party is offline, return..." << std::endl;
+		return;
+	}
+
+	auto& cfg = ConfigMgr::init();
+	auto self_name = cfg["SelfServer"]["name"];
+
+	//同一个ChatServer
+	if (to_ip_value == self_name) {
+		std::cout << "LogicSystem::DealChatTextMsg(): Both parties are on the same ChatServer, using TCP" << std::endl;
+		auto session = UserMgr::GetInstance()->GetSession(recv_uid);
+		if (session) {
+			//在内存中则直接发送通知对方
+			std::string return_str = rtvalue.toStyledString();
+			session->Send(return_str, REQ_NOTIFY_UPDATE_CHAT_MSG_REQ);
+		}
+
+		return;
+	}
+
+	std::cout << "LogicSystem::DealChatTextMsg(): Both parties are not on the same ChatServer, using gRPC" << std::endl;
+	TextChatMsgReq text_msg_req;
+	text_msg_req.set_send_uid(send_uid);
+	text_msg_req.set_recv_uid(recv_uid);
+	for (const auto& txt_obj : arrays) {
+		auto content = txt_obj["content"].asString();
+		auto msgid = txt_obj["msgid"].asString();
+		std::cout << "content " << content << std::endl;
+		std::cout << "msgid " << msgid << std::endl;
+		auto* text_msg = text_msg_req.add_textmsgs();
+		text_msg->set_msg_id(msgid);
+		text_msg->set_msg_content(content);
+	}
+
+	ChatGrpcClient::GetInstance()->NotifyTextChatMsg(to_ip_value, text_msg_req, rtvalue);
+	return;
 }

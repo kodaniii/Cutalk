@@ -82,13 +82,35 @@ Status ChatServiceImpl::NotifyAuthFriend(ServerContext* context,
 
 Status ChatServiceImpl::NotifyTextChatMsg(::grpc::ServerContext* context,
 	const TextChatMsgReq* request, TextChatMsgRsp* reply) {
-	//TODO
+
+	/* 消息接收方recv_uid所在ChatServer查找与recv_client的TCP session
+	 * 通过TCP连接发送数据
+	 */
+	auto touid = request->recv_uid();
+	auto session = UserMgr::GetInstance()->GetSession(touid);
+	reply->set_error(ErrorCodes::Success);
+
+	//用户离线，不做处理
+	if (session == nullptr) {
+		return Status::OK;
+	}
+
+	Json::Value rtvalue;
+	rtvalue["error"] = ErrorCodes::Success;
+	rtvalue["send_uid"] = request->send_uid();
+	rtvalue["recv_uid"] = request->recv_uid();
+
+	Json::Value text_array;
+	for (auto& msg : request->textmsgs()) {
+		Json::Value element;
+		element["content"] = msg.msg_content();
+		element["msgid"] = msg.msg_id();
+		text_array.append(element);
+	}
+	rtvalue["text_array"] = text_array;
+
+	std::string return_str = rtvalue.toStyledString();
+
+	session->Send(return_str, REQ_NOTIFY_UPDATE_CHAT_MSG_REQ);
 	return Status::OK;
-}
-
-
-bool ChatServiceImpl::GetBaseInfo(std::string base_key, int uid, std::shared_ptr<UserInfo>& userinfo)
-{
-	//TODO 
-	return true;
 }

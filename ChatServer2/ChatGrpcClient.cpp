@@ -75,13 +75,6 @@ AddFriendRsp ChatGrpcClient::NotifyAddFriend(std::string server_ip, const AddFri
 	//return AddFriendRsp();
 }
 
-
-bool ChatGrpcClient::GetBaseInfo(std::string base_key, int uid, std::shared_ptr<UserInfo>& userinfo)
-{
-	//TODO
-	return true;
-}
-
 AuthFriendRsp ChatGrpcClient::NotifyAuthFriend(std::string server_ip, const AuthFriendReq& req) {
 	AuthFriendRsp rsp;
 
@@ -114,6 +107,36 @@ AuthFriendRsp ChatGrpcClient::NotifyAuthFriend(std::string server_ip, const Auth
 
 TextChatMsgRsp ChatGrpcClient::NotifyTextChatMsg(std::string server_ip,
 	const TextChatMsgReq& req, const Json::Value& rtvalue) {
-	//TODO 
-	return TextChatMsgRsp();
+	TextChatMsgRsp rsp;
+	rsp.set_error(ErrorCodes::Success);
+
+	Defer defer([&rsp, &req]() {
+		rsp.set_send_uid(req.send_uid());
+		rsp.set_recv_uid(req.recv_uid());
+		for (const auto& text_data : req.textmsgs()) {
+			TextChatData* new_msg = rsp.add_textmsgs();
+			new_msg->set_msg_id(text_data.msg_id());
+			new_msg->set_msg_content(text_data.msg_content());
+		}
+	});
+
+	auto find_iter = rpc_pool.find(server_ip);
+	if (find_iter == rpc_pool.end()) {
+		return rsp;
+	}
+
+	auto& pool = find_iter->second;
+	ClientContext context;
+	auto stub = pool->GetConnection();
+	Status status = stub->NotifyTextChatMsg(&context, req, &rsp);
+	Defer defercon([&stub, this, &pool]() {
+		pool->PushConnection(std::move(stub));
+		});
+
+	if (!status.ok()) {
+		rsp.set_error(ErrorCodes::ChatFailed);
+		return rsp;
+	}
+
+	return rsp;
 }
