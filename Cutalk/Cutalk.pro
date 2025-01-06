@@ -34,6 +34,7 @@ SOURCES += \
     defs.cpp \
     findfaildlg.cpp \
     findsuccessdlg.cpp \
+    friendinfopage.cpp \
     friendlabel.cpp \
     grouptipitem.cpp \
     httpmgr.cpp \
@@ -76,6 +77,7 @@ HEADERS += \
     defs.h \
     findfaildlg.h \
     findsuccessdlg.h \
+    friendinfopage.h \
     friendlabel.h \
     grouptipitem.h \
     httpmgr.h \
@@ -107,6 +109,7 @@ FORMS += \
     conuseritem.ui \
     findfaildlg.ui \
     findsuccessdlg.ui \
+    friendinfopage.ui \
     friendlabel.ui \
     grouptipitem.ui \
     logindialog.ui \

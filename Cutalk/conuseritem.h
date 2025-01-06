@@ -24,11 +24,12 @@ public:
     void SetInfo(std::shared_ptr<AuthRsp> auth_rsp);
     void SetInfo(int uid, QString name, QString icon);
     void ShowRedPoint(bool show = false);
+    std::shared_ptr<FriendInfo> GetInfo();
 
 private:
     Ui::ConUserItem *ui;
 
-    std::shared_ptr<UserInfo> _info;
+    std::shared_ptr<FriendInfo> _info;
 };
 
 #endif // CONUSERITEM_H

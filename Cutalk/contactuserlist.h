@@ -42,7 +42,7 @@ signals:
     /*切换最右侧页面为好友申请列表*/
     void sig_switch_apply_friend_page();
     /*点击联系人，切换最右侧页面为该好友详细信息，允许编辑*/
-    void sig_switch_friend_info_page(/*std::shared_ptr<UserInfo> user_info*/);
+    void sig_switch_friend_info_page(std::shared_ptr<FriendInfo> user_info);
 
 private:
     /*标记正在加载联系人数据，不允许其他操作*/

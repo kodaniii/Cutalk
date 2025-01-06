@@ -67,6 +67,8 @@ private:
     void loadMoreChatUser();
     void loadMoreConUser();
 
+    //记录上一次界面的状态，记录的是最右面的界面，即是好友申请界面还是某个好友的名片friendinfo信息
+    QWidget* _last_widget;
 
 private slots:
     void slot_loading_chat_user();
@@ -94,6 +96,15 @@ private slots:
 
     //搜索用户，如果搜索的用户是自己的好友，触发slot，跳转到该用户的聊天item
     void slot_jump_chat_item(std::shared_ptr<SearchInfo> si);
+
+    //点击好友item，切换到对应好友信息页面
+    void slot_friend_info_page(std::shared_ptr<FriendInfo> user_info);
+
+    //点击联系人->好友申请，跳转到好友申请页面
+    void slot_switch_apply_friend_page();
+
+    //好友信息界面点击发送消息按钮，跳转到聊天界面
+    void slot_jump_chat_item_from_infopage(std::shared_ptr<FriendInfo> user_info);
 };
 
 #endif // CHATDIALOG_H

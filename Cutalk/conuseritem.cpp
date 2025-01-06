@@ -26,7 +26,8 @@ QSize ConUserItem::sizeHint() const
 
 void ConUserItem::SetInfo(std::shared_ptr<FriendInfo> friend_info)
 {
-    _info = std::make_shared<UserInfo>(friend_info);
+    //_info = std::make_shared<UserInfo>(friend_info);
+    _info = friend_info;
     // 加载图片
     QPixmap pixmap(_info->_icon);
 
@@ -39,7 +40,7 @@ void ConUserItem::SetInfo(std::shared_ptr<FriendInfo> friend_info)
 
 void ConUserItem::SetInfo(std::shared_ptr<AuthInfo> auth_info)
 {
-    _info = std::make_shared<UserInfo>(auth_info);
+    _info = std::make_shared<FriendInfo>(auth_info);
     // 加载图片
     QPixmap pixmap(_info->_icon);
 
@@ -52,7 +53,8 @@ void ConUserItem::SetInfo(std::shared_ptr<AuthInfo> auth_info)
 
 void ConUserItem::SetInfo(int uid, QString name, QString icon)
 {
-    _info = std::make_shared<UserInfo>(uid, name, icon);
+    //_info = std::make_shared<UserInfo>(uid, name, icon);
+    _info = std::make_shared<FriendInfo>(uid, name, "", icon, 0, "", "", "");
 
     // 加载图片
     QPixmap pixmap(_info->_icon);
@@ -65,7 +67,8 @@ void ConUserItem::SetInfo(int uid, QString name, QString icon)
 }
 
 void ConUserItem::SetInfo(std::shared_ptr<AuthRsp> auth_rsp){
-    _info = std::make_shared<UserInfo>(auth_rsp);
+    //_info = std::make_shared<UserInfo>(auth_rsp);
+    _info = std::make_shared<FriendInfo>(auth_rsp);
 
     // 加载图片
     QPixmap pixmap(_info->_icon);
@@ -85,4 +88,17 @@ void ConUserItem::ShowRedPoint(bool show)
         ui->red_point->hide();
     }
 
+}
+
+std::shared_ptr<FriendInfo> ConUserItem::GetInfo()
+{
+    qDebug() << "ConUserItem::GetInfo()";
+    qDebug() << " -> _info uid" << _info->_uid
+             << "name" << _info->_name
+             << "desc" << _info->_desc
+             << "nick" << _info->_nick
+             << "sex" << _info->_sex
+             << "icon" << _info->_icon
+             << "back" << _info->_back;
+    return _info;
 }

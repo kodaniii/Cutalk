@@ -15,7 +15,8 @@ ChatDialog::ChatDialog(QWidget *parent):
     _mode(ChatUIMode::ChatMode),
     _state(ChatUIMode::ChatMode),
     _b_loading(false),
-    _cur_chat_uid(0){
+    _cur_chat_uid(0),
+    _last_widget(nullptr){
 
     ui->setupUi(this);
 
@@ -117,6 +118,19 @@ ChatDialog::ChatDialog(QWidget *parent):
     //搜索的用户是自己的好友时，跳转到和该好友的聊天item项
     connect(ui->search_list, &SearchList::sig_jump_chat_item, this, &ChatDialog::slot_jump_chat_item);
 
+    //联系人列表中点击好友item跳转friend_info页面
+    connect(ui->contact_list, &ContactUserList::sig_switch_friend_info_page,
+            this, &ChatDialog::slot_friend_info_page);
+
+    //点击联系人->好友申请，跳转到好友申请页面
+    connect(ui->contact_list, &ContactUserList::sig_switch_apply_friend_page,
+            this, &ChatDialog::slot_switch_apply_friend_page);
+
+    //好友信息界面点击发送消息图标按钮，跳转到聊天界面
+    connect(ui->friend_info_page, &FriendInfoPage::sig_jump_chat_item, this,
+            &ChatDialog::slot_jump_chat_item_from_infopage);
+
+
 }
 
 ChatDialog::~ChatDialog()
@@ -154,11 +168,19 @@ void ChatDialog::handleGlobalMousePress(QMouseEvent *event)
 
 void ChatDialog::addChatUserList()
 {
+    qDebug() << "ChatDialog::addChatUserList()";
     //先按照好友列表加载聊天记录，UserMgr::GetChatListPerPage()里面也暂时写的好友列表
     //TODO 按照聊天记录mysql表实现聊天记录加载
     auto friend_list = UserMgr::GetInstance()->GetChatListPerPage();
     if (friend_list.empty() == false) {
         for(auto& friend_ele : friend_list){
+            qDebug() << " -> friend ele uid" << friend_ele->_uid
+                     << "name" << friend_ele->_name
+                     << "desc" << friend_ele->_desc
+                     << "nick" << friend_ele->_nick
+                     << "sex" << friend_ele->_sex
+                     << "icon" << friend_ele->_icon
+                     << "back" << friend_ele->_back;
             auto find_iter = _chat_items_added.find(friend_ele->_uid);
             if(find_iter != _chat_items_added.end()){
                 continue;
@@ -183,12 +205,14 @@ void ChatDialog::addChatUserList()
     // 创建QListWidgetItem，并设置自定义的widget
     for(int i = 0; i < 13; i++){
         int randomValue = QRandomGenerator::global()->bounded(100); // 生成0到99之间的随机整数
+
+        int uid = 17000 + i;    //聊天界面模拟出来的uid从17000起
         int str_i = randomValue%strs.size();
         int head_i = randomValue%heads.size();
         int name_i = randomValue%names.size();
 
         auto *chat_user_wid = new ChatUserWid();
-        chat_user_wid->SetInfo(names[name_i], heads[head_i], strs[str_i]);
+        chat_user_wid->SetInfo(names[name_i], heads[head_i], strs[str_i], uid);
         QListWidgetItem *item = new QListWidgetItem;
         //qDebug() << "chat_user_wid sizeHint" << chat_user_wid->sizeHint();
         item->setSizeHint(chat_user_wid->sizeHint());
@@ -369,8 +393,13 @@ void ChatDialog::slot_side_chat()
 void ChatDialog::slot_side_contact(){
     qDebug()<< "ChatDialog::slot_side_contact()";
     clearSideState(ui->side_contact_widget);
-    //设置
-    ui->stackedWidget->setCurrentWidget(ui->friend_apply_page);
+    if(_last_widget){
+        //调用上次保存的_last_widget
+        ui->stackedWidget->setCurrentWidget(_last_widget);
+    }
+    else{
+        ui->stackedWidget->setCurrentWidget(ui->friend_apply_page);
+    }
     _state = ChatUIMode::ContactMode;
     ShowSearch(false);
 }
@@ -543,5 +572,55 @@ void ChatDialog::slot_jump_chat_item(std::shared_ptr<SearchInfo> si)
     //更新聊天界面
     SetSelectChatPage(si->_uid);
     //切换聊天界面
+    slot_side_chat();
+}
+
+
+void ChatDialog::slot_friend_info_page(std::shared_ptr<FriendInfo> user_info)
+{
+    qDebug() << "ChatDialog::slot_friend_info_page()";
+    _last_widget = ui->friend_info_page;
+    ui->stackedWidget->setCurrentWidget(ui->friend_info_page);
+    ui->friend_info_page->SetInfo(user_info);
+}
+
+
+void ChatDialog::slot_switch_apply_friend_page()
+{
+    qDebug() << "ChatDialog::slot_switch_apply_friend_page()";
+    _last_widget = ui->friend_apply_page;
+    ui->stackedWidget->setCurrentWidget(ui->friend_apply_page);
+}
+
+void ChatDialog::slot_jump_chat_item_from_infopage(std::shared_ptr<FriendInfo> user_info)
+{
+    qDebug() << "ChatDialog::slot_jump_chat_item_from_infopage()";
+    auto find_iter = _chat_items_added.find(user_info->_uid);
+    if(find_iter != _chat_items_added.end()){
+        qDebug() << "jump to chat item, uid" << user_info->_uid;
+        ui->chat_user_list->scrollToItem(find_iter.value());
+        ui->side_chat_widget->SetSelected(true);
+        SetSelectChatItem(user_info->_uid);
+        //更新聊天界面信息
+        SetSelectChatPage(user_info->_uid);
+        slot_side_chat();
+        return;
+    }
+
+    //如果没找到，则创建新的插入listwidget
+    auto* chat_user_wid = new ChatUserWid();
+    chat_user_wid->SetInfo(user_info);
+    QListWidgetItem* item = new QListWidgetItem;
+    //qDebug()<<"chat_user_wid sizeHint" << chat_user_wid->sizeHint();
+    item->setSizeHint(chat_user_wid->sizeHint());
+    ui->chat_user_list->insertItem(0, item);
+    ui->chat_user_list->setItemWidget(item, chat_user_wid);
+
+    _chat_items_added.insert(user_info->_uid, item);
+
+    ui->side_chat_widget->SetSelected(true);
+    SetSelectChatItem(user_info->_uid);
+    //更新聊天界面信息
+    SetSelectChatPage(user_info->_uid);
     slot_side_chat();
 }

@@ -464,7 +464,7 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
     height: 25px;
 }
 
-#apply_wid #name_ed, #apply_wid #back_ed{
+#apply_wid #reason_ed, #apply_wid #back_ed{
     border: 1px solid #f7f7f8;
     font-size: 14px;
     font-family: "Microsoft YaHei";
@@ -770,3 +770,107 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
    font-family: "Microsoft YaHei"; /* 设置字体 */
    border-radius: 20px; /* 设置圆角 */
 }
+
+
+
+
+
+
+
+#red_point {
+    border-image: url(:/res/red_point.png);
+}
+
+#AuthenFriend {
+    border: 2px solid #f1f1f1;
+    font-size: 14px;
+    background: #f7f7f8;
+}
+
+
+
+
+
+
+
+#friend_info_lb {
+    font-family: "Microsoft YaHei";
+    font-size: 18px;
+    font-weight: normal;
+}
+
+#friend_info_wid {
+    background: #FEFCFB;
+    border-bottom: 0.5px solid #ececec;
+    border-top: none;
+    border-right: none;
+}
+
+#FriendInfoPage_widget_mid {
+    background: #FEFCFB;
+    border-bottom: none;
+    border-top: none;
+    border-right: none;
+}
+
+#friend_info_page #name_lb,
+#friend_info_page #nick_lb,
+#friend_info_page #bak_lb
+{
+    color: #161616;
+    font-size: 18px; /* 设置字体大小 */
+    font-family: "Microsoft YaHei"; /* 设置字体 */
+}
+
+#friend_info_page #name_tip,
+#friend_info_page #nick_tip,
+#friend_info_page #bak_tip
+{
+    color: #161616;
+    font-size: 16px; /* 设置字体大小 */
+    font-family: "Microsoft YaHei"; /* 设置字体 */
+}
+
+#FriendInfo_btn_wid {
+    background: #FEFCFB;
+    border-bottom: none;
+    border-top: none;
+    border-right: none;
+}
+
+#msg_chat[state='normal'] {
+    border-image: url(:/res/msg_chat_normal.png);
+}
+
+#msg_chat[state='hover'] {
+    border-image: url(:/res/msg_chat_hover.png);
+}
+
+#msg_chat[state='press'] {
+    border-image: url(:/res/msg_chat_press.png);
+}
+
+#video_chat[state='normal'] {
+    border-image: url(:/res/video_chat_normal.png);
+}
+
+#video_chat[state='hover'] {
+    border-image: url(:/res/video_chat_hover.png);
+}
+
+#video_chat[state='press'] {
+    border-image: url(:/res/video_chat_press.png);
+}
+
+#voice_chat[state='normal'] {
+    border-image: url(:/res/voice_chat_normal.png);
+}
+
+#voice_chat[state='hover'] {
+    border-image: url(:/res/voice_chat_hover.png);
+}
+
+#voice_chat[state='press'] {
+    border-image: url(:/res/voice_chat_press.png);
+}
+

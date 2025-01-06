@@ -42,6 +42,7 @@ void ContactUserList::ShowRedPoint(bool bshow /*= true*/)
 
 void ContactUserList::initContactUserList()
 {
+    qDebug() << "ContactUserList::initContactUserList()";
     /*好友申请分组*/
     auto *groupTip = new GroupTipItem();
     groupTip->SetGroupTip(tr("好友申请"));
@@ -82,6 +83,13 @@ void ContactUserList::initContactUserList()
     //加载后端发送过来的好友列表
     auto con_list = UserMgr::GetInstance()->GetConListPerPage();
     for(auto& con_ele : con_list){
+        qDebug() << " -> contact ele uid" << con_ele->_uid
+                 << "name" << con_ele->_name
+                 << "desc" << con_ele->_desc
+                 << "nick" << con_ele->_nick
+                 << "sex" << con_ele->_sex
+                 << "icon" << con_ele->_icon
+                 << "back" << con_ele->_back;
         auto *con_user_wid = new ConUserItem();
         con_user_wid->SetInfo(con_ele->_uid, con_ele->_name, con_ele->_icon);
         QListWidgetItem *item = new QListWidgetItem;
@@ -102,11 +110,14 @@ void ContactUserList::addContactUserList()
 {
     for(int i = 0; i < 13; i++){
         int randomValue = QRandomGenerator::global()->bounded(100); // 生成0到99之间的随机整数
+        //好友界面模拟出来的uid从18000起
+        //这里模拟uid是因为对于不同好友，要识别好友的uid来选择对应的聊天项，或新建聊天项
+        int uid = 18000 + i;
         int head_i = randomValue%heads.size();
         int name_i = randomValue%names.size();
 
         auto *con_user_wid = new ConUserItem();
-        con_user_wid->SetInfo(0, names[name_i], heads[head_i]);
+        con_user_wid->SetInfo(uid, names[name_i], heads[head_i]);
         QListWidgetItem *item = new QListWidgetItem;
         //qDebug()<<"chat_user_wid sizeHint" << chat_user_wid->sizeHint();
         item->setSizeHint(con_user_wid->sizeHint());
@@ -176,28 +187,28 @@ void ContactUserList::slot_item_clicked(QListWidgetItem *item)
 {
     QWidget *widget = this->itemWidget(item); // 获取自定义widget对象
     if(!widget){
-        qDebug()<< "slot item clicked widget is nullptr";
+        qDebug() << "slot item clicked widget is nullptr";
         return;
     }
 
     // 对自定义widget进行操作， 将item转化为子类ListItemBase，为了调用GetItemType()
     ListItemBase *customItem = qobject_cast<ListItemBase*>(widget);
     if(!customItem){
-        qDebug()<< "slot item clicked widget is nullptr";
+        qDebug() << "slot item clicked widget is nullptr";
         return;
     }
 
     auto itemType = customItem->GetItemType();
     //不处理分组item和无效item
     if(itemType == ListItemType::INVALID_ITEM || itemType == ListItemType::GROUP_TIP_ITEM){
-        qDebug()<< "slot invalid item clicked";
+        qDebug() << "slot invalid item clicked";
         return;
     }
 
     //处理好友请求item
     if(itemType == ListItemType::APPLY_FRIEND_ITEM){
         //创建对话框，提示用户
-        qDebug()<< "apply friend item clicked";
+        qDebug() << "apply friend item clicked";
         //切换最右侧页面为好友申请列表
         emit sig_switch_apply_friend_page();
         return;
@@ -206,9 +217,13 @@ void ContactUserList::slot_item_clicked(QListWidgetItem *item)
     //联系人item
     if(itemType == ListItemType::CONTACT_USER_ITEM){
         //创建对话框，提示用户
-        qDebug()<< "contact user item clicked";
-        //点击联系人，切换最右侧页面为该好友详细信息，允许编辑
-        emit sig_switch_friend_info_page();
+        qDebug() << "contact user item clicked";
+        //获取联系人item的userinfo信息
+        auto con_item = qobject_cast<ConUserItem*>(customItem);
+        auto user_info = con_item->GetInfo();
+
+        //点击联系人，切换最右侧页面为该好友详细信息
+        emit sig_switch_friend_info_page(user_info);
         return;
     }
 }

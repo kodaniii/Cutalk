@@ -55,5 +55,16 @@
         <file>res/right_tip.png</file>
         <file>res/tip_close.png</file>
         <file>res/more_down.png</file>
+        <file>res/msg_chat_hover.png</file>
+        <file>res/msg_chat_normal.png</file>
+        <file>res/msg_chat_press.png</file>
+        <file>res/sex_female.png</file>
+        <file>res/sex_male.png</file>
+        <file>res/video_chat_hover.png</file>
+        <file>res/video_chat_normal.png</file>
+        <file>res/video_chat_press.png</file>
+        <file>res/voice_chat_hover.png</file>
+        <file>res/voice_chat_normal.png</file>
+        <file>res/voice_chat_press.png</file>
     </qresource>
 </RCC>

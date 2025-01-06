@@ -179,7 +179,7 @@ void TcpMgr::initHandlers(){
             UserMgr::GetInstance()->AppendApplyList(jsonObj["apply_list"].toArray());
         }
 
-        //添加好友列表
+        //添加好友列表，FriendInfo
         if (jsonObj.contains("friend_list")) {
             UserMgr::GetInstance()->AppendFriendList(jsonObj["friend_list"].toArray());
         }

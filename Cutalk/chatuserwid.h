@@ -18,7 +18,7 @@ public:
     ~ChatUserWid();
 
     QSize sizeHint() const override;
-    void SetInfo(QString name, QString head, QString msg);
+    void SetInfo(QString name, QString head, QString msg, int uid);
     void SetInfo(std::shared_ptr<UserInfo> user_info);
     void SetInfo(std::shared_ptr<FriendInfo> friend_info);
 
@@ -30,6 +30,7 @@ private:
     QString _name;
     QString _head;
     QString _msg;
+    int _uid;
 
     std::shared_ptr<UserInfo> _user_info;
 };
