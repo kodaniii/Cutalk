@@ -35,6 +35,7 @@ protected:
         }
     }
 
+
 private:
     void ShowSearch(bool b_search = false);
 
@@ -45,8 +46,9 @@ private:
 
     void handleGlobalMousePress(QMouseEvent *event);
 
-    //选中其中一个聊天项
+    //选中其中一个聊天项，如果没有，就添加这个聊天项
     void SetSelectChatItem(int uid = 0);
+    //选中某个聊天项后，获取这个聊天项的用户信息userinfo，渲染右侧聊天界面
     void SetSelectChatPage(int uid = 0);
 
     QList<StateWidget*> _side_list;
@@ -57,7 +59,7 @@ private:
 
     bool _b_loading;
 
-    //保存uid的已添加聊天项
+    //保存uid的已添加聊天项，用于切换用户时恢复该用户的聊天信息
     QMap<int, QListWidgetItem*> _chat_items_added;
 
     //当前正在聊天的uid
@@ -69,6 +71,8 @@ private:
 
     //记录上一次界面的状态，记录的是最右面的界面，即是好友申请界面还是某个好友的名片friendinfo信息
     QWidget* _last_widget;
+
+    void UpdateChatMsg(std::vector<std::shared_ptr<TextChatData>> msgdata);
 
 private slots:
     void slot_loading_chat_user();
@@ -105,6 +109,18 @@ private slots:
 
     //好友信息界面点击发送消息按钮，跳转到聊天界面
     void slot_jump_chat_item_from_infopage(std::shared_ptr<FriendInfo> user_info);
+
+    //聊天列表项item点击
+    void slot_item_clicked(QListWidgetItem *item);
+
+    //在chatpage发送消息的同时，保存聊天记录到当前聊天用户recv_uid中，防止切换的时候聊天记录丢失
+    //只保存了文本，没保存图片，可以加结构体保存所有内容，懒得改了
+    void slot_append_send_chat_msg(std::shared_ptr<TextChatData> msgdata);
+
+    //对方发送消息，本地将接收到的消息做聊天记录项显示
+    void slot_text_chat_msg(std::shared_ptr<TextChatMsg> msg);
+
+
 };
 
 #endif // CHATDIALOG_H

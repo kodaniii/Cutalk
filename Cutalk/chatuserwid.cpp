@@ -25,6 +25,7 @@ void ChatUserWid::SetInfo(QString name, QString head, QString msg, int uid)
     _head = head;
     _msg = msg;
     _uid = uid;
+
     //加载图片
     QPixmap pixmap(_head);
 
@@ -62,6 +63,7 @@ void ChatUserWid::SetInfo(std::shared_ptr<UserInfo> user_info)
 
 void ChatUserWid::SetInfo(std::shared_ptr<FriendInfo> friend_info)
 {
+    qDebug() << "ChatUserWid::SetInfo()";
     _user_info = std::make_shared<UserInfo>(friend_info);
     // 加载图片
     QPixmap pixmap(_user_info->_icon);
@@ -72,9 +74,22 @@ void ChatUserWid::SetInfo(std::shared_ptr<FriendInfo> friend_info)
 
     ui->user_name_lb->setText(_user_info->_name);
     ui->user_chat_lb->setText(_user_info->_last_msg);
+    //qDebug() << "ChatUserWid::SetInfo() succ";
 }
 
 std::shared_ptr<UserInfo> ChatUserWid::GetUserInfo()
 {
    return _user_info;
+}
+
+void ChatUserWid::updateLastMsg(std::vector<std::shared_ptr<TextChatData>> msgs)
+{
+    QString last_msg = "";
+    for (auto& msg : msgs) {
+        last_msg = msg->_msg_content;
+        _user_info->_chat_msgs.push_back(msg);
+    }
+
+    _user_info->_last_msg = last_msg;
+    ui->user_chat_lb->setText(_user_info->_last_msg);
 }

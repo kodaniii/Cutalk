@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <QKeyEvent>
+#include "userdata.h"
 
 namespace Ui {
 class ChatPage;
@@ -16,6 +17,9 @@ public:
     explicit ChatPage(QWidget *parent = nullptr);
     ~ChatPage();
 
+    void SetUserInfo(std::shared_ptr<UserInfo> user_info);
+    void AppendChatMsg(std::shared_ptr<TextChatData> msg);
+
 protected:
     void paintEvent(QPaintEvent *event) override;
     void keyPressEvent(QKeyEvent *event) override {
@@ -27,11 +31,18 @@ protected:
             QDialog::keyPressEvent(event);
         }
     }
+
+signals:
+    //保存聊天记录到当前聊天用户recv_uid中，防止切换的时候聊天记录丢失
+    void sig_append_send_chat_msg(std::shared_ptr<TextChatData> msg);
+
 private slots:
     void on_send_btn_clicked();
 
 private:
     Ui::ChatPage *ui;
+
+    std::shared_ptr<UserInfo> _user_info;
 };
 
 #endif // CHATPAGE_H

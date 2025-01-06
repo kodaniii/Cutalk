@@ -172,6 +172,7 @@ void MainWindow::slot_switch_chatdlg()
     qDebug() << "MainWindow::slot_switch_chatdlg()";
 
     _chat_dialog = new ChatDialog();
+    qDebug() << "new ChatDialog() succ";
     _chat_dialog->setWindowFlags(Qt::CustomizeWindowHint|Qt::FramelessWindowHint);
     setCentralWidget(_chat_dialog);
     _chat_dialog->show();

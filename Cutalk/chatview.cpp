@@ -62,10 +62,12 @@ void ChatView::insertChatItem(QWidget *before, QWidget *item)
 
 void ChatView::removeAllItem()
 {
-    QVBoxLayout *layout = qobject_cast<QVBoxLayout *>(m_pScrollArea->widget()->layout());
+    QVBoxLayout *layout = qobject_cast<QVBoxLayout*>(m_pScrollArea->widget()->layout());
 
     int count = layout->count();
 
+    //聊天界面是由多个聊天项（左右气泡widget）组成的
+    //最后一个widget用于占位，即count-1是占位widget，不能删除
     for (int i = 0; i < count - 1; ++i) {
         QLayoutItem *item = layout->takeAt(0); // 始终从第一个控件开始删除
         if (item) {

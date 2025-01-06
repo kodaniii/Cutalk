@@ -24,6 +24,9 @@ public:
 
     std::shared_ptr<UserInfo> GetUserInfo();
 
+    //对方发送消息，本地保存当前聊天用户ChatUserWid::_user_info的聊天记录，并更新最后一次聊天内容
+    void updateLastMsg(std::vector<std::shared_ptr<TextChatData>> msgs);
+
 private:
     Ui::ChatUserWid *ui;
 

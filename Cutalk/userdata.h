@@ -203,32 +203,32 @@ struct UserInfo {
 };
 
 struct TextChatData{
-    TextChatData(QString msg_id, QString msg_content, int fromuid, int touid)
+    TextChatData(QString msg_id, QString msg_content, int send_uid, int recv_uid)
         : _msg_id(msg_id)
         , _msg_content(msg_content)
-        , _from_uid(fromuid)
-        , _to_uid(touid){}
+        , _send_uid(send_uid)
+        , _recv_uid(recv_uid){}
 
     QString _msg_id;
     QString _msg_content;
-    int _from_uid;
-    int _to_uid;
+    int _send_uid;
+    int _recv_uid;
 };
 
 struct TextChatMsg{
-    TextChatMsg(int fromuid, int touid, QJsonArray arrays)
-        : _to_uid(touid)
-        , _from_uid(fromuid){
+    TextChatMsg(int send_uid, int recv_uid, QJsonArray arrays)
+        : _recv_uid(recv_uid)
+        , _send_uid(send_uid){
         for(auto msg_data : arrays){
             auto msg_obj = msg_data.toObject();
             auto content = msg_obj["content"].toString();
             auto msgid = msg_obj["msgid"].toString();
-            auto msg_ptr = std::make_shared<TextChatData>(msgid, content,fromuid, touid);
+            auto msg_ptr = std::make_shared<TextChatData>(msgid, content, _send_uid, _recv_uid);
             _chat_msgs.push_back(msg_ptr);
         }
     }
-    int _to_uid;
-    int _from_uid;
+    int _recv_uid;
+    int _send_uid;
     std::vector<std::shared_ptr<TextChatData>> _chat_msgs;
 };
 

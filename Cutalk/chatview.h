@@ -9,10 +9,10 @@ class ChatView : public QWidget
     Q_OBJECT
 public:
     ChatView(QWidget *parent = Q_NULLPTR);
-    //末尾插入聊天项QWidget
-    void appendChatItem(QWidget *item);
-    void prependChatItem(QWidget *item);
-    void insertChatItem(QWidget *before, QWidget *item);
+    //插入聊天项QWidget
+    void appendChatItem(QWidget *item);                     //头插
+    void prependChatItem(QWidget *item);                    //尾插
+    void insertChatItem(QWidget *before, QWidget *item);    //中间插
     //移除所有聊天项
     void removeAllItem();
 

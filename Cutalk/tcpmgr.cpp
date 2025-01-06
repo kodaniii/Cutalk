@@ -185,9 +185,9 @@ void TcpMgr::initHandlers(){
         }
 
 
+        qDebug() << "emit sig_switch_chatdlg()";
         //切换聊天界面
         emit sig_switch_chatdlg();
-        qDebug() << "emit sig_switch_chatdlg()";
     });
 
 
@@ -474,6 +474,85 @@ void TcpMgr::initHandlers(){
 
     });
 
+    //本方send_uid向对方recv_uid发送消息rsp包
+    _handlers.insert(REQ_TEXT_CHAT_MSG_RSP, [this](ReqId reqId, int len, QByteArray data) {
+        qDebug() << "TcpMgr::initHandlers() REQ_NOTIFY_UPDATE_CHAT_MSG_REQ";
+        Q_UNUSED(len);
+        qDebug()<< "TcpMgr handle" << reqId;
+        // 将QByteArray转换为QJsonDocument
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(data);
+
+        // 检查转换是否成功
+        if(jsonDoc.isNull()){
+            qDebug() << "Failed to create QJsonDocument";
+            //直接借用用户搜索失败的界面
+            //emit sig_user_search(false, nullptr);
+            return;
+        }
+
+        QJsonObject jsonObj = jsonDoc.object();
+        qDebug()<< "data jsonobj" << jsonObj;
+
+        if(!jsonObj.contains("error")){
+            int err = StatusCodes::Error_Json;
+            qDebug() << "Json Parse Err" << err;
+            //emit sig_user_search(false, nullptr);
+            return;
+        }
+
+        int stat = jsonObj["error"].toInt();
+
+        if(stat != StatusCodes::Success){
+            qDebug() << "Unknown Err" << stat;
+            //emit sig_user_search(false, nullptr);
+            return;
+        }
+
+        qDebug() << "send_msg handle success";
+
+        return;
+    });
+
+    //对方send_uid向本方recv_uid发送消息通知
+    _handlers.insert(REQ_NOTIFY_UPDATE_CHAT_MSG_REQ, [this](ReqId reqId, int len, QByteArray data) {
+        qDebug() << "TcpMgr::initHandlers() REQ_NOTIFY_UPDATE_CHAT_MSG_REQ";
+        Q_UNUSED(len);
+        qDebug()<< "TcpMgr handle" << reqId;
+        // 将QByteArray转换为QJsonDocument
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(data);
+
+        // 检查转换是否成功
+        if(jsonDoc.isNull()){
+            qDebug() << "Failed to create QJsonDocument";
+            //直接借用用户搜索失败的界面
+            //emit sig_user_search(false, nullptr);
+            return;
+        }
+
+        QJsonObject jsonObj = jsonDoc.object();
+        qDebug()<< "data jsonobj" << jsonObj;
+
+        if(!jsonObj.contains("error")){
+            int err = StatusCodes::Error_Json;
+            qDebug() << "Json Parse Err" << err;
+            //emit sig_user_search(false, nullptr);
+            return;
+        }
+
+        int stat = jsonObj["error"].toInt();
+
+        if(stat != StatusCodes::Success){
+            qDebug() << "Unknown Err" << stat;
+            //emit sig_user_search(false, nullptr);
+            return;
+        }
+
+        auto msg_ptr = std::make_shared<TextChatMsg>(jsonObj["send_uid"].toInt(),
+                                                     jsonObj["recv_uid"].toInt(),
+                                                     jsonObj["text_array"].toArray());
+        emit sig_text_chat_msg(msg_ptr);
+
+    });
 
 }
 
