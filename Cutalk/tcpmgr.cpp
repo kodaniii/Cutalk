@@ -550,6 +550,8 @@ void TcpMgr::initHandlers(){
         auto msg_ptr = std::make_shared<TextChatMsg>(jsonObj["send_uid"].toInt(),
                                                      jsonObj["recv_uid"].toInt(),
                                                      jsonObj["text_array"].toArray());
+        //因为UserMgr对于当前uid对friend_uid的聊天记录要备份，因此msg_ptr所指对象里面封装了send_uid和recv_uid，可以分辨出谁发谁收
+        //此外，还处理聊天项item对应widget对于聊天记录的备份，以及聊天记录的显示
         emit sig_text_chat_msg(msg_ptr);
 
     });

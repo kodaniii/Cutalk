@@ -757,6 +757,7 @@ void ChatDialog::slot_item_clicked(QListWidgetItem *item)
 
 void ChatDialog::slot_append_send_chat_msg(std::shared_ptr<TextChatData> msgdata)
 {
+    qDebug() << "ChatDialog::slot_append_send_chat_msg()";
     if (_cur_chat_uid == 0) {
         return;
     }
@@ -788,9 +789,23 @@ void ChatDialog::slot_append_send_chat_msg(std::shared_ptr<TextChatData> msgdata
         //拼接user_info的消息，切换聊天项的时候，chat_page会自动从这里读取消息
         user_info->_chat_msgs.push_back(msgdata);
 
-        // std::vector<std::shared_ptr<TextChatData>> msg_vec;
-        // msg_vec.push_back(msgdata);
-        // UserMgr::GetInstance()->AppendFriendChatMsg(_cur_chat_uid, msg_vec);
+        //这里保存的是我方主动发送的消息
+        std::vector<std::shared_ptr<TextChatData>> msg_vec;
+        msg_vec.push_back(msgdata);
+        UserMgr::GetInstance()->AppendFriendChatMsg(_cur_chat_uid, msg_vec);
+
+        //更新聊天list当前uid项最后一次消息，因为是本方发，所以应该找到recv方的item
+        auto find_iter = _chat_items_added.find(msgdata->_recv_uid);
+        if(find_iter != _chat_items_added.end()){
+            QWidget *widget = ui->chat_user_list->itemWidget(find_iter.value());
+            auto chat_wid = qobject_cast<ChatUserWid*>(widget);
+            if(!chat_wid){
+                return;
+            }
+            chat_wid->updateLastMsg(msg_vec);
+            return;
+        }
+
         return;
     }
 }
@@ -799,14 +814,17 @@ void ChatDialog::slot_text_chat_msg(std::shared_ptr<TextChatMsg> msg)
 {
     //查找是否已经有相关用户uid的聊天项
     auto find_iter = _chat_items_added.find(msg->_send_uid);
+
+    //存在相关uid聊天项，将新传来的消息保存到聊天用户widget中，并刷新最后一次的内容
     if(find_iter != _chat_items_added.end()){
         qDebug() << "handle send_uid msg, uid" << msg->_send_uid;
         QWidget *widget = ui->chat_user_list->itemWidget(find_iter.value());
+        //聊天list的小横条
         auto chat_wid = qobject_cast<ChatUserWid*>(widget);
         if(!chat_wid){
             return;
         }
-        //保存当前聊天用户ChatUserWid::_user_info的聊天记录，并更新最后一次聊天内容
+        //保存当前聊天用户_user_info的聊天记录，并在list的item聊天项中更新最后一次聊天内容
         chat_wid->updateLastMsg(msg->_chat_msgs);
         //显示当前用户聊天气泡及内容
         UpdateChatMsg(msg->_chat_msgs);
@@ -820,7 +838,7 @@ void ChatDialog::slot_text_chat_msg(std::shared_ptr<TextChatMsg> msg)
     auto fi_ptr = UserMgr::GetInstance()->GetFriendById(msg->_send_uid);
     chat_user_wid->SetInfo(fi_ptr);
     QListWidgetItem* item = new QListWidgetItem;
-    //qDebug()<<"chat_user_wid sizeHint is " << chat_user_wid->sizeHint();
+    //qDebug() << "chat_user_wid sizeHint" << chat_user_wid->sizeHint();
     item->setSizeHint(chat_user_wid->sizeHint());
     chat_user_wid->updateLastMsg(msg->_chat_msgs);
     UserMgr::GetInstance()->AppendFriendChatMsg(msg->_send_uid, msg->_chat_msgs);

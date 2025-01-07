@@ -1,6 +1,7 @@
 #include "friendinfopage.h"
 #include "ui_friendinfopage.h"
 #include <QDebug>
+#include <QRandomGenerator>
 
 FriendInfoPage::FriendInfoPage(QWidget *parent) :
     QWidget(parent),
@@ -30,6 +31,19 @@ void FriendInfoPage::SetInfo(std::shared_ptr<FriendInfo> user_info)
     ui->name_lb->setText(user_info->_name);
     ui->nick_lb->setText(user_info->_nick);
     ui->bak_lb->setText(user_info->_back);
+
+    //显示性别，由于还没做性别相关参数，所以随机生成
+    int randomValue = QRandomGenerator::global()->bounded(2);
+    QString sex_icon = "";
+    if(randomValue){
+        sex_icon = ":/res/sex_male";
+    }
+    else {
+        sex_icon = ":/res/sex_female";
+    }
+    QPixmap pixmap_icon(sex_icon);
+    ui->sex_lb->setPixmap(pixmap_icon.scaled(ui->sex_lb->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+
 }
 
 void FriendInfoPage::on_msg_chat_clicked()

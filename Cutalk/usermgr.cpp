@@ -273,6 +273,7 @@ void UserMgr::AppendFriendChatMsg(int friend_id, std::vector<std::shared_ptr<Tex
         return;
     }
 
+    //保存UserMgr对于好友uid的聊天记录，切换聊天uid项item的时候从这里加载
     find_iter.value()->AppendChatMsgs(msgs);
 }
 
