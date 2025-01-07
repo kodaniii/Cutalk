@@ -881,6 +881,12 @@ void ChatDialog::slot_chat_item_to_top(int uid, bool isSend)
         return;
     }
 
+    qDebug() << "ui->chat_user_list->row(oldItem)" << ui->chat_user_list->row(oldItem);
+    // 对于接收者，如果接收者正在聊天的对象就是对方，不需要额外处理，如果处理，会选中其他对象
+    if (!isSend && ui->chat_user_list->row(oldItem) == 0) {
+        return;
+    }
+
     // 创建一个新的QListWidgetItem
     QListWidgetItem* newItem = new QListWidgetItem();
     newItem->setSizeHint(widget->sizeHint());
