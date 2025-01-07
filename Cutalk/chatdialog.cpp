@@ -144,6 +144,9 @@ ChatDialog::ChatDialog(QWidget *parent):
 
     //对方发送消息，本地保存当前聊天用户ChatUserWid::_user_info的聊天记录，并更新最后一次聊天内容
     connect(TcpMgr::GetInstance().get(), &TcpMgr::sig_text_chat_msg, this, &ChatDialog::slot_text_chat_msg);
+
+    //有一方发送消息，将正在聊天的聊天项置顶
+    connect(this, &ChatDialog::sig_chat_item_to_top, this, &ChatDialog::slot_chat_item_to_top);
 }
 
 ChatDialog::~ChatDialog()
@@ -787,7 +790,7 @@ void ChatDialog::slot_append_send_chat_msg(std::shared_ptr<TextChatData> msgdata
 
         auto user_info = con_item->GetUserInfo();
         //拼接user_info的消息，切换聊天项的时候，chat_page会自动从这里读取消息
-        user_info->_chat_msgs.push_back(msgdata);
+        //user_info->_chat_msgs.push_back(msgdata);
 
         //这里保存的是我方主动发送的消息
         std::vector<std::shared_ptr<TextChatData>> msg_vec;
@@ -803,15 +806,18 @@ void ChatDialog::slot_append_send_chat_msg(std::shared_ptr<TextChatData> msgdata
                 return;
             }
             chat_wid->updateLastMsg(msg_vec);
-            return;
+
+            //return;
         }
 
+        emit sig_chat_item_to_top(msgdata->_recv_uid, true);
         return;
     }
 }
 
 void ChatDialog::slot_text_chat_msg(std::shared_ptr<TextChatMsg> msg)
 {
+    qDebug() << "ChatDialog::slot_text_chat_msg()";
     //查找是否已经有相关用户uid的聊天项
     auto find_iter = _chat_items_added.find(msg->_send_uid);
 
@@ -829,6 +835,9 @@ void ChatDialog::slot_text_chat_msg(std::shared_ptr<TextChatMsg> msg)
         //显示当前用户聊天气泡及内容
         UpdateChatMsg(msg->_chat_msgs);
         UserMgr::GetInstance()->AppendFriendChatMsg(msg->_send_uid, msg->_chat_msgs);
+
+
+        emit sig_chat_item_to_top(msg->_send_uid, false);
         return;
     }
 
@@ -845,4 +854,52 @@ void ChatDialog::slot_text_chat_msg(std::shared_ptr<TextChatMsg> msg)
     ui->chat_user_list->insertItem(0, item);
     ui->chat_user_list->setItemWidget(item, chat_user_wid);
     _chat_items_added.insert(msg->_send_uid, item);
+    emit sig_chat_item_to_top(msg->_send_uid, false);
+
+    return;
+}
+
+void ChatDialog::slot_chat_item_to_top(int uid, bool isSend)
+{
+    qDebug() << "ChatDialog::slot_chat_item_to_top() uid" << uid;
+    // 查找当前聊天项
+    auto find_iter = _chat_items_added.find(uid);
+    if (find_iter == _chat_items_added.end()) {
+        return;
+    }
+
+    // 获取当前聊天项的QListWidgetItem
+    QListWidgetItem* oldItem = find_iter.value();
+    if (!oldItem) {
+        return;
+    }
+
+    // 获取与oldItem关联的自定义控件
+    QWidget* widget = ui->chat_user_list->itemWidget(oldItem);
+    if (!widget) {
+        qDebug() << "Widget is nullptr";
+        return;
+    }
+
+    // 创建一个新的QListWidgetItem
+    QListWidgetItem* newItem = new QListWidgetItem();
+    newItem->setSizeHint(widget->sizeHint());
+
+    // 将新的item插入到列表的最顶部
+    ui->chat_user_list->insertItem(0, newItem);
+
+    // 将自定义控件设置到新的item上
+    ui->chat_user_list->setItemWidget(newItem, widget);
+
+    // 更新_map中的item引用
+    _chat_items_added[uid] = newItem;
+
+    // 删除原来的QListWidgetItem
+    delete oldItem;
+
+    // 如果是我方发送消息，还需要重新选中第一条
+    if(isSend){
+        ui->chat_user_list->setCurrentItem(newItem);
+        qDebug() << "ChatDialog::slot_chat_item_to_top() succ";
+    }
 }

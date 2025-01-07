@@ -74,6 +74,10 @@ private:
 
     void UpdateChatMsg(std::vector<std::shared_ptr<TextChatData>> msgdata);
 
+signals:
+    //我方发送消息，将正在聊天的聊天项置顶
+    void sig_chat_item_to_top(int uid, bool isSend);
+
 private slots:
     void slot_loading_chat_user();
 
@@ -120,7 +124,8 @@ private slots:
     //对方发送消息，本地将接收到的消息做聊天记录项显示
     void slot_text_chat_msg(std::shared_ptr<TextChatMsg> msg);
 
-
+    //收到消息后，置顶当前聊天项
+    void slot_chat_item_to_top(int uid, bool isSend);
 };
 
 #endif // CHATDIALOG_H
