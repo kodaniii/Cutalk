@@ -160,17 +160,11 @@ bool ContactUserList::eventFilter(QObject *watched, QEvent *event)
 
             auto b_loaded = UserMgr::GetInstance()->IsLoadConFin();
             //已经加载完所有好友项，return
-            if(b_loaded){
-                qDebug() << "b_loaded" << (b_loaded? "true": "false");
-                return true;
-            }
+            // if(b_loaded){
+            //     qDebug() << "b_loaded" << (b_loaded? "true": "false");
+            //     return true;
+            // }
 
-            //正在加载，防止重复加载，return
-            if(_load_pending){
-                return true;
-            }
-
-            _load_pending = true;
             //发送信号通知聊天界面加载更多聊天内容
             emit sig_loading_contact_user();
         }

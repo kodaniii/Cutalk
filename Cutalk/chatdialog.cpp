@@ -8,6 +8,7 @@
 #include <QMouseEvent>
 #include "tcpmgr.h"
 #include "usermgr.h"
+#include "conuseritem.h"
 
 ChatDialog::ChatDialog(QWidget *parent):
     QDialog(parent),
@@ -395,7 +396,23 @@ void ChatDialog::loadMoreChatUser() {
 
 void ChatDialog::loadMoreConUser()
 {
+    qDebug() << "ChatDialog::loadMoreConUser()";
+    auto friend_list = UserMgr::GetInstance()->GetConListPerPage();
+    if (friend_list.empty() == false) {
+        for(auto & friend_ele : friend_list){
+            auto *chat_user_wid = new ConUserItem();
+            chat_user_wid->SetInfo(friend_ele->_uid,friend_ele->_name,
+                                   friend_ele->_icon);
+            QListWidgetItem *item = new QListWidgetItem;
+            //qDebug()<<"chat_user_wid sizeHint" << chat_user_wid->sizeHint();
+            item->setSizeHint(chat_user_wid->sizeHint());
+            ui->contact_list->addItem(item);
+            ui->contact_list->setItemWidget(item, chat_user_wid);
+        }
 
+        //更新已加载条目
+        UserMgr::GetInstance()->UpdateContactLoadedCount();
+    }
 }
 
 void ChatDialog::UpdateChatMsg(std::vector<std::shared_ptr<TextChatData>> msgdata)
