@@ -15,7 +15,7 @@ C++全栈即时通讯项目。前端基于QT实现用户交互界面，包括用
 
 4. 用户聊天窗口
 
-   ![](https://github.com/kodaniii/_readme_images/blob/main/Cutalk/image-20241229142209020.png?raw=true)
+   ![](https://github.com/kodaniii/_readme_images/blob/main/Cutalk/QQ%E6%88%AA%E5%9B%BE20250107133528.png?raw=true)
 
 5. 用户搜索界面
 
@@ -33,4 +33,8 @@ C++全栈即时通讯项目。前端基于QT实现用户交互界面，包括用
 
    ![](https://github.com/kodaniii/_readme_images/blob/main/Cutalk/image-20241229141545820.png?raw=true)
 
-9. 后端服务（网关服务、状态服务、聊天服务x2、验证服务）略。
+9. 好友信息
+
+   ![](https://github.com/kodaniii/_readme_images/blob/main/Cutalk/QQ%E6%88%AA%E5%9B%BE20250107135050.png?raw=true)
+
+10. 后端服务（网关服务、状态服务、聊天服务x2、验证服务）略。
